@@ -3,10 +3,10 @@
 // -----------------------------
 // RENDER MODALA
 // -----------------------------
-function renderModalHTML(entry, lang = "pt") {
+function renderModalHTML(entry, lang = "sr") {
   if (!entry) {
-    return lang === "pt"
-      ? "<p>Sem promoções neste dia.</p>"
+    return lang === "sr"
+      ? "<p>Ne postoje promocije za ovaj dan.</p>"
       : "<p>No promotions for this day.</p>";
   }
 
@@ -22,8 +22,8 @@ function renderModalHTML(entry, lang = "pt") {
 
   // ako baš nemamo nikakav sadržaj
   if (!promo && !richHtml) {
-    return lang === "pt"
-      ? "<p>Sem promoções neste dia.</p>"
+    return lang === "sr"
+      ? "<p>Ne postoje promocije za ovaj dan.</p>"
       : "<p>No promotions for this day.</p>";
   }
 
@@ -42,9 +42,9 @@ function renderModalHTML(entry, lang = "pt") {
   // --- kategorija (žuti label) ---
   let categoryLabel;
   if (type === "special") {
-    categoryLabel = lang === "pt" ? "Promoção especial" : "Special promotion";
+    categoryLabel = lang === "sr" ? "Ekskluzivna promocija" : "Special promotion";
   } else {
-    categoryLabel = lang === "pt" ? "Promoção semanal" : "Weekly promotion";
+    categoryLabel = lang === "sr" ? "Nedeljna promocija" : "Weekly promotion";
   }
 
   // --- button ---
@@ -54,7 +54,7 @@ function renderModalHTML(entry, lang = "pt") {
   const isYellow = buttonColor === "yellow";
 
   const defaultButtonLabel =
-    button || (lang === "pt" ? "Registrar-se" : "Register");
+    button || (lang === "sr" ? "Registruj se" : "Register");
 
   // --- HTML struktura: slika → title → žuti label → opis → dugme ---
   return `
@@ -71,7 +71,9 @@ function renderModalHTML(entry, lang = "pt") {
       <h2 class="font-bold text-[24px] md:text-[28px] leading-tight mb-2 text-center text-white">
         ${title}
       </h2>
-
+ <div class="text-[11px] uppercase tracking-[0.12em] text-[#FACC01] mb-3 text-center">
+        ${categoryLabel}
+      </div>
 
       ${
         contentHtml
