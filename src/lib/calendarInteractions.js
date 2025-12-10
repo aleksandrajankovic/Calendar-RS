@@ -1,7 +1,7 @@
-// lib/calendarInteractions.js
+// src/lib/calendarInteractions.js
 
 // -----------------------------
-// RENDER MODALA
+// RENDER MODALA (jedini modal)
 // -----------------------------
 function renderModalHTML(entry, lang = "sr") {
   if (!entry) {
@@ -10,9 +10,9 @@ function renderModalHTML(entry, lang = "sr") {
       : "<p>No promotions for this day.</p>";
   }
 
-  const { promo, day, type } = entry;
+  const { promo, type } = entry;
 
-  // koristimo top-level vrednosti, pa ako nema, padamo na promo.*
+  // top-level vrednosti, pa fallback na promo.*
   const title = entry.title || (promo && promo.title) || "";
   const button = entry.button || (promo && promo.button) || "";
   const buttonColor =
@@ -20,14 +20,13 @@ function renderModalHTML(entry, lang = "sr") {
   const link = entry.link || (promo && promo.link) || "";
   const richHtml = entry.richHtml || (promo && promo.richHtml) || "";
 
-  // ako baš nemamo nikakav sadržaj
   if (!promo && !richHtml) {
     return lang === "sr"
       ? "<p>Ne postoje promocije za ovaj dan.</p>"
       : "<p>No promotions for this day.</p>";
   }
 
-  // --- izvlačenje prve <img> iz richHtml ---
+  // izdvajamo prvu <img> iz richHtml
   let imageHtml = null;
   let contentHtml = richHtml;
 
@@ -39,15 +38,16 @@ function renderModalHTML(entry, lang = "sr") {
     }
   }
 
-  // --- kategorija (žuti label) ---
+  // label za kategoriju
   let categoryLabel;
   if (type === "special") {
-    categoryLabel = lang === "sr" ? "Ekskluzivna promocija" : "Special promotion";
+    categoryLabel =
+      lang === "sr" ? "Ekskluzivna promocija" : "Special promotion";
   } else {
     categoryLabel = lang === "sr" ? "Nedeljna promocija" : "Weekly promotion";
   }
 
-  // --- button ---
+  // button
   const openUrl = link && String(link);
   const canOpen = openUrl && openUrl !== "#";
 
@@ -56,7 +56,7 @@ function renderModalHTML(entry, lang = "sr") {
   const defaultButtonLabel =
     button || (lang === "sr" ? "Registruj se" : "Register");
 
-  // --- HTML struktura: slika → title → žuti label → opis → dugme ---
+  // HTML struktura
   return `
     <div class="flex flex-col w-full max-w-[420px] mx-auto">
       ${
@@ -71,7 +71,7 @@ function renderModalHTML(entry, lang = "sr") {
       <h2 class="font-bold text-[24px] md:text-[28px] leading-tight mb-2 text-center text-white">
         ${title}
       </h2>
- <div class="text-[11px] uppercase tracking-[0.12em] text-[#FACC01] mb-3 text-center">
+      <div class="text-[11px] uppercase tracking-[0.12em] text-[#FACC01] mb-3 text-center">
         ${categoryLabel}
       </div>
 
@@ -133,7 +133,7 @@ export function initCalendarInteractions(rootSelector = "#calendar-root") {
 
   const payload = JSON.parse(dataEl.textContent || "{}");
   const days = Array.isArray(payload.days) ? payload.days : [];
-  const lang = payload.lang || "pt";
+  const lang = payload.lang || "sr";
 
   const modal = root.querySelector("#promo-modal");
   const content = root.querySelector("#promo-content");
@@ -148,11 +148,9 @@ export function initCalendarInteractions(rootSelector = "#calendar-root") {
   function animateOpen() {
     if (!dialog) return;
 
-    // reset na zatvoreno stanje
     dialog.classList.remove("opacity-100", "translate-y-0", "scale-100");
     dialog.classList.add("opacity-0", "translate-y-4", "scale-95");
 
-    // sledeći frame → otvoreno stanje
     requestAnimationFrame(() => {
       dialog.classList.remove("opacity-0", "translate-y-4", "scale-95");
       dialog.classList.add("opacity-100", "translate-y-0", "scale-100");
@@ -168,10 +166,9 @@ export function initCalendarInteractions(rootSelector = "#calendar-root") {
     dialog.classList.remove("opacity-100", "translate-y-0", "scale-100");
     dialog.classList.add("opacity-0", "translate-y-4", "scale-95");
 
-    // duration mora da se poklopi sa Tailwind `duration-200`
     setTimeout(() => {
       cb?.();
-    }, 200);
+    }, 200); // match duration-200
   }
 
   function openModal(entry) {
@@ -203,7 +200,7 @@ export function initCalendarInteractions(rootSelector = "#calendar-root") {
     });
   }
 
-  // Klik na dan - otvori modal
+  // Klik na dan – otvori modal (samo jedan tip)
   root.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-day-button]");
     if (!btn) return;
@@ -211,12 +208,13 @@ export function initCalendarInteractions(rootSelector = "#calendar-root") {
     const day = Number(btn.getAttribute("data-day"));
     const entry = days.find((d) => d.day === day);
 
+    // ako nema entry-ja (budući dan bez promo) → ništa se ne dešava
     if (!entry) return;
 
     openModal(entry);
   });
 
-  // Zatvaranje – X dugme
+  // X dugme
   closeBtn?.addEventListener("click", (e) => {
     e.preventDefault();
     closeModal();
@@ -236,7 +234,7 @@ export function initCalendarInteractions(rootSelector = "#calendar-root") {
     }
   });
 
-  // Back/forward u browseru
+  // back/forward
   window.addEventListener("popstate", () => {
     if (isOpen) {
       closeModal({ fromPopstate: true });

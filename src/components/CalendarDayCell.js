@@ -18,15 +18,13 @@ const dayNumberClass = `
 
 export default function CalendarDayCell({ cell, lang, adminPreview }) {
   const locked = cell.isLocked && !adminPreview;
-
   const category = cell.category || "ALL";
   const categoryLabel = getCategoryLabel(category);
-
   const gradientClass = locked ? "bg-black" : getCategoryGradient(category);
 
   return (
     <div className="relative h-full w-full rounded-[12px]">
-      {/* overlay za today – ide na spoljašnji wrapper */}
+      {/* TODAY highlight */}
       {cell.isToday && (
         <span className="pointer-events-none absolute -inset-px z-20 rounded-[12px] ring-1 ring-[#FACC01] shadow-[0_0_15px_rgba(250,204,1,0.9)]" />
       )}
@@ -34,7 +32,7 @@ export default function CalendarDayCell({ cell, lang, adminPreview }) {
       <button
         data-day-button
         data-day={cell.day}
-        disabled={locked}
+        disabled={locked} // ⬅️ BUDUĆI DANI ZAKLJUČANI, PROŠLI + DANAS OTKLJUČANI
         className={`relative w-full h-full rounded-[12px] overflow-hidden border 
           ${gradientClass}
           transition
@@ -43,24 +41,11 @@ export default function CalendarDayCell({ cell, lang, adminPreview }) {
               ? "opacity-70 cursor-not-allowed"
               : "cursor-pointer hover:scale-[1.02]"
           }
-          ${adminPreview && cell.isFutureForUx ? "opacity-90" : ""}
         `}
         aria-label={
           cell.hasPromo
             ? `Day ${cell.day} – ${categoryLabel}`
             : `Day ${cell.day}`
-        }
-        title={
-          !adminPreview && cell.isFutureForUx
-            ? lang === "pt"
-              ? "Promoção desbloqueia neste dia"
-              : "Promotion unlocks on this day"
-            : ""
-        }
-        style={
-          adminPreview && cell.isFutureForUx
-            ? { pointerEvents: "auto", cursor: "pointer" }
-            : undefined
         }
       >
         {/* broj dana */}
@@ -73,9 +58,7 @@ export default function CalendarDayCell({ cell, lang, adminPreview }) {
           <img
             src={cell.icon}
             alt="promo icon"
-            className=" absolute right-0 inset-y-0
-              h-full w-[90%]
-              object-contain object-right"
+            className="absolute right-0 inset-y-0 h-full w-[90%] object-contain object-right"
             loading="lazy"
           />
         ) : (
