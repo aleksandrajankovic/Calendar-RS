@@ -30,7 +30,7 @@ export default function CalendarMobileStack({ adminPreview = false }) {
       // 2) UVEK poslednja 4 dana PRETHODNOG meseca kao ghost kartice
       let ghostDays = [];
       if (typeof year === "number" && typeof month === "number") {
-        // date( year, month, 0 ) = poslednji dan prethodnog meseca
+     
         const prevLastDate = new Date(year, month, 0);
         const prevMonthDays = prevLastDate.getDate(); // npr. 30 ili 31
         const prevMonthIndex = prevLastDate.getMonth(); // 0–11
@@ -117,9 +117,7 @@ export default function CalendarMobileStack({ adminPreview = false }) {
           const locked = day.isLocked && !adminPreview;
           const category = day.category || "ALL";
           const isGhost = Boolean(day.isGhost);
-          const gradientClass = locked
-            ? "bg-black"
-            : getCategoryGradient(category);
+          const gradientClass = getCategoryGradient(category);
 
           const isTodayActive = day.isToday && !isGhost;
 
@@ -180,29 +178,46 @@ export default function CalendarMobileStack({ adminPreview = false }) {
                 {day.day.toString().padStart(2, "0")}
               </span>
 
-              {!isGhost &&
-                (!locked && day.hasPromo && day.icon ? (
-                  <img
-                    src={day.icon}
-                    alt="promo icon"
-                    className="absolute right-0 inset-y-0 h-full w-[50%] object-cover object-center"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="flex items-center justify-center w-9 h-9 rounded-full bg-black/35">
-                      <img
-                        src="./img/lock.png"
-                        alt="default promo icon"
-                        className="w-10 h-10 object-contain"
-                        loading="lazy"
-                      />
-                    </div>
-                  </div>
-                ))}
-
+              {/* ikonica / lock – isto kao desktop */}
               {!isGhost && (
-                <div className="absolute inset-0 bg-gradient-to-r from-black/45 via-black/10 to-black/0" />
+                <>
+                  {!locked && day.hasPromo && day.icon ? (
+                   
+                    <img
+                      src={day.icon}
+                      alt="promo icon"
+                      className="absolute right-0 inset-y-0
+          h-full w-[90%]
+          object-contain object-right"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <>
+                  
+                      {day.icon && (
+                        <img
+                          src={day.icon}
+                          alt="promo icon"
+                          className="absolute right-0 inset-y-0
+              h-full w-[90%]
+              object-contain object-right"
+                          loading="lazy"
+                        />
+                      )}
+
+                    {locked && (
+  <div className="absolute inset-0 pointer-events-none">
+    <div className="absolute inset-0 bg-[#00000080]" />
+    <div
+      className="absolute inset-0 bg-center bg-no-repeat bg-[length:44px_44px]"
+      style={{ backgroundImage: "url('./img/lock.png')" }}
+    />
+  </div>
+)}
+
+                    </>
+                  )}
+                </>
               )}
             </button>
           );
