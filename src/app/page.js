@@ -155,7 +155,7 @@ export default async function Home({ searchParams }) {
   // background za kalendar
   const bgImageUrl = calendarSettings?.bgImageUrl || "/img/bg-calendar.png";
     const bgImageUrlMobile = calendarSettings?.bgImageUrlMobile || bgImageUrl;
-    
+
   // Pagination for months
   const p = prevYM(year, month);
   const n = nextYM(year, month);
@@ -175,7 +175,7 @@ export default async function Home({ searchParams }) {
             <img
               src="/img/meridianbet-ng.png"
               alt="Meridianbet"
-              className="h-6 md:h-[50px] w-auto"
+              className="h-10 md:h-[50px] w-auto"
             />
           </a>
 
