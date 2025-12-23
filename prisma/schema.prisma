@@ -14,7 +14,8 @@ enum PromoCategory {
 }
 model CalendarSettings {
   id         Int      @id
-  bgImageUrl String? 
+  bgImageUrl String?
+  bgImageUrlMobile String? 
   updatedAt  DateTime @updatedAt
 }
 model WeeklyPromotion {

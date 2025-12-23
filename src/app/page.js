@@ -154,135 +154,147 @@ export default async function Home({ searchParams }) {
 
   // background za kalendar
   const bgImageUrl = calendarSettings?.bgImageUrl || "/img/bg-calendar.png";
-
+    const bgImageUrlMobile = calendarSettings?.bgImageUrlMobile || bgImageUrl;
+    
   // Pagination for months
   const p = prevYM(year, month);
   const n = nextYM(year, month);
   const monthLabel = getMonthLabel(year, month, lang);
 
-  return (
+   return (
     <>
-      {/* TOP HEADER BAR – crveni, logo levo, lang switcher desno */}
-      <header className="w-full bg-[linear-gradient(90deg,#A6080E_0%,#D11101_100%)] px-4 md:px-8 py-2 flex items-center justify-between">
-        <a href="https://meridianbet.rs" target="_blank" aria-label="Meridianbet main site">
-          <img
-            src="./img/logo.svg"
-            alt="Meridianbet"
-            className="h-6 md:h-7 w-auto"
-          />
-        </a>
+      {/* TOP HEADER BAR */}
+      <div className="min-h-[100dvh] flex flex-col overflow-hidden">
+        <header className="w-full bg-[linear-gradient(90deg,#A6080E_0%,#D11101_100%)] px-4 md:px-16 py-2 flex items-center justify-between shrink-0">
+          <a
+            href="https://meridianbet.rs"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Meridianbet Calendar main site"
+          >
+            <img
+              src="/img/meridianbet-ng.png"
+              alt="Meridianbet"
+              className="h-6 md:h-[50px] w-auto"
+            />
+          </a>
 
-        {/* desna strana: desktop flag dropdown + mobile text switcher */}
-        <div className="flex items-center gap-2">
-          <LangSwitcher
-            year={year}
-            month={month}
-            lang={lang}
-            allowedLangs={ALLOWED_LANGS}
-          />
-        </div>
-      </header>
+          <div className="flex items-center gap-2">
+            <LangSwitcher
+              year={year}
+              month={month}
+              lang={lang}
+              allowedLangs={ALLOWED_LANGS}
+            />
+          </div>
+        </header>
 
-      {/* MAIN CONTENT */}
-      <main
-        className="
-          w-full
-          bg-no-repeat bg-cover bg-center
-          calendar-bg
-          min-h-[100dvh]        
-          overflow-hidden         
-          md:overflow-auto   
-          flex
-          justify-center md:justify-start  
-        "
-        style={{ backgroundImage: `url("${bgImageUrl}")` }}
-      >
-        <SnowOverlay />
-        <div
+        <main
           className="
+      relative z-0 w-full flex-1
+      bg-no-repeat bg-cover bg-center calendar-bg
+      overflow-hidden md:overflow-auto
+      flex justify-center md:justify-start
+    "
+          style={{ backgroundImage: `url("${bgImageUrl}")` }}
+        >
+          {/* MOBILE BG */}
+          <div
+            className="pointer-events-none absolute inset-0 md:hidden bg-no-repeat bg-cover -z-10 calendar-mobile-bg"
+            style={{
+              backgroundImage: `url("${bgImageUrlMobile}")`,
+            }}
+          />
+
+          <SnowOverlay />
+
+          <div
+            className="
+            relative z-10
             w-full
             max-w-6xl
             px-4 sm:px-6 md:px-10 lg:px-16
-            pt-4 pb-4        
+            pt-4 pb-4
             md:pt-6 md:pb-10
-            mx-auto md:mx-0 md:mr-auto 
+            mx-auto md:mx-0 md:mr-auto
           "
-        >
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white md:text-left text-center">
-            {lang === "sr" ? "Kalendar Promocija" : "Promotion Calendar"}
-          </h1>
+          >
+            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white md:text-left text-center my-[30px]">
+              {lang === "sr" ? "PRAZNIČNE MISIJE ❄️" : "HOLIDAY MISSIONS ❄️"}
+            </h1>
 
-          {isAdmin && (
-            <div className="mt-2 inline-block rounded bg-amber-500/20 text-amber-200 px-3 py-1 text-sm">
-              Admin preview
+            {isAdmin && (
+              <div className="mt-2 inline-block rounded bg-amber-500/20 text-amber-200 px-3 py-1 text-sm">
+                Admin preview
+              </div>
+            )}
+
+            {/* MOBILE PAGINATION */}
+            <div className="mt-6 flex items-center justify-center md:hidden">
+              <div className="inline-flex items-center gap-4 rounded-full bg-black/40 px-4 py-2 text-white text-sm">
+                <a
+                  href={`/?y=${p.y}&m=${p.m}&lang=${lang}`}
+                  className="p-1 hover:opacity-80"
+                  aria-label="Previous month"
+                >
+                  ‹
+                </a>
+
+                <span className="min-w-[140px] text-center font-semibold">
+                  {monthLabel} <span className="ml-1 opacity-80">{year}</span>
+                </span>
+
+                <a
+                  href={`/?y=${n.y}&m=${n.m}&lang=${lang}`}
+                  className="p-1 hover:opacity-80"
+                  aria-label="Next month"
+                >
+                  ›
+                </a>
+              </div>
             </div>
-          )}
 
-          {/* MOBILE PAGINATION – IZNAD kalendara */}
-          <div className="mt-6 flex items-center justify-center md:hidden">
-            <div className="inline-flex items-center gap-4 rounded-full bg-black/40 px-4 py-2 text-white text-sm">
-              <a
-                href={`/?y=${p.y}&m=${p.m}&lang=${lang}`}
-                className="p-1 hover:opacity-80"
-                aria-label="Previous month"
-              >
-                ‹
-              </a>
+         
+            <div className="mt-6">
+              <CalendarGrid
+                year={year}
+                month={month}
+                weekly={weekly}
+                specials={specials}
+                adminPreview={isAdmin}
+                lang={lang}
+              />
+            </div>
 
-              <span className="min-w-[140px] text-center font-semibold">
-                {monthLabel} <span className="ml-1 opacity-80">{year}</span>
-              </span>
+            <CalendarEnhancer adminPreview={isAdmin} lang={lang} />
 
-              <a
-                href={`/?y=${n.y}&m=${n.m}&lang=${lang}`}
-                className="p-1 hover:opacity-80"
-                aria-label="Next month"
-              >
-                ›
-              </a>
+            {/* MONTH PAGINATION */}
+            <div className="md:flex items-center justify-center hidden">
+              <div className="inline-flex items-center gap-4 rounded-full bg-black/40 px-4 py-2 text-white text-sm md:text-base">
+                <a
+                  href={`/?y=${p.y}&m=${p.m}&lang=${lang}`}
+                  className="p-1 hover:opacity-80"
+                  aria-label="Previous month"
+                >
+                  ‹
+                </a>
+
+                <span className="min-w-[140px] text-center font-semibold">
+                  {monthLabel} <span className="ml-1 opacity-80">{year}</span>
+                </span>
+
+                <a
+                  href={`/?y=${n.y}&m=${n.m}&lang=${lang}`}
+                  className="p-1 hover:opacity-80"
+                  aria-label="Next month"
+                >
+                  ›
+                </a>
+              </div>
             </div>
           </div>
-
-          {/* kalendar malo odvojen od naslova */}
-          <div className="mt-6">
-            <CalendarGrid
-              year={year}
-              month={month}
-              weekly={weekly}
-              specials={specials}
-              adminPreview={isAdmin}
-              lang={lang}
-            />
-          </div>
-
-          <CalendarEnhancer adminPreview={isAdmin} lang={lang} />
-
-          {/* MONTH PAGINATION – odmah ispod kalendara */}
-          <div className="mt-6 md:flex items-center justify-center hidden ">
-            <div className="inline-flex items-center gap-4 rounded-full bg-black/40 px-4 py-2 text-white text-sm md:text-base">
-              <a
-                href={`/?y=${p.y}&m=${p.m}&lang=${lang}`}
-                className="p-1 hover:opacity-80"
-                aria-label="Previous month"
-              >
-                ‹
-              </a>
-
-              <span className="min-w-[140px] text-center font-semibold">
-                {monthLabel} <span className="ml-1 opacity-80">{year}</span>
-              </span>
-
-              <a
-                href={`/?y=${n.y}&m=${n.m}&lang=${lang}`}
-                className="p-1 hover:opacity-80"
-                aria-label="Next month"
-              >
-                ›
-              </a>
-            </div>
-          </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </>
   );
 }
