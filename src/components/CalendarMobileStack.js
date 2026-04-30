@@ -84,10 +84,10 @@ const year = payload.year;
     const onEnd = (e) => {
       const delta = e.changedTouches[0].clientX - startX;
       if (delta > 80) {
-        navigator?.vibrate?.(10);
+        navigator?.vibrate?.(20);
         setActiveIndex((i) => (i > 0 ? i - 1 : i));
       } else if (delta < -80) {
-        navigator?.vibrate?.(10);
+        navigator?.vibrate?.(20);
         setActiveIndex((i) => (i < days.length - 1 ? i + 1 : i));
       }
     };
