@@ -74,7 +74,7 @@ export default function CalendarMobileFootball({
               <button
                 key={`chip-${day.day}`}
                 ref={(el) => (chipRefs.current[index] = el)}
-                onClick={() => setSelectedIndex(index)}
+                onClick={() => { navigator?.vibrate?.(10); setSelectedIndex(index); }}
                 className={`
                   relative flex items-center justify-center
                   h-14 w-11 shrink-0
