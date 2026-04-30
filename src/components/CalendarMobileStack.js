@@ -9,7 +9,7 @@ export default function CalendarMobileStack({ adminPreview = false }) {
   const [days, setDays] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [touchStartX, setTouchStartX] = useState(null);
-  const touchActiveRef = useRef(false);
+  const touchStartRef = useRef({ x: 0, y: 0 });
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -75,16 +75,16 @@ const year = payload.year;
   };
 
   const handleTouchStart = (e) => {
-    setTouchStartX(e.touches[0].clientX);
+    const t = e.touches[0];
+    touchStartRef.current = { x: t.clientX, y: t.clientY };
+    setTouchStartX(t.clientX);
   };
 
   const handleTouchEnd = (e) => {
     if (touchStartX == null) return;
     const delta = e.changedTouches[0].clientX - touchStartX;
-
     if (delta > 80) goPrev();
     else if (delta < -80) goNext();
-
     setTouchStartX(null);
   };
 
@@ -92,35 +92,16 @@ const year = payload.year;
     const el = containerRef.current;
     if (!el) return;
 
-    const onStart = (e) => {
-      if (!el.contains(e.target)) return;
-      touchActiveRef.current = true;
-      document.body.style.overflow = "hidden";
-      document.body.style.touchAction = "none";
-    };
     const onMove = (e) => {
-      if (touchActiveRef.current) e.preventDefault();
-    };
-    const onEnd = () => {
-      if (!touchActiveRef.current) return;
-      touchActiveRef.current = false;
-      document.body.style.overflow = "";
-      document.body.style.touchAction = "";
+      const t = e.touches[0];
+      if (!t) return;
+      const dx = Math.abs(t.clientX - touchStartRef.current.x);
+      const dy = Math.abs(t.clientY - touchStartRef.current.y);
+      if (dx > dy) e.preventDefault();
     };
 
-    document.addEventListener("touchstart", onStart, { passive: true });
-    document.addEventListener("touchmove", onMove, { passive: false });
-    document.addEventListener("touchend", onEnd, { passive: true });
-    document.addEventListener("touchcancel", onEnd, { passive: true });
-
-    return () => {
-      document.removeEventListener("touchstart", onStart);
-      document.removeEventListener("touchmove", onMove);
-      document.removeEventListener("touchend", onEnd);
-      document.removeEventListener("touchcancel", onEnd);
-      document.body.style.overflow = "";
-      document.body.style.touchAction = "";
-    };
+    el.addEventListener("touchmove", onMove, { passive: false });
+    return () => el.removeEventListener("touchmove", onMove);
   }, [days.length]);
 
   if (!days.length) return null;
