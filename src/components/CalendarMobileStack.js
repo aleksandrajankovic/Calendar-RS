@@ -8,8 +8,6 @@ import { rowdies } from "@/app/fonts";
 export default function CalendarMobileStack({ adminPreview = false }) {
   const [days, setDays] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [touchStartX, setTouchStartX] = useState(null);
-  const touchStartRef = useRef({ x: 0, y: 0 });
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -66,42 +64,38 @@ const year = payload.year;
     }
   }, []);
 
-  const goPrev = () => {
-    setActiveIndex((idx) => (idx > 0 ? idx - 1 : idx));
-  };
-
-  const goNext = () => {
-    setActiveIndex((idx) => (idx < days.length - 1 ? idx + 1 : idx));
-  };
-
-  const handleTouchStart = (e) => {
-    const t = e.touches[0];
-    touchStartRef.current = { x: t.clientX, y: t.clientY };
-    setTouchStartX(t.clientX);
-  };
-
-  const handleTouchEnd = (e) => {
-    if (touchStartX == null) return;
-    const delta = e.changedTouches[0].clientX - touchStartX;
-    if (delta > 80) goPrev();
-    else if (delta < -80) goNext();
-    setTouchStartX(null);
-  };
-
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
-    const onMove = (e) => {
-      const t = e.touches[0];
-      if (!t) return;
-      const dx = Math.abs(t.clientX - touchStartRef.current.x);
-      const dy = Math.abs(t.clientY - touchStartRef.current.y);
-      if (dx > dy) e.preventDefault();
+    let startX = 0, startY = 0;
+
+    const onStart = (e) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
     };
 
+    const onMove = (e) => {
+      const dx = Math.abs(e.touches[0].clientX - startX);
+      const dy = Math.abs(e.touches[0].clientY - startY);
+      if (dx >= dy) e.preventDefault();
+    };
+
+    const onEnd = (e) => {
+      const delta = e.changedTouches[0].clientX - startX;
+      if (delta > 80) setActiveIndex((i) => (i > 0 ? i - 1 : i));
+      else if (delta < -80) setActiveIndex((i) => (i < days.length - 1 ? i + 1 : i));
+    };
+
+    el.addEventListener("touchstart", onStart, { passive: false });
     el.addEventListener("touchmove", onMove, { passive: false });
-    return () => el.removeEventListener("touchmove", onMove);
+    el.addEventListener("touchend", onEnd, { passive: true });
+
+    return () => {
+      el.removeEventListener("touchstart", onStart);
+      el.removeEventListener("touchmove", onMove);
+      el.removeEventListener("touchend", onEnd);
+    };
   }, [days.length]);
 
   if (!days.length) return null;
@@ -120,8 +114,6 @@ const year = payload.year;
         ref={containerRef}
         className="relative w-full max-w-[380px] overflow-visible touch-none"
         style={{ height: CARD_HEIGHT + 40 }}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
       >
         {days.map((day, index) => {
           const offset = index - activeIndex;
