@@ -62,7 +62,7 @@ export default function CalendarMobileFootball({
       {/* ── DATE CHIP STRIP ── */}
       <div
         ref={stripRef}
-        className="w-full overflow-x-auto no-scrollbar px-4"
+        className="w-full overflow-x-auto no-scrollbar px-4 touch-pan-x"
         style={{ scrollbarWidth: "none" }}
       >
         <div className="flex gap-2.5 w-max">
