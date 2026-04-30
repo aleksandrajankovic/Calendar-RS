@@ -5,11 +5,11 @@ import { useEffect, useRef, useState } from "react";
 import { getCategoryGradient } from "@/lib/promoCategoryStyles";
 import { rowdies } from "@/app/fonts";
 
-export default function CalendarMobileStack({ adminPreview = false, lang: langProp = "sr" }) {
+export default function CalendarMobileStack({ adminPreview = false }) {
   const [days, setDays] = useState([]);
-  const [lang, setLang] = useState(langProp);
   const [activeIndex, setActiveIndex] = useState(0);
   const [touchStartX, setTouchStartX] = useState(null);
+  const touchActiveRef = useRef(false);
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -20,9 +20,7 @@ export default function CalendarMobileStack({ adminPreview = false, lang: langPr
       const payload = JSON.parse(dataEl.textContent || "{}");
       const allDays = Array.isArray(payload.days) ? payload.days : [];
 
-      if (payload.lang) setLang(payload.lang);
-
-      const year = payload.year;
+const year = payload.year;
       const month = payload.month;
 
       const currentDays = allDays.filter((d) => d && typeof d.day === "number");
@@ -93,10 +91,25 @@ export default function CalendarMobileStack({ adminPreview = false, lang: langPr
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    const prevent = (e) => e.preventDefault();
-    el.addEventListener("touchmove", prevent, { passive: false });
-    return () => el.removeEventListener("touchmove", prevent);
-  }, []);
+
+    const onStart = (e) => {
+      if (el.contains(e.target)) touchActiveRef.current = true;
+    };
+    const onMove = (e) => {
+      if (touchActiveRef.current) e.preventDefault();
+    };
+    const onEnd = () => { touchActiveRef.current = false; };
+
+    document.addEventListener("touchstart", onStart, { passive: true });
+    document.addEventListener("touchmove", onMove, { passive: false });
+    document.addEventListener("touchend", onEnd, { passive: true });
+
+    return () => {
+      document.removeEventListener("touchstart", onStart);
+      document.removeEventListener("touchmove", onMove);
+      document.removeEventListener("touchend", onEnd);
+    };
+  }, [days.length]);
 
   if (!days.length) return null;
 
