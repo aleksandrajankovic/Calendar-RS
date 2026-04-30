@@ -1,7 +1,7 @@
 // src/components/CalendarMobileStack.jsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getCategoryGradient } from "@/lib/promoCategoryStyles";
 import { rowdies } from "@/app/fonts";
 
@@ -10,6 +10,7 @@ export default function CalendarMobileStack({ adminPreview = false, lang: langPr
   const [lang, setLang] = useState(langProp);
   const [activeIndex, setActiveIndex] = useState(0);
   const [touchStartX, setTouchStartX] = useState(null);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     const dataEl = document.getElementById("calendar-data");
@@ -89,6 +90,14 @@ export default function CalendarMobileStack({ adminPreview = false, lang: langPr
     setTouchStartX(null);
   };
 
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const prevent = (e) => e.preventDefault();
+    el.addEventListener("touchmove", prevent, { passive: false });
+    return () => el.removeEventListener("touchmove", prevent);
+  }, []);
+
   if (!days.length) return null;
 
   // horizontalni layout
@@ -102,6 +111,7 @@ export default function CalendarMobileStack({ adminPreview = false, lang: langPr
   return (
     <div className="w-full flex flex-col items-center mt-[20px]">
       <div
+        ref={containerRef}
         className="relative w-full max-w-[380px] overflow-visible touch-none"
         style={{ height: CARD_HEIGHT + 40 }}
         onTouchStart={handleTouchStart}
