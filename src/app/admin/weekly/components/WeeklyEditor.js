@@ -39,6 +39,7 @@ export default function WeeklyEditor({ initial, onCancel, onSave }) {
 
     return {
       ...initial,
+      scratch: !!initial?.scratch,
       translations: baseTranslations,
       buttonColor: initial?.buttonColor || "green",
       category: initial?.category || "ALL",
@@ -116,6 +117,7 @@ export default function WeeklyEditor({ initial, onCancel, onSave }) {
         rich: mainT.rich || null,
         richHtml: mainT.richHtml || "",
 
+        scratch: !!form.scratch,
         subtitle: form.subtitle ?? "",
         image: form.image ?? "",
         icon: form.icon ?? "",
@@ -218,6 +220,16 @@ export default function WeeklyEditor({ initial, onCancel, onSave }) {
             Preview calendar
           </button>
         </div>
+
+        {/* Scratch toggle */}
+        <label className="flex items-center gap-2 text-sm text-neutral-800">
+          <input
+            type="checkbox"
+            checked={!!form.scratch}
+            onChange={(e) => setField("scratch", e.target.checked)}
+          />
+          Enable scratch card
+        </label>
 
         {/* Form fields */}
         <div className="grid md:grid-cols-2 gap-4">

@@ -18,7 +18,7 @@ export async function PUT(req, { params }) {
 
   const body = await req.json().catch(() => ({}));
   const {
-    year, month, day, icon, link, buttonColor, active,
+    year, month, day, icon, link, buttonColor, active, scratch,
     title, button, rich, richHtml,
     translations: rawTranslations, defaultLang, category,
   } = body;
@@ -48,6 +48,7 @@ export async function PUT(req, { params }) {
     richHtml: sanitizeRichHtml(mainT.richHtml ?? richHtml ?? null),
     icon: icon ?? "",
     active: !!active,
+    scratch: !!scratch,
     buttonColor: buttonColor || "green",
     translations: Object.keys(translations).length ? translations : null,
     category: category || "ALL",
@@ -71,12 +72,20 @@ export async function PATCH(req, { params }) {
   if (!Number.isInteger(specialId)) return new Response("bad id", { status: 400 });
 
   const body = await req.json().catch(() => ({}));
-  const next = Boolean(body.active);
+
+  const patch = {
+    ...(typeof body.active === "boolean" ? { active: body.active } : {}),
+    ...(typeof body.scratch === "boolean" ? { scratch: body.scratch } : {}),
+  };
+
+  if (Object.keys(patch).length === 0) {
+    return new Response("bad payload", { status: 400 });
+  }
 
   try {
     const row = await prisma.specialPromotion.update({
       where: { id: specialId },
-      data: { active: next },
+      data: patch,
     });
     return Response.json(row);
   } catch {

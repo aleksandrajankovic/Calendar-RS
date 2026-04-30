@@ -65,7 +65,7 @@ export async function PUT(req) {
   }
 
   const {
-    icon, link, buttonColor, active,
+    icon, link, buttonColor, active, scratch,
     title, button, rich, richHtml,
     translations: rawTranslations, defaultLang, category,
   } = body;
@@ -83,6 +83,7 @@ export async function PUT(req) {
     link: sanitizeLink(mainT.link ?? link ?? ""),
     icon: icon ?? null,
     active: Boolean(active ?? true),
+    scratch: !!scratch,
     buttonColor: buttonColor || "green",
     translations: Object.keys(translations).length ? translations : null,
     category: category || "ALL",

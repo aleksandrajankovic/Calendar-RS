@@ -1,9 +1,12 @@
 // src/lib/calendarInteractions.js
+import { renderScratchModal } from "./scratch/renderScratchModal";
+import { initScratch } from "./scratch/initScratch";
+
 
 // -----------------------------
-// RENDER MODALA (jedini modal)
+// NORMAL MODAL (bez scratch-a)
 // -----------------------------
-function renderModalHTML(entry, lang = "sr") {
+function renderNormalModal(entry, lang = "sr") {
   if (!entry) {
     return lang === "sr"
       ? "<p>Ne postoje promocije za ovaj dan.</p>"
@@ -12,7 +15,6 @@ function renderModalHTML(entry, lang = "sr") {
 
   const { promo, type } = entry;
 
-  // top-level vrednosti, pa fallback na promo.*
   const title = entry.title || (promo && promo.title) || "";
   const button = entry.button || (promo && promo.button) || "";
   const buttonColor =
@@ -26,7 +28,6 @@ function renderModalHTML(entry, lang = "sr") {
       : "<p>No promotions for this day.</p>";
   }
 
-  // izdvajamo prvu <img> iz richHtml
   let imageHtml = null;
   let contentHtml = richHtml;
 
@@ -38,7 +39,6 @@ function renderModalHTML(entry, lang = "sr") {
     }
   }
 
-  // label za kategoriju
   let categoryLabel;
   if (type === "special") {
     categoryLabel =
@@ -47,16 +47,12 @@ function renderModalHTML(entry, lang = "sr") {
     categoryLabel = lang === "sr" ? "Nedeljna promocija" : "Weekly promotion";
   }
 
-  // button
   const openUrl = link && String(link);
   const canOpen = openUrl && openUrl !== "#";
-
   const isYellow = buttonColor === "yellow";
-
   const defaultButtonLabel =
     button || (lang === "sr" ? "Registruj se" : "Register");
 
-  // HTML struktura
   return `
     <div class="flex flex-col w-full max-w-[420px] mx-auto">
       ${
@@ -119,6 +115,50 @@ function renderModalHTML(entry, lang = "sr") {
       }
     </div>
   `;
+}
+
+// -----------------------------
+// MAIN RENDER
+// -----------------------------
+function renderModalHTML(entry, lang = "sr") {
+  if (!entry) {
+    return lang === "sr"
+      ? "<p>Ne postoje promocije za ovaj dan.</p>"
+      : "<p>No promotions for this day.</p>";
+  }
+
+  const { promo, type } = entry;
+
+  const title = entry.title || (promo && promo.title) || "";
+  const button = entry.button || (promo && promo.button) || "";
+  const buttonColor =
+    entry.buttonColor || (promo && promo.buttonColor) || "green";
+  const link = entry.link || (promo && promo.link) || "";
+  const richHtml = entry.richHtml || (promo && promo.richHtml) || "";
+  const defaultButtonLabel =
+    button || (lang === "sr" ? "Registruj se" : "Register");
+
+  const isScratch = !!(entry?.scratch || promo?.scratch);
+
+  if (isScratch) {
+    const shareKey =
+      entry?.shareUrl ||
+      `${entry?.year}-${entry?.month}-${entry?.day}-${type || "promo"}`;
+
+    return renderScratchModal({
+      title,
+      richHtml,
+      link,
+      button: defaultButtonLabel,
+      buttonColor,
+      type,
+      lang,
+      shareKey,
+      threshold: 0.7,
+    });
+  }
+
+  return renderNormalModal(entry, lang);
 }
 
 // -----------------------------
@@ -185,6 +225,13 @@ export function initCalendarInteractions(rootSelector = "#calendar-root") {
     }
 
     animateOpen();
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const canvas = document.getElementById("scratch-canvas");
+        if (canvas) initScratch();
+      });
+    });
   }
 
   function closeModal({ fromPopstate = false } = {}) {
@@ -193,6 +240,7 @@ export function initCalendarInteractions(rootSelector = "#calendar-root") {
 
     animateClose(() => {
       modal.classList.add("hidden");
+      content.innerHTML = "";
 
       if (!fromPopstate && previousUrl) {
         history.replaceState(null, "", previousUrl);
