@@ -93,21 +93,33 @@ const year = payload.year;
     if (!el) return;
 
     const onStart = (e) => {
-      if (el.contains(e.target)) touchActiveRef.current = true;
+      if (!el.contains(e.target)) return;
+      touchActiveRef.current = true;
+      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
     };
     const onMove = (e) => {
       if (touchActiveRef.current) e.preventDefault();
     };
-    const onEnd = () => { touchActiveRef.current = false; };
+    const onEnd = () => {
+      if (!touchActiveRef.current) return;
+      touchActiveRef.current = false;
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+    };
 
     document.addEventListener("touchstart", onStart, { passive: true });
     document.addEventListener("touchmove", onMove, { passive: false });
     document.addEventListener("touchend", onEnd, { passive: true });
+    document.addEventListener("touchcancel", onEnd, { passive: true });
 
     return () => {
       document.removeEventListener("touchstart", onStart);
       document.removeEventListener("touchmove", onMove);
       document.removeEventListener("touchend", onEnd);
+      document.removeEventListener("touchcancel", onEnd);
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
     };
   }, [days.length]);
 
