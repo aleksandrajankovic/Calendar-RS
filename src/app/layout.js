@@ -14,18 +14,18 @@ const robotoCondensed = Roboto_Condensed({
 });
 
 export const metadata = {
-  metadataBase: new URL("https://meridianbet.rs"),
+  metadataBase: new URL("https://calendar.meridianbet.rs"),
   title: "Kalendar Promocija | Meridianbet",
   description:
     "Budite u toku sa dnevnim ponudama, otkrijte nove promocije i iskoristite ekskluzivne nagrade uz Meridianbet Kalendar Promocija.",
   alternates: {
-    canonical: "/calendar",
+    canonical: "/",
   },
   openGraph: {
     title: "Kalendar Promocija | Meridianbet",
     description:
       "Budite u toku sa dnevnim ponudama, otkrijte nove promocije i iskoristite ekskluzivne nagrade uz Meridianbet Kalendar Promocija.",
-    url: "/calendar",
+    url: "/",
     siteName: "Meridianbet",
     images: [
       {
@@ -49,9 +49,6 @@ export const metadata = {
     index: true,
     follow: true,
   },
-  icons: {
-    icon: "/src/app/favicon.ico",
-  },
 };
 
 
@@ -59,7 +56,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="sr">
         
       <body
         className={`${roboto.variable} ${robotoCondensed.variable} min-h-screen`}

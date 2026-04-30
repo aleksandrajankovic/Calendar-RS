@@ -5,24 +5,34 @@ import { useMemo } from "react";
 
 const FLAKE_COUNT = 45; 
 
+function isSnowSeason() {
+  const now = new Date();
+  const m = now.getMonth(); // 0-11
+  const d = now.getDate();
+  return (m === 11 && d >= 25) || (m === 0 && d <= 15);
+}
+
 export default function SnowOverlay() {
+  const snow = isSnowSeason();
+
   const flakes = useMemo(
     () =>
       Array.from({ length: FLAKE_COUNT }, (_, i) => {
-        // nasumični parametri za svaku pahulju
-        const size = 6 + Math.random() * 18; 
+        const size = 6 + Math.random() * 18;
         return {
           id: i,
-          left: Math.random() * 100, 
+          left: Math.random() * 100,
           delay: Math.random() * 10,
           duration: 12 + Math.random() * 12,
           size,
-          opacity: 0.35 + Math.random() * 0.5, 
-          drift: -20 + Math.random() * 40, 
+          opacity: 0.35 + Math.random() * 0.5,
+          drift: -20 + Math.random() * 40,
         };
       }),
     []
   );
+
+  if (!snow) return null;
 
   return (
     <div

@@ -93,6 +93,7 @@ export function buildCalendarData({
       isLocked,
       icon,
       category,
+      isSpecial: type === "special",
     });
 
     // payload za JS (modal + mobile)

@@ -120,7 +120,7 @@ export default function ImageGalleryModal({ onSelect, onClose }) {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp,image/svg+xml"
             className="hidden"
             onChange={handleUpload}
           />

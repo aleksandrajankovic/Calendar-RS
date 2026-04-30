@@ -1,7 +1,7 @@
 // app/admin/specials/page.jsx
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import toast from "react-hot-toast";
 import SpecialEditor from "./components/SpecialEditor";
 import AdminTableCard from "../components/AdminTableCard";
@@ -17,8 +17,11 @@ export default function SpecialsAdminPage() {
   const [showNew, setShowNew] = useState(false);
   const [editing, setEditing] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
+  const [loadingIds, setLoadingIds] = useState(new Set());
+  const [bulkLoading, setBulkLoading] = useState(false);
   const [filterMonth, setFilterMonth] = useState(-1);
   const [filterYear] = useState(new Date().getFullYear());
+  const pendingToggles = useRef(new Set());
 
   useEffect(() => {
     fetch("/api/special")
@@ -62,7 +65,10 @@ export default function SpecialsAdminPage() {
   }
 
   async function handleToggle(id, next) {
-    const prev = rows;
+    if (pendingToggles.current.has(id)) return;
+    pendingToggles.current.add(id);
+    setLoadingIds((prev) => new Set([...prev, id]));
+
     setRows((current) =>
       current.map((r) => (r.id === id ? { ...r, active: next } : r))
     );
@@ -79,8 +85,41 @@ export default function SpecialsAdminPage() {
       }
       toast.success(next ? "Promotion activated." : "Promotion deactivated");
     } catch (e) {
-      setRows(prev);
+      setRows((current) =>
+        current.map((r) => (r.id === id ? { ...r, active: !next } : r))
+      );
       toast.error(`Error while updating status: ${e.message || e}`);
+    } finally {
+      pendingToggles.current.delete(id);
+      setLoadingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  }
+
+  async function handleBulkToggle(active) {
+    const ids = filtered.map((r) => r.id);
+    if (ids.length === 0) return;
+    setBulkLoading(true);
+    const prev = rows;
+    setRows((current) =>
+      current.map((r) => (ids.includes(r.id) ? { ...r, active } : r))
+    );
+    try {
+      const res = await fetch("/api/special", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids, active }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      toast.success(active ? "All activated." : "All deactivated.");
+    } catch (e) {
+      setRows(prev);
+      toast.error(`Error: ${e.message}`);
+    } finally {
+      setBulkLoading(false);
     }
   }
 
@@ -117,19 +156,42 @@ export default function SpecialsAdminPage() {
       <AdminTableCard
         title="Special Promotions"
         headerRight={
-          <select
-            className="border border-neutral-300 rounded px-2 py-1 text-sm text-black bg-white"
-            value={filterMonth}
-            onChange={(e) => setFilterMonth(Number(e.target.value))}
-            title="Filter by month"
-          >
-            <option value={-1}>All months</option>
-            {Array.from({ length: 12 }, (_, i) => (
-              <option key={i} value={i}>
-                {monthName(i)}
-              </option>
-            ))}
-          </select>
+          <div className="flex items-center gap-2 flex-wrap">
+            <select
+              className="border border-neutral-300 rounded px-2 py-1 text-sm text-black bg-white"
+              value={filterMonth}
+              onChange={(e) => setFilterMonth(Number(e.target.value))}
+              title="Filter by month"
+            >
+              <option value={-1}>All months</option>
+              {Array.from({ length: 12 }, (_, i) => (
+                <option key={i} value={i}>
+                  {monthName(i)}
+                </option>
+              ))}
+            </select>
+
+            {filtered.length > 0 && (
+              <>
+                <button
+                  type="button"
+                  disabled={bulkLoading}
+                  onClick={() => handleBulkToggle(true)}
+                  className="px-3 py-1 text-xs rounded border border-green-600 text-green-700 bg-white hover:bg-green-50 disabled:opacity-50"
+                >
+                  Activate All ({filtered.length})
+                </button>
+                <button
+                  type="button"
+                  disabled={bulkLoading}
+                  onClick={() => handleBulkToggle(false)}
+                  className="px-3 py-1 text-xs rounded border border-neutral-400 text-neutral-600 bg-white hover:bg-neutral-50 disabled:opacity-50"
+                >
+                  Deactivate All ({filtered.length})
+                </button>
+              </>
+            )}
+          </div>
         }
         columns={[
           { key: "date", label: "Date", width: "140px" },
@@ -211,16 +273,18 @@ export default function SpecialsAdminPage() {
                       <button
                         type="button"
                         onClick={() => handleToggle(r.id, !r.active)}
+                        disabled={loadingIds.has(r.id)}
                         title={r.active ? "Deactivate" : "Activate"}
                         aria-label={r.active ? "Deactivate" : "Activate"}
-                        className={`w-full h-8 text-xs rounded border uppercase cursor-pointer
+                        className={`w-full h-8 text-xs rounded border uppercase cursor-pointer transition-opacity
+                          ${loadingIds.has(r.id) ? "opacity-50 cursor-not-allowed" : ""}
                           ${
                             r.active
                               ? "border-[#4A4A4A] text-[#4A4A4A] bg-white hover:bg-neutral-50"
                               : "border-green-600 text-green-700 bg-white hover:bg-green-50"
                           }`}
                       >
-                        {r.active ? "Deactivate" : "Activate"}
+                        {loadingIds.has(r.id) ? "..." : r.active ? "Deactivate" : "Activate"}
                       </button>
                     </div>
 

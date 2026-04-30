@@ -5,9 +5,9 @@ import { useEffect, useState } from "react";
 import { getCategoryGradient } from "@/lib/promoCategoryStyles";
 import { rowdies } from "@/app/fonts";
 
-export default function CalendarMobileStack({ adminPreview = false }) {
+export default function CalendarMobileStack({ adminPreview = false, lang: langProp = "sr" }) {
   const [days, setDays] = useState([]);
-  const [lang, setLang] = useState("pt");
+  const [lang, setLang] = useState(langProp);
   const [activeIndex, setActiveIndex] = useState(0);
   const [touchStartX, setTouchStartX] = useState(null);
 
@@ -83,9 +83,8 @@ export default function CalendarMobileStack({ adminPreview = false }) {
     if (touchStartX == null) return;
     const delta = e.changedTouches[0].clientX - touchStartX;
 
-    if (delta > 40) goPrev();
-
-    else if (delta < -40) goNext();
+    if (delta > 80) goPrev();
+    else if (delta < -80) goNext();
 
     setTouchStartX(null);
   };
@@ -120,9 +119,9 @@ export default function CalendarMobileStack({ adminPreview = false }) {
           const isTodayActive = day.isToday && !isGhost;
 
           const translateX = ACTIVE_X + offset * CARD_GAP;
-          const scale = offset === 0 ? 1 : 0.9; 
+          const scale = offset === 0 ? 1 : 0.9;
           const zIndex = MAX_OFFSET - Math.abs(offset);
-          const opacity = offset === 0 ? 1 : 0.45;
+          const opacity = offset !== 0 ? 0.45 : locked && !isGhost ? 0.7 : 1;
 
           return (
             <button
@@ -135,13 +134,11 @@ export default function CalendarMobileStack({ adminPreview = false }) {
                 absolute top-0
                 left-0
                 w-[230px] h-[257px]
-              
-              rounded-[18px]
-                
+                rounded-[18px]
                 ${
                   isTodayActive
                     ? "border-2 border-[#FACC01] shadow-[0_0_20px_rgba(250,204,1,0.9)]"
-                    : "border border-white/20"
+                    : ""
                 }
                 ${
                   isGhost
@@ -177,7 +174,7 @@ export default function CalendarMobileStack({ adminPreview = false }) {
                 {day.day.toString().padStart(2, "0")}
               </span>
 
-              {/* slika / ikonice – malo “ispada” van boxa */}
+              {/* slika / ikonice */}
               {!isGhost && (
                 <>
                   {!locked && day.hasPromo && day.icon ? (
@@ -202,8 +199,8 @@ export default function CalendarMobileStack({ adminPreview = false }) {
                           src={day.icon}
                           alt="promo icon"
                           className="absolute right-0 inset-y-0
-              h-full w-[90%]
-              object-contain object-right"
+                          h-full w-[90%]
+                          object-contain object-right"
                           loading="lazy"
                         />
                       )}

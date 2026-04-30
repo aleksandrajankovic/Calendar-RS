@@ -1,22 +1,17 @@
 // src/app/page.js
 import CalendarGrid from "@/components/CalendarGrid";
 import CalendarEnhancer from "@/components/CalendarEnhancer";
+import MonthPagination from "@/components/MonthPagination";
 import prisma from "@/lib/db";
 import { cookies } from "next/headers";
-import LangSwitcher from "@/components/LangSwitcher";
+import { unstable_cache } from "next/cache";
+import { redirect } from "next/navigation";
 import SnowOverlay from "@/components/SnowOverlay";
+import AdminLogoutButton from "@/components/AdminLogoutButton";
 
 // -------------------------
 // HELPERS
 // -------------------------
-function prevYM(y, m) {
-  return m === 0 ? { y: y - 1, m: 11 } : { y, m: m - 1 };
-}
-
-function nextYM(y, m) {
-  return m === 11 ? { y: y + 1, m: 0 } : { y, m: m + 1 };
-}
-
 function getParam(sp, key) {
   if (!sp) return undefined;
   const v = sp[key];
@@ -79,12 +74,108 @@ function normalizeSpecials(rows = [], lang) {
   });
 }
 
-function getMonthLabel(year, month, lang) {
-  const locale = lang === "sr" ? "sr-Latn-RS" : "en-US";
-  const raw = new Date(year, month, 1).toLocaleString(locale, {
-    month: "long",
-  });
-  return raw.charAt(0).toUpperCase() + raw.slice(1);
+
+const BASE_URL = "https://calendar.meridianbet.rs";
+
+// Keširani DB upiti za promo sadržaj — 5 minuta (settings se uvek čitaju sveže)
+const getPromoData = unstable_cache(
+  async (year, month) => {
+    const [weeklyPlanRows, specialRows] = await Promise.all([
+      prisma.weeklyPlan.findMany({ where: { year, month }, orderBy: { weekday: "asc" } }),
+      prisma.specialPromotion.findMany({ where: { year, month }, orderBy: [{ day: "asc" }] }),
+    ]);
+    return { weeklyPlanRows, specialRows };
+  },
+  ["promo-data"],
+  { revalidate: 300, tags: ["calendar"] }
+);
+
+// Vraća {y, m} najbližeg meseca sa promocijama u datom smeru, preskačući neaktivne mesece
+async function findNearestMonthWithPromos(currentY, currentM, direction, inactiveSet = new Set()) {
+  const isNext = direction === "next";
+
+  const dirFilter = isNext
+    ? { OR: [{ year: { gt: currentY } }, { year: currentY, month: { gt: currentM } }] }
+    : { OR: [{ year: { lt: currentY } }, { year: currentY, month: { lt: currentM } }] };
+  const dirOrder = isNext
+    ? [{ year: "asc" }, { month: "asc" }]
+    : [{ year: "desc" }, { month: "desc" }];
+
+  const [special, plan] = await Promise.all([
+    prisma.specialPromotion.findFirst({ where: { active: true, ...dirFilter }, orderBy: dirOrder }),
+    prisma.weeklyPlan.findFirst({ where: { active: true, ...dirFilter }, orderBy: dirOrder }),
+  ]);
+
+  if (!special && !plan) return null;
+
+  let candidate;
+  if (!special) candidate = { y: plan.year, m: plan.month };
+  else if (!plan) candidate = { y: special.year, m: special.month };
+  else {
+    const sOrd = special.year * 12 + special.month;
+    const pOrd = plan.year * 12 + plan.month;
+    const closer = isNext ? (sOrd <= pOrd ? special : plan) : (sOrd >= pOrd ? special : plan);
+    candidate = { y: closer.year, m: closer.month };
+  }
+
+  // Ako je kandidat deaktiviran, traži sledeći u istom smeru
+  if (inactiveSet.has(`${candidate.y}-${candidate.m}`)) {
+    return findNearestMonthWithPromos(candidate.y, candidate.m, direction, inactiveSet);
+  }
+
+  return candidate;
+}
+
+// -------------------------
+// METADATA (canonical po mesecu)
+// -------------------------
+const MONTH_NAMES_SR = [
+  "Januar", "Februar", "Mart", "April", "Maj", "Jun",
+  "Jul", "Avgust", "Septembar", "Oktobar", "Novembar", "Decembar",
+];
+
+export async function generateMetadata({ searchParams }) {
+  const sp = await searchParams;
+  const yRaw = Array.isArray(sp?.y) ? sp.y[0] : sp?.y;
+  const mRaw = Array.isArray(sp?.m) ? sp.m[0] : sp?.m;
+
+  const now = new Date();
+  const year = Number.isInteger(parseInt(yRaw)) ? parseInt(yRaw) : now.getFullYear();
+  const month =
+    Number.isInteger(parseInt(mRaw)) && parseInt(mRaw) >= 0 && parseInt(mRaw) <= 11
+      ? parseInt(mRaw)
+      : now.getMonth();
+
+  const isCurrentMonth = year === now.getFullYear() && month === now.getMonth();
+
+  const canonical = isCurrentMonth
+    ? `${BASE_URL}/`
+    : `${BASE_URL}/?y=${year}&m=${month}`;
+
+  const monthSr = MONTH_NAMES_SR[month];
+  const title = `Kalendar Promocija ${monthSr} ${year} | Meridianbet`;
+  const description = `Otkrijte dnevne promocije za ${monthSr} ${year}. Iskoristite ekskluzivne nagrade uz Meridianbet Kalendar Promocija.`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical,
+      languages: {
+        "sr": canonical,
+        "x-default": canonical,
+      },
+    },
+    openGraph: {
+      url: canonical,
+      title,
+      description,
+    },
+    twitter: {
+      title,
+      description,
+    },
+  };
 }
 
 // -------------------------
@@ -101,43 +192,58 @@ export default async function Home({ searchParams }) {
 
   const yRaw = getParam(sp, "y");
   const mRaw = getParam(sp, "m");
-  const langRaw = getParam(sp, "lang");
-
-  const ALLOWED_LANGS = ["sr", "en"];
-  const lang = ALLOWED_LANGS.includes(langRaw) ? langRaw : "sr";
+  const lang = "sr";
 
   const reqYear = Number.parseInt(yRaw ?? "", 10);
   const reqMonth = Number.parseInt(mRaw ?? "", 10);
 
-  const year = Number.isInteger(reqYear) ? reqYear : now.getFullYear();
+  const MIN_YEAR = 2024;
+  const MAX_YEAR = now.getFullYear() + 2;
+
+  const year =
+    Number.isInteger(reqYear) && reqYear >= MIN_YEAR && reqYear <= MAX_YEAR
+      ? reqYear
+      : now.getFullYear();
   const month =
     Number.isInteger(reqMonth) && reqMonth >= 0 && reqMonth <= 11
       ? reqMonth
       : now.getMonth();
 
-  // Load DB data
-  const [weeklyDefaults, weeklyPlanRows, specialRows, calendarSettings] =
-    await Promise.all([
-      prisma.weeklyPromotion.findMany({ orderBy: { weekday: "asc" } }),
-      prisma.weeklyPlan.findMany({
-        where: { year, month },
-        orderBy: { weekday: "asc" },
-      }),
-      prisma.specialPromotion.findMany({
-        where: { year, month },
-        orderBy: [{ day: "asc" }],
-      }),
-      prisma.calendarSettings.findFirst(),
-    ]);
+  // CalendarSettings se uvek čita sveže (inactive flag mora biti trenutan)
+  const calendarSettings = await prisma.calendarSettings.findFirst();
+  const monthBgs = calendarSettings?.monthBackgrounds || {};
 
-  const defaults = normWeeklyRows(weeklyDefaults, lang);
+  // Redirect korisnika sa deaktiviranog meseca
+  if (monthBgs[`${year}-${month}`]?.inactive && !isAdmin) {
+    const inactiveSet = new Set(
+      Object.entries(monthBgs)
+        .filter(([, v]) => v?.inactive)
+        .map(([k]) => k)
+    );
+    const nearest =
+      await findNearestMonthWithPromos(year, month, "next", inactiveSet) ||
+      await findNearestMonthWithPromos(year, month, "prev", inactiveSet);
+    if (nearest) redirect(`/?y=${nearest.y}&m=${nearest.m}`);
+  }
+
+  // Load promo data — admin dobija live podatke, korisnici keširane (5 min)
+  const { weeklyPlanRows, specialRows } =
+    isAdmin
+      ? await (async () => {
+          const [weeklyPlanRows, specialRows] = await Promise.all([
+            prisma.weeklyPlan.findMany({ where: { year, month }, orderBy: { weekday: "asc" } }),
+            prisma.specialPromotion.findMany({ where: { year, month }, orderBy: [{ day: "asc" }] }),
+          ]);
+          return { weeklyPlanRows, specialRows };
+        })()
+      : await getPromoData(year, month);
+
   const planned = normWeeklyRows(weeklyPlanRows, lang);
 
-  const weeklyRaw = Array.from(
+  const weekly = Array.from(
     { length: 7 },
     (_, i) =>
-      planned[i] ??
-      defaults[i] ?? {
+      planned[i] ?? {
         title: "",
         icon: "",
         richHtml: null,
@@ -148,18 +254,54 @@ export default async function Home({ searchParams }) {
         category: "ALL",
       }
   );
-  const weekly = weeklyRaw;
 
   const specials = normalizeSpecials(specialRows, lang);
 
-  // background za kalendar
-  const bgImageUrl = calendarSettings?.bgImageUrl || "/img/bg-calendar.png";
-    const bgImageUrlMobile = calendarSettings?.bgImageUrlMobile || bgImageUrl;
+  // logo
+  const logoUrl = calendarSettings?.logoUrl || "/img/meridianbet-ng.png";
 
-  // Pagination for months
-  const p = prevYM(year, month);
-  const n = nextYM(year, month);
-  const monthLabel = getMonthLabel(year, month, lang);
+  // background za kalendar — per-month override ima prioritet nad globalnim
+  const monthBg = monthBgs[`${year}-${month}`] || {};
+  const bgImageUrl = monthBg.desktop || calendarSettings?.bgImageUrl || "/img/bg-calendar.png";
+  const bgImageUrlMobile = monthBg.mobile || calendarSettings?.bgImageUrlMobile || bgImageUrl;
+
+  // pozicija kalendara — per-month override > global default
+  const pos = monthBg.position || calendarSettings?.calendarPosition || "left";
+  const mainJustify =
+    pos === "center" ? "md:justify-center" :
+    pos === "right"  ? "md:justify-end" :
+                       "md:justify-start";
+  const innerMargin =
+    pos === "center" ? "mx-auto" :
+    pos === "right"  ? "mx-auto md:mx-0 md:ml-auto" :
+                       "mx-auto md:mx-0 md:mr-auto";
+  const headingAlign =
+    pos === "center" ? "md:text-center" :
+    pos === "right"  ? "md:text-right" :
+                       "md:text-left";
+
+  // naslov kalendara — per-month override > global calendarTitle > hardcoded fallback
+  const monthTitle = monthBg.titleSr;
+  const globalTitles = calendarSettings?.calendarTitle || {};
+  const calendarTitle = monthTitle || globalTitles["sr"] || "PRAZNIČNE MISIJE";
+
+  // tema kalendara — per-month override > global default
+  const theme = monthBg.theme || calendarSettings?.theme || "default";
+
+  // Skup deaktivovanih meseci za paginaciju
+  const inactiveSet = new Set(
+    Object.entries(monthBgs)
+      .filter(([, v]) => v?.inactive)
+      .map(([k]) => k)
+  );
+
+  const isMonthInactive = !!monthBg.inactive;
+
+  // Pagination for months — preskačemo deaktivovane mesece
+  const [prevMonth, nextMonth] = await Promise.all([
+    findNearestMonthWithPromos(year, month, "prev", inactiveSet),
+    findNearestMonthWithPromos(year, month, "next", inactiveSet),
+  ]);
 
    return (
     <>
@@ -173,34 +315,21 @@ export default async function Home({ searchParams }) {
             aria-label="Meridianbet Calendar main site"
           >
             <img
-              src="/img/meridianbet-ng.png"
+              src={logoUrl}
               alt="Meridianbet"
-              className="h-10 md:h-[50px] w-auto"
+              className="h-5 md:h-[25px] w-auto"
             />
           </a>
 
-          <div className="flex items-center gap-2">
-            <LangSwitcher
-              year={year}
-              month={month}
-              lang={lang}
-              allowedLangs={ALLOWED_LANGS}
-            />
-          </div>
         </header>
 
         <main
-          className="
-      relative z-0 w-full flex-1
-      bg-no-repeat bg-cover bg-center calendar-bg
-      overflow-hidden md:overflow-auto
-      flex justify-center md:justify-start
-    "
+          className={`relative z-0 w-full flex-1 bg-no-repeat bg-cover bg-center calendar-bg overflow-hidden md:overflow-auto flex justify-center ${mainJustify}`}
           style={{ backgroundImage: `url("${bgImageUrl}")` }}
         >
           {/* MOBILE BG */}
           <div
-            className="pointer-events-none absolute inset-0 md:hidden bg-no-repeat bg-cover -z-10 calendar-mobile-bg"
+            className="pointer-events-none absolute inset-0 md:hidden bg-no-repeat bg-cover bg-center -z-10 calendar-mobile-bg"
             style={{
               backgroundImage: `url("${bgImageUrlMobile}")`,
             }}
@@ -209,52 +338,52 @@ export default async function Home({ searchParams }) {
           <SnowOverlay />
 
           <div
-            className="
-            relative z-10
-            w-full
-            max-w-6xl
-            px-4 sm:px-6 md:px-10 lg:px-16
-            pt-4 pb-4
-            md:pt-6 md:pb-10
-            mx-auto md:mx-0 md:mr-auto
-          "
+            className={`relative z-10 w-full max-w-6xl px-4 sm:px-6 md:px-10 lg:px-16 pt-4 pb-4 md:pt-6 md:pb-10 ${innerMargin}`}
           >
-            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white md:text-left text-center my-[30px]">
-              {lang === "sr" ? "PRAZNIČNE MISIJE ❄️" : "HOLIDAY MISSIONS ❄️"}
+            <h1 className={`text-3xl md:text-5xl font-extrabold tracking-tight text-white text-center ${headingAlign} my-[30px]`}>
+              {calendarTitle}
             </h1>
 
             {isAdmin && (
-              <div className="mt-2 inline-block rounded bg-amber-500/20 text-amber-200 px-3 py-1 text-sm">
-                Admin preview
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <div className="inline-flex items-center gap-2 rounded bg-amber-500/20 text-amber-200 px-3 py-1 text-sm">
+                  <span>Admin preview</span>
+                  <a
+                    href="/admin"
+                    className="underline hover:text-white transition-colors"
+                    title="Go to dashboard"
+                  >
+                    Dashboard
+                  </a>
+                  <AdminLogoutButton />
+                </div>
+                {isMonthInactive && (
+                  <div className="inline-flex items-center gap-1.5 rounded bg-red-700/40 text-red-200 border border-red-500/40 px-3 py-1 text-sm">
+                    <span>⚠ Mesec deaktiviran — nije vidljiv korisnicima</span>
+                    <a
+                      href="/admin/calendar-style/monthly"
+                      className="underline hover:text-white transition-colors"
+                    >
+                      Izmeni
+                    </a>
+                  </div>
+                )}
               </div>
             )}
 
-            {/* MOBILE PAGINATION */}
-            <div className="mt-6 flex items-center justify-center md:hidden">
-              <div className="inline-flex items-center gap-4 rounded-full bg-black/40 px-4 py-2 text-white text-sm">
-                <a
-                  href={`/?y=${p.y}&m=${p.m}&lang=${lang}`}
-                  className="p-1 hover:opacity-80"
-                  aria-label="Previous month"
-                >
-                  ‹
-                </a>
-
-                <span className="min-w-[140px] text-center font-semibold">
-                  {monthLabel} <span className="ml-1 opacity-80">{year}</span>
-                </span>
-
-                <a
-                  href={`/?y=${n.y}&m=${n.m}&lang=${lang}`}
-                  className="p-1 hover:opacity-80"
-                  aria-label="Next month"
-                >
-                  ›
-                </a>
+            {/* MOBILE PAGINATION — skriva se za football temu (paginacija je unutar CalendarMobileFootball) */}
+            {theme !== "football" && (
+              <div className="mt-6 flex items-center justify-center md:hidden">
+                <MonthPagination
+                  year={year}
+                  month={month}
+                  prevMonth={prevMonth}
+                  nextMonth={nextMonth}
+                  className="text-sm"
+                />
               </div>
-            </div>
+            )}
 
-         
             <div className="mt-6">
               <CalendarGrid
                 year={year}
@@ -263,34 +392,23 @@ export default async function Home({ searchParams }) {
                 specials={specials}
                 adminPreview={isAdmin}
                 lang={lang}
+                theme={theme}
+                prevMonth={prevMonth}
+                nextMonth={nextMonth}
               />
             </div>
 
             <CalendarEnhancer adminPreview={isAdmin} lang={lang} />
 
-            {/* MONTH PAGINATION */}
-            <div className="md:flex items-center justify-center hidden">
-              <div className="inline-flex items-center gap-4 rounded-full bg-black/40 px-4 py-2 text-white text-sm md:text-base">
-                <a
-                  href={`/?y=${p.y}&m=${p.m}&lang=${lang}`}
-                  className="p-1 hover:opacity-80"
-                  aria-label="Previous month"
-                >
-                  ‹
-                </a>
-
-                <span className="min-w-[140px] text-center font-semibold">
-                  {monthLabel} <span className="ml-1 opacity-80">{year}</span>
-                </span>
-
-                <a
-                  href={`/?y=${n.y}&m=${n.m}&lang=${lang}`}
-                  className="p-1 hover:opacity-80"
-                  aria-label="Next month"
-                >
-                  ›
-                </a>
-              </div>
+            {/* DESKTOP PAGINATION */}
+            <div className="hidden md:flex items-center justify-center">
+              <MonthPagination
+                year={year}
+                month={month}
+                prevMonth={prevMonth}
+                nextMonth={nextMonth}
+                className="text-base"
+              />
             </div>
           </div>
         </main>

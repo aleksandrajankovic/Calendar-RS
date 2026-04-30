@@ -53,7 +53,8 @@ export default function WeeklyPlanAdmin() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sp]);
 
-  const { rows, loading, error, upsert, remove } = useWeeklyPlan(year, month);
+  const { rows, loading, error, upsert, remove, bulkToggle } = useWeeklyPlan(year, month);
+  const [bulkLoading, setBulkLoading] = useState(false);
   const [editing, setEditing] = useState(null); // weekday 0..6
 
   const initial = useMemo(() => {
@@ -76,6 +77,15 @@ export default function WeeklyPlanAdmin() {
       }
     );
   }, [editing, rows, year, month]);
+
+  async function handleBulkToggle(active) {
+    setBulkLoading(true);
+    try {
+      await bulkToggle(active);
+    } finally {
+      setBulkLoading(false);
+    }
+  }
 
   async function handleToggle(wd) {
     const existing = rows.find((x) => x.weekday === wd);
@@ -147,6 +157,27 @@ export default function WeeklyPlanAdmin() {
                 </option>
               ))}
             </select>
+
+            {rows.length > 0 && (
+              <>
+                <button
+                  type="button"
+                  disabled={bulkLoading}
+                  onClick={() => handleBulkToggle(true)}
+                  className="px-3 py-1 text-xs rounded border border-green-600 text-green-700 bg-white hover:bg-green-50 disabled:opacity-50"
+                >
+                  Activate All ({rows.length})
+                </button>
+                <button
+                  type="button"
+                  disabled={bulkLoading}
+                  onClick={() => handleBulkToggle(false)}
+                  className="px-3 py-1 text-xs rounded border border-neutral-400 text-neutral-600 bg-white hover:bg-neutral-50 disabled:opacity-50"
+                >
+                  Deactivate All ({rows.length})
+                </button>
+              </>
+            )}
           </div>
         }
         columns={[
