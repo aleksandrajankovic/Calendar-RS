@@ -312,7 +312,7 @@ export default async function Home({ searchParams }) {
         <header
           className={
             theme === "football"
-              ? "absolute inset-x-0 top-0 z-20 flex items-center justify-center px-4 py-5 md:py-6"
+              ? "absolute inset-x-0 top-0 z-20 flex items-center justify-center px-4 py-6 md:py-7"
               : "w-full bg-[linear-gradient(90deg,#A6080E_0%,#D11101_100%)] px-4 md:px-16 py-2 flex items-center justify-between shrink-0"
           }
         >
@@ -325,7 +325,7 @@ export default async function Home({ searchParams }) {
             <img
               src={logoUrl}
               alt="Meridianbet"
-              className={theme === "football" ? "h-7 md:h-8 w-auto" : "h-5 md:h-[25px] w-auto"}
+              className={theme === "football" ? "h-8 md:h-10 w-auto" : "h-5 md:h-[25px] w-auto"}
             />
           </a>
 
@@ -348,7 +348,11 @@ export default async function Home({ searchParams }) {
           <div
             className={`relative z-10 w-full max-w-6xl px-4 sm:px-6 md:px-10 lg:px-16 pt-4 pb-4 md:pt-6 md:pb-10 ${innerMargin}`}
           >
-            <h1 className={`text-3xl md:text-5xl font-extrabold tracking-tight text-white text-center ${headingAlign} my-[30px]`}>
+            <h1
+              className={`text-3xl md:text-5xl font-extrabold tracking-tight text-white text-center ${headingAlign} ${
+                theme === "football" ? "mt-16 mb-8 md:mt-20 md:mb-10" : "my-[30px]"
+              }`}
+            >
               {calendarTitle}
             </h1>
 
