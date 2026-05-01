@@ -96,7 +96,7 @@ export default function CalendarMobileFootball({
     : "ring-1 ring-white/15";
 
   return (
-    <div className="w-full flex flex-col items-center justify-start pt-3 pb-8 gap-5 [@media(min-height:800px)]:min-h-[calc(100dvh-230px)] [@media(min-height:800px)]:justify-between">
+    <div className="w-full flex flex-col items-center justify-start pt-3 pb-8 gap-5 [--football-ball-size:min(72vw,320px)] [@media(min-height:800px)]:gap-6 [@media(min-height:800px)]:[--football-ball-size:min(68vw,292px)]">
 
       {/* ── DATE CHIP STRIP ── */}
       <div className="w-full flex flex-col">
@@ -132,19 +132,20 @@ export default function CalendarMobileFootball({
                   <span
                     className={`
                       absolute inset-0 rounded-sm
-                      ${isActive ? (isDayToday ? "bg-[#FFD700]" : "bg-white") : "bg-white/[0.055]"}
+                      ${isActive ? (isDayToday ? "bg-[#FFD700]" : "bg-white") : "bg-transparent"}
                     `}
                     style={{
                       transform: "skewX(-12deg)",
                       border: isActive
                         ? "1.5px solid rgba(255,215,0,0.55)"
-                        : "1px solid rgba(255,255,255,0.18)",
+                        : "1.5px solid rgba(255,255,255,0.34)",
                       boxShadow: isActive
                         ? "0 0 16px rgba(255,215,0,0.28)"
-                        : "inset 0 1px 0 rgba(255,255,255,0.12), 0 8px 18px rgba(0,0,0,0.22)",
+                        : "inset 1px 1px 0 rgba(255,255,255,0.22), inset -1px -1px 0 rgba(80,120,170,0.16), 0 0 10px rgba(120,170,255,0.1), 0 8px 18px rgba(0,0,0,0.22)",
                       backgroundImage: isActive
                         ? "linear-gradient(135deg, rgba(255,255,255,0.22), transparent 42%)"
-                        : "linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.02) 46%, rgba(255,255,255,0.08))",
+                        : "linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.025) 35%, transparent 64%)",
+                      backdropFilter: isActive ? "none" : "blur(1px)",
                     }}
                   />
 
@@ -255,8 +256,8 @@ export default function CalendarMobileFootball({
           <span
             className="absolute rounded-full pointer-events-none ball-glow-breathe"
             style={{
-              width: "calc(min(72vw, 320px) + 80px)",
-              height: "calc(min(72vw, 320px) + 80px)",
+              width: "calc(var(--football-ball-size) + 80px)",
+              height: "calc(var(--football-ball-size) + 80px)",
               background: "radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)",
             }}
           />
@@ -265,8 +266,8 @@ export default function CalendarMobileFootball({
           <span
             className="absolute rounded-full pointer-events-none ball-pulse-ring-delay"
             style={{
-              width: "calc(min(72vw, 320px) + 44px)",
-              height: "calc(min(72vw, 320px) + 44px)",
+              width: "calc(var(--football-ball-size) + 44px)",
+              height: "calc(var(--football-ball-size) + 44px)",
               border: "1px solid rgba(255,255,255,0.04)",
             }}
           />
@@ -275,8 +276,8 @@ export default function CalendarMobileFootball({
           <span
             className="absolute rounded-full pointer-events-none ball-pulse-ring"
             style={{
-              width: "calc(min(72vw, 320px) + 24px)",
-              height: "calc(min(72vw, 320px) + 24px)",
+              width: "calc(var(--football-ball-size) + 24px)",
+              height: "calc(var(--football-ball-size) + 24px)",
               border: "2px solid rgba(255,255,255,0.08)",
             }}
           />
@@ -287,7 +288,7 @@ export default function CalendarMobileFootball({
             disabled={locked}
             className={`
               relative rounded-full overflow-hidden
-              w-[min(72vw,320px)] h-[min(72vw,320px)]
+              w-[var(--football-ball-size)] h-[var(--football-ball-size)]
               ${ballRing}
               bg-black/40
               transition duration-300
