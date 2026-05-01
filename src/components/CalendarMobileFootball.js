@@ -102,14 +102,18 @@ export default function CalendarMobileFootball({
       <div className="w-full flex flex-col">
 
         {/* Scrollable strip */}
-        <div className="relative w-full">
+        <div className="relative w-full h-[70px] overflow-hidden" style={{ contain: "layout paint" }}>
           {/* Scrollable strip */}
           <div
             ref={stripRef}
-            className="w-full overflow-x-auto no-scrollbar px-4 touch-pan-x"
-            style={{ scrollbarWidth: "none" }}
+            className="w-full h-full overflow-x-auto overflow-y-hidden no-scrollbar px-4 touch-pan-x overscroll-x-contain overscroll-y-none"
+            style={{
+              scrollbarWidth: "none",
+              WebkitOverflowScrolling: "touch",
+              transform: "translateZ(0)",
+            }}
           >
-          <div className="flex gap-2.5 w-max">
+          <div className="flex h-full items-center gap-2.5 w-max">
             {days.map((day, index) => {
               const isActive = index === selectedIndex;
               const isDayToday = day.isToday;
