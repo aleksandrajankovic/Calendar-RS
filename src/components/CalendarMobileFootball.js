@@ -21,6 +21,8 @@ export default function CalendarMobileFootball({
   const chipRefs = useRef([]);
   const stripRef = useRef(null);
   const hideHintListenerRef = useRef(null);
+  const isTouchingStripRef = useRef(false);
+  const lastSwipeVibrateAtRef = useRef(0);
 
   useEffect(() => {
     const dataEl = document.getElementById("calendar-data");
@@ -62,6 +64,14 @@ export default function CalendarMobileFootball({
       const maxScroll = scrollWidth - clientWidth;
       if (maxScroll > 0) {
         setActiveDot(Math.round((scrollLeft / maxScroll) * (NUM_DOTS - 1)));
+      }
+
+      if (isTouchingStripRef.current && navigator?.vibrate) {
+        const now = Date.now();
+        if (now - lastSwipeVibrateAtRef.current > 180) {
+          navigator.vibrate(8);
+          lastSwipeVibrateAtRef.current = now;
+        }
       }
     };
     strip.addEventListener("scroll", updateDots, { passive: true });
@@ -107,6 +117,15 @@ export default function CalendarMobileFootball({
           <div
             ref={stripRef}
             className="w-full h-full overflow-x-auto overflow-y-hidden no-scrollbar px-4 touch-pan-x overscroll-x-contain overscroll-y-none"
+            onTouchStart={() => {
+              isTouchingStripRef.current = true;
+            }}
+            onTouchEnd={() => {
+              isTouchingStripRef.current = false;
+            }}
+            onTouchCancel={() => {
+              isTouchingStripRef.current = false;
+            }}
             style={{
               scrollbarWidth: "none",
               WebkitOverflowScrolling: "touch",
