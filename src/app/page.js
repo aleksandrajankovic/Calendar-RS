@@ -386,7 +386,7 @@ export default async function Home({ searchParams }) {
               </div>
             )}
 
-            <div className="mt-6">
+            <div className={theme === "football" ? "mt-2 md:mt-1" : "mt-6"}>
               <CalendarGrid
                 year={year}
                 month={month}

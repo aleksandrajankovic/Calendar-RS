@@ -35,12 +35,18 @@ export default function CalendarGrid({
     >
 
       {/* DESKTOP GRID */}
-      <div className="hidden md:block max-w-full py-5 md:py-6 lg:py-7 rounded-4xl bg-transparent">
+      <div
+        className={`hidden md:block rounded-4xl bg-transparent ${
+          isFootball
+            ? "mx-auto max-w-[1120px] py-2 lg:py-3"
+            : "max-w-full py-5 md:py-6 lg:py-7"
+        }`}
+      >
         <div className="flex flex-col">
           <div
             className={`grid grid-cols-7 gap-1.5 md:gap-2 ${
               isFootball
-                ? "auto-rows-[70px] md:auto-rows-[90px] lg:auto-rows-[120px]"
+                ? "auto-rows-[70px] md:auto-rows-[78px] lg:auto-rows-[96px] xl:auto-rows-[104px]"
                 : "auto-rows-[52px] md:auto-rows-[70px] lg:auto-rows-[95px]"
             }`}
             data-cal-grid
