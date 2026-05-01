@@ -8,6 +8,7 @@ import { unstable_cache } from "next/cache";
 import { redirect } from "next/navigation";
 import SnowOverlay from "@/components/SnowOverlay";
 import AdminLogoutButton from "@/components/AdminLogoutButton";
+import { bungee } from "@/app/fonts";
 
 // -------------------------
 // HELPERS
@@ -349,9 +350,11 @@ export default async function Home({ searchParams }) {
             className={`relative z-10 w-full max-w-6xl px-4 sm:px-6 md:px-10 lg:px-16 pt-4 pb-4 md:pt-6 md:pb-10 ${innerMargin}`}
           >
             <h1
-              className={`text-3xl md:text-5xl font-extrabold tracking-tight text-white text-center ${headingAlign} ${
+              className={`text-3xl md:text-5xl ${
+                theme === "football" ? "font-normal" : "font-extrabold"
+              } tracking-tight text-white text-center ${headingAlign} ${
                 theme === "football" ? "mt-16 mb-8 md:mt-20 md:mb-10" : "my-[30px]"
-              }`}
+              } ${theme === "football" ? bungee.className : ""}`}
             >
               {calendarTitle}
             </h1>
