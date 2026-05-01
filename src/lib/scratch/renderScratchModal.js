@@ -47,7 +47,7 @@ export function renderScratchModal({
 
     <!-- SCRATCH AREA -->
     <div>
-      <div class="relative overflow-hidden rounded-2xl bg-[#6b21a8]" style="height:140px; line-height:0">
+      <div class="relative h-[140px] overflow-hidden rounded-2xl bg-[#6b21a8] md:h-[160px]" style="line-height:0">
         ${
           imgSrc
             ? `<img src="${imgSrc}" alt="" class="absolute inset-0 z-0 block w-full h-full object-cover" />`
