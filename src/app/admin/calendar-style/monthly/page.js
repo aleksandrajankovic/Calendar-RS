@@ -329,7 +329,7 @@ export default function MonthlySettingsPage() {
                     Choose from gallery
                   </button>
                 </div>
-                <div className="mt-3 border border-neutral-200 rounded-lg overflow-hidden max-w-[320px] aspect-9/16 bg-black/40">
+                <div className="mt-3 border border-neutral-200 rounded-lg overflow-hidden w-full max-w-[420px] aspect-9/16 bg-black/40">
                   {currentBg.mobile
                     ? <img src={currentBg.mobile} alt="month mobile bg preview" className="w-full h-full object-cover" />
                     : <div className="w-full h-full flex items-center justify-center text-xs text-neutral-500">Uses default</div>

@@ -212,8 +212,8 @@ const year = payload.year;
                           src={day.icon}
                           alt="promo icon"
                           className="absolute right-0 inset-y-0
-                          h-full w-[90%]
-                          object-contain object-right"
+                            h-full w-[90%]
+                            object-cover object-right"
                           loading="lazy"
                         />
                       )}

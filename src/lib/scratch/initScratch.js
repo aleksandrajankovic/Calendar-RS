@@ -96,7 +96,10 @@ export function initScratch() {
     img.onload = () => {
       ctx.globalCompositeOperation = "source-over";
       ctx.clearRect(0, 0, r.width, r.height);
+      ctx.fillStyle = "#6b21a8";
+      ctx.fillRect(0, 0, r.width, r.height);
       ctx.drawImage(img, 0, 0, r.width, r.height);
+      canvas.style.backgroundColor = "transparent";
 
       ctx.globalCompositeOperation = "destination-out";
       ctx.lineWidth = 46;
@@ -108,6 +111,7 @@ export function initScratch() {
       ctx.globalCompositeOperation = "source-over";
       ctx.fillStyle = "#6b21a8";
       ctx.fillRect(0, 0, r.width, r.height);
+      canvas.style.backgroundColor = "transparent";
 
       ctx.globalCompositeOperation = "destination-out";
       ctx.lineWidth = 46;

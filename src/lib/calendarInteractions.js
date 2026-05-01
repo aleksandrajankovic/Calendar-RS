@@ -34,7 +34,11 @@ function renderNormalModal(entry, lang = "sr") {
   if (contentHtml) {
     const imgMatch = contentHtml.match(/<img[^>]*>/i);
     if (imgMatch) {
-      imageHtml = imgMatch[0];
+      // Strip inline dimensions so CSS fully controls sizing
+      imageHtml = imgMatch[0]
+        .replace(/\s+width="[^"]*"/gi, "")
+        .replace(/\s+height="[^"]*"/gi, "")
+        .replace(/\s+style="[^"]*"/gi, "");
       contentHtml = contentHtml.replace(imgMatch[0], "");
     }
   }

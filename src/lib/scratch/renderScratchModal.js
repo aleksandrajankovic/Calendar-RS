@@ -46,12 +46,12 @@ export function renderScratchModal({
   <div class="w-full max-w-[420px] mx-auto rounded-3xl overflow-hidden">
 
     <!-- SCRATCH AREA -->
-    <div class="p-4">
-      <div class="relative overflow-hidden rounded-2xl" style="height:160px">
+    <div>
+      <div class="relative overflow-hidden rounded-2xl bg-[#6b21a8]" style="height:140px; line-height:0">
         ${
           imgSrc
-            ? `<img src="${imgSrc}" alt="" class="absolute inset-0 w-full h-full object-contain" />`
-            : `<div class="absolute inset-0 flex items-center justify-center text-white/70 text-sm">No image</div>`
+            ? `<img src="${imgSrc}" alt="" class="absolute inset-0 z-0 block w-full h-full object-cover" />`
+            : `<div class="absolute inset-0 z-0 flex items-center justify-center text-white/70 text-sm leading-normal">No image</div>`
         }
 
         <canvas
@@ -59,7 +59,8 @@ export function renderScratchModal({
           data-key="${safeKey}"
           data-cover="${coverSrc}"
           data-threshold="${threshold}"
-          class="absolute inset-0 z-10 w-full h-full touch-none select-none"
+          class="absolute -inset-px z-10 block touch-none select-none"
+          style="width:calc(100% + 2px); height:calc(100% + 2px); background-color:#6b21a8"
         ></canvas>
       </div>
 
