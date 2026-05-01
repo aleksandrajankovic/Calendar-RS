@@ -1,5 +1,5 @@
 // src/components/CalendarDayBall.js
-import { rowdies } from "@/app/fonts";
+import { fwc2026UltraCondensed } from "@/app/fonts";
 
 export default function CalendarDayBall({ cell, adminPreview }) {
   const locked = cell.isLocked && !adminPreview;
@@ -52,10 +52,10 @@ export default function CalendarDayBall({ cell, adminPreview }) {
       {/* date number */}
       <span
         className={`
-          ${rowdies.className}
-          text-[11px] md:text-[13px] lg:text-[15px] leading-none
+          ${fwc2026UltraCondensed.className}
+          text-[14px] md:text-[16px] lg:text-[18px] leading-none tracking-[0.02em]
           ${isToday ? "text-[#FACC01]" : "text-white/80"}
-          font-bold
+          font-normal
         `}
       >
         {cell.day.toString().padStart(2, "0")}

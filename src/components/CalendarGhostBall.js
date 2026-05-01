@@ -1,5 +1,5 @@
 // src/components/CalendarGhostBall.js
-import { rowdies } from "@/app/fonts";
+import { fwc2026UltraCondensed } from "@/app/fonts";
 
 export default function CalendarGhostBall({ cell }) {
   return (
@@ -7,9 +7,9 @@ export default function CalendarGhostBall({ cell }) {
       <div className="rounded-full h-[78%] aspect-square bg-black/40 ring-1 ring-white/8" />
       <span
         className={`
-          ${rowdies.className}
-          text-[11px] md:text-[13px] lg:text-[15px] leading-none
-          text-white/30 font-bold
+          ${fwc2026UltraCondensed.className}
+          text-[14px] md:text-[16px] lg:text-[18px] leading-none tracking-[0.02em]
+          text-white/30 font-normal
         `}
       >
         {cell.day.toString().padStart(2, "0")}

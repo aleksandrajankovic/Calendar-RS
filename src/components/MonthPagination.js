@@ -1,6 +1,13 @@
 // src/components/MonthPagination.js
 
-export default function MonthPagination({ year, month, prevMonth, nextMonth, className = "" }) {
+export default function MonthPagination({
+  year,
+  month,
+  prevMonth,
+  nextMonth,
+  className = "",
+  labelClassName = "",
+}) {
   const raw = new Date(year, month, 1).toLocaleString("sr-Latn-RS", { month: "long" });
   const monthLabel = raw.charAt(0).toUpperCase() + raw.slice(1);
 
@@ -18,7 +25,7 @@ export default function MonthPagination({ year, month, prevMonth, nextMonth, cla
         <span className="p-1 opacity-20 cursor-default" aria-hidden="true">‹</span>
       )}
 
-      <span className="min-w-[140px] text-center font-semibold">
+      <span className={`min-w-[140px] text-center font-semibold ${labelClassName}`}>
         {monthLabel} <span className="ml-1 opacity-80">{year}</span>
       </span>
 

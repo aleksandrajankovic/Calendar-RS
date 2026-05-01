@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { russoOne } from "@/app/fonts";
+import { fwc2026UltraCondensed } from "@/app/fonts";
 import MonthPagination from "@/components/MonthPagination";
 
 const NUM_DOTS = 7;
@@ -168,8 +168,8 @@ export default function CalendarMobileFootball({
                   <span
                     className={`
                       relative z-10
-                      ${russoOne.className}
-                      text-[18px] leading-none italic font-bold
+                      ${fwc2026UltraCondensed.className}
+                      text-[22px] leading-none font-normal tracking-[0.02em]
                       ${isActive ? "text-black" : "text-white"}
                     `}
                   >
@@ -316,8 +316,8 @@ export default function CalendarMobileFootball({
           <div className="flex flex-col items-center gap-1">
             <span
               className={`
-                ${russoOne.className}
-                text-[36px] leading-none italic font-bold
+                ${fwc2026UltraCondensed.className}
+                text-[42px] leading-none font-normal tracking-[0.02em]
                 ${isToday ? "text-[#FFD700]" : "text-white"}
               `}
             >
@@ -334,6 +334,7 @@ export default function CalendarMobileFootball({
             prevMonth={prevMonth}
             nextMonth={nextMonth}
             className="text-sm mt-1"
+            labelClassName={fwc2026UltraCondensed.className}
           />
         )}
       </div>

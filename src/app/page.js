@@ -350,11 +350,13 @@ export default async function Home({ searchParams }) {
             className={`relative z-10 w-full max-w-6xl px-4 sm:px-6 md:px-10 lg:px-16 pt-4 pb-4 md:pt-6 md:pb-10 ${innerMargin}`}
           >
             <h1
-              className={`text-[43px] md:text-[58px] ${
-                theme === "football" ? "font-normal" : "font-extrabold"
-              } ${theme === "football" ? "tracking-[0.06em]" : "tracking-tight"} text-white text-center ${headingAlign} ${
-                theme === "football" ? "mt-16 mb-8 md:mt-20 md:mb-10" : "my-[30px]"
-              } ${theme === "football" ? fwc2026UltraCondensed.className : ""}`}
+              className={`${
+                theme === "football"
+                  ? `text-[36px] md:text-[58px] font-normal tracking-[0.03em] ${fwc2026UltraCondensed.className}`
+                  : "text-3xl md:text-5xl font-extrabold tracking-tight"
+              } text-white text-center ${headingAlign} ${
+                theme === "football" ? "mt-14 mb-8 md:mt-16 md:mb-10" : "my-[30px]"
+              }`}
             >
               {calendarTitle}
             </h1>
@@ -423,6 +425,7 @@ export default async function Home({ searchParams }) {
                 prevMonth={prevMonth}
                 nextMonth={nextMonth}
                 className="text-base"
+                labelClassName={theme === "football" ? fwc2026UltraCondensed.className : ""}
               />
             </div>
           </div>
