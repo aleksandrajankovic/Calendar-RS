@@ -355,7 +355,7 @@ export default async function Home({ searchParams }) {
                   ? `text-[36px] md:text-[58px] font-normal tracking-[0.03em] ${fwc2026UltraCondensed.className}`
                   : "text-3xl md:text-5xl font-extrabold tracking-tight"
               } text-white text-center ${headingAlign} ${
-                theme === "football" ? "mt-14 mb-8 md:mt-16 md:mb-10" : "my-[30px]"
+                theme === "football" ? "mt-10 mb-4 [@media(min-height:800px)]:mb-10 md:mt-10 md:mb-10" : "my-[30px]"
               }`}
             >
               {calendarTitle}

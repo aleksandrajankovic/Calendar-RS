@@ -96,7 +96,7 @@ export default function CalendarMobileFootball({
     : "ring-1 ring-white/15";
 
   return (
-    <div className="w-full flex flex-col items-center justify-evenly pt-4 pb-8 gap-6">
+    <div className="w-full flex flex-col items-center justify-start pt-3 pb-8 gap-5 [@media(min-height:800px)]:min-h-[calc(100dvh-230px)] [@media(min-height:800px)]:justify-between">
 
       {/* ── DATE CHIP STRIP ── */}
       <div className="w-full flex flex-col">
@@ -132,14 +132,19 @@ export default function CalendarMobileFootball({
                   <span
                     className={`
                       absolute inset-0 rounded-sm
-                      ${isActive ? (isDayToday ? "bg-[#FFD700]" : "bg-white") : "bg-white/20"}
+                      ${isActive ? (isDayToday ? "bg-[#FFD700]" : "bg-white") : "bg-white/[0.055]"}
                     `}
                     style={{
                       transform: "skewX(-12deg)",
-                      ...(isDayToday ? {
-                        border: "1.5px solid rgba(255,215,0,0.5)",
-                        boxShadow: "0 0 12px rgba(255,215,0,0.25)",
-                      } : {}),
+                      border: isActive
+                        ? "1.5px solid rgba(255,215,0,0.55)"
+                        : "1px solid rgba(255,255,255,0.18)",
+                      boxShadow: isActive
+                        ? "0 0 16px rgba(255,215,0,0.28)"
+                        : "inset 0 1px 0 rgba(255,255,255,0.12), 0 8px 18px rgba(0,0,0,0.22)",
+                      backgroundImage: isActive
+                        ? "linear-gradient(135deg, rgba(255,255,255,0.22), transparent 42%)"
+                        : "linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.02) 46%, rgba(255,255,255,0.08))",
                     }}
                   />
 
@@ -333,8 +338,8 @@ export default function CalendarMobileFootball({
             month={month}
             prevMonth={prevMonth}
             nextMonth={nextMonth}
-            className="text-sm mt-1"
-            labelClassName={fwc2026UltraCondensed.className}
+            className="text-lg mt-1"
+            labelClassName={`${fwc2026UltraCondensed.className} text-2xl leading-none`}
           />
         )}
       </div>
