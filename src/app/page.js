@@ -309,7 +309,13 @@ export default async function Home({ searchParams }) {
     <>
       {/* TOP HEADER BAR */}
       <div className="min-h-[100dvh] flex flex-col overflow-hidden">
-        <header className="w-full bg-[linear-gradient(90deg,#A6080E_0%,#D11101_100%)] px-4 md:px-16 py-2 flex items-center justify-between shrink-0">
+        <header
+          className={
+            theme === "football"
+              ? "absolute inset-x-0 top-0 z-20 flex items-center justify-center px-4 py-5 md:py-6"
+              : "w-full bg-[linear-gradient(90deg,#A6080E_0%,#D11101_100%)] px-4 md:px-16 py-2 flex items-center justify-between shrink-0"
+          }
+        >
           <a
             href="https://meridianbet.rs"
             target="_blank"
@@ -319,7 +325,7 @@ export default async function Home({ searchParams }) {
             <img
               src={logoUrl}
               alt="Meridianbet"
-              className="h-5 md:h-[25px] w-auto"
+              className={theme === "football" ? "h-7 md:h-8 w-auto" : "h-5 md:h-[25px] w-auto"}
             />
           </a>
 
@@ -403,7 +409,7 @@ export default async function Home({ searchParams }) {
             <CalendarEnhancer adminPreview={isAdmin} lang={lang} />
 
             {/* DESKTOP PAGINATION */}
-            <div className="hidden md:flex items-center justify-center">
+            <div className={`hidden md:flex items-center justify-center ${theme === "football" ? "mt-4" : ""}`}>
               <MonthPagination
                 year={year}
                 month={month}
