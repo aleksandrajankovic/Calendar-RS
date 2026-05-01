@@ -1,6 +1,7 @@
 // src/app/api/calendar-settings/route.js
 export const runtime = "nodejs";
 
+import { revalidateTag } from "next/cache";
 import prisma from "@/lib/db";
 import { getAdminFromRequest } from "@/lib/auth";
 
@@ -83,6 +84,7 @@ export async function PUT(req) {
     create: { id: 1, ...patch },
   });
 
+  revalidateTag("calendar");
   return Response.json({
     bgImageUrl:       row.bgImageUrl       || "/img/bg-calendar.png",
     bgImageUrlMobile: row.bgImageUrlMobile || "/img/bg-calendar-mobile.png",

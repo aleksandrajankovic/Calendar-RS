@@ -1,6 +1,7 @@
 // src/app/api/weekly-plan/route.js
 export const runtime = "nodejs";
 
+import { revalidateTag } from "next/cache";
 import prisma from "@/lib/db";
 import { getAdminFromRequest } from "@/lib/auth";
 import { sanitizeRichHtml } from "@/lib/sanitize";
@@ -45,6 +46,7 @@ export async function PATCH(req) {
     data: { active },
   });
 
+  revalidateTag("calendar");
   return Response.json({ updated: count });
 }
 
@@ -95,6 +97,7 @@ export async function PUT(req) {
     update: data,
   });
 
+  revalidateTag("calendar");
   return Response.json(row);
 }
 
@@ -122,5 +125,6 @@ export async function DELETE(req) {
     // ako ne postoji, i dalje vraćamo 204
   }
 
+  revalidateTag("calendar");
   return new Response(null, { status: 204 });
 }

@@ -1,6 +1,7 @@
 // src/app/api/special/[id]/route.js
 export const runtime = "nodejs";
 
+import { revalidateTag } from "next/cache";
 import prisma from "@/lib/db";
 import { getAdminFromRequest } from "@/lib/auth";
 import { sanitizeRichHtml } from "@/lib/sanitize";
@@ -60,6 +61,7 @@ export async function PUT(req, { params }) {
     create: { id: specialId, ...data },
   });
 
+  revalidateTag("calendar");
   return Response.json(row);
 }
 
@@ -87,6 +89,7 @@ export async function PATCH(req, { params }) {
       where: { id: specialId },
       data: patch,
     });
+    revalidateTag("calendar");
     return Response.json(row);
   } catch {
     return new Response("not found", { status: 404 });
@@ -102,5 +105,6 @@ export async function DELETE(req, { params }) {
   if (!Number.isInteger(specialId)) return new Response("bad id", { status: 400 });
 
   await prisma.specialPromotion.delete({ where: { id: specialId } }).catch(() => {});
+  revalidateTag("calendar");
   return new Response(null, { status: 204 });
 }
