@@ -228,6 +228,57 @@ button {
     display: none;              /* WebKit */
   }
 }
+/* -------- MOBILE FOOTBALL ANIMATIONS -------- */
+
+@keyframes ball-pulse-ring {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.08); opacity: 0.3; }
+}
+
+@keyframes ball-glow-breathe {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+
+@keyframes nudge-left {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-4px); }
+}
+
+@keyframes nudge-right {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(4px); }
+}
+
+@keyframes promo-dot-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.6); opacity: 0.5; }
+}
+
+.ball-pulse-ring {
+  animation: ball-pulse-ring 2.5s ease-in-out infinite;
+}
+
+.ball-pulse-ring-delay {
+  animation: ball-pulse-ring 2.5s ease-in-out 0.8s infinite;
+}
+
+.ball-glow-breathe {
+  animation: ball-glow-breathe 3s ease-in-out infinite;
+}
+
+.nudge-left {
+  animation: nudge-left 2s ease-in-out infinite;
+}
+
+.nudge-right {
+  animation: nudge-right 2s ease-in-out infinite;
+}
+
+.promo-dot-pulse {
+  animation: promo-dot-pulse 2s ease-in-out infinite;
+}
+
 /* -------- SNOW -------- */
 
 .snowflake {

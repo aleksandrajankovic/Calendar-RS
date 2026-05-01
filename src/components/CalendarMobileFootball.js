@@ -5,6 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import { russoOne } from "@/app/fonts";
 import MonthPagination from "@/components/MonthPagination";
 
+const NUM_DOTS = 7;
+
 export default function CalendarMobileFootball({
   adminPreview = false,
   year,
@@ -14,8 +16,11 @@ export default function CalendarMobileFootball({
 }) {
   const [days, setDays] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [swipeHintPhase, setSwipeHintPhase] = useState("visible"); // visible | fading | hidden
+  const [activeDot, setActiveDot] = useState(0);
   const chipRefs = useRef([]);
   const stripRef = useRef(null);
+  const hideHintListenerRef = useRef(null);
 
   useEffect(() => {
     const dataEl = document.getElementById("calendar-data");
@@ -46,6 +51,40 @@ export default function CalendarMobileFootball({
     }
   }, [selectedIndex, days.length]);
 
+  // Scroll listeners: dots tracking + swipe hint hide
+  useEffect(() => {
+    if (!days.length) return;
+    const strip = stripRef.current;
+    if (!strip) return;
+
+    const updateDots = () => {
+      const { scrollLeft, scrollWidth, clientWidth } = strip;
+      const maxScroll = scrollWidth - clientWidth;
+      if (maxScroll > 0) {
+        setActiveDot(Math.round((scrollLeft / maxScroll) * (NUM_DOTS - 1)));
+      }
+    };
+    strip.addEventListener("scroll", updateDots, { passive: true });
+
+    // Delay hideHint so auto-scroll on load doesn't trigger it
+    const hideHint = () => {
+      setSwipeHintPhase("fading");
+      setTimeout(() => setSwipeHintPhase("hidden"), 500);
+    };
+    hideHintListenerRef.current = hideHint;
+    const timer = setTimeout(() => {
+      strip.addEventListener("scroll", hideHint, { once: true, passive: true });
+    }, 400);
+
+    return () => {
+      clearTimeout(timer);
+      strip.removeEventListener("scroll", updateDots);
+      if (hideHintListenerRef.current) {
+        strip.removeEventListener("scroll", hideHintListenerRef.current);
+      }
+    };
+  }, [days.length]);
+
   if (!days.length) return null;
 
   const selectedDay = days[selectedIndex];
@@ -60,93 +99,219 @@ export default function CalendarMobileFootball({
     <div className="w-full flex flex-col items-center justify-evenly pt-4 pb-8 gap-6">
 
       {/* ── DATE CHIP STRIP ── */}
-      <div
-        ref={stripRef}
-        className="w-full overflow-x-auto no-scrollbar px-4 touch-pan-x"
-        style={{ scrollbarWidth: "none" }}
-      >
-        <div className="flex gap-2.5 w-max">
-          {days.map((day, index) => {
-            const isActive = index === selectedIndex;
-            const isDayToday = day.isToday;
+      <div className="w-full flex flex-col">
 
-            return (
-              <button
-                key={`chip-${day.day}`}
-                ref={(el) => (chipRefs.current[index] = el)}
-                onClick={() => { navigator?.vibrate?.(20); setSelectedIndex(index); }}
-                className={`
-                  relative flex items-center justify-center
-                  h-14 w-11 shrink-0
-                  transition duration-200
-                  ${isActive ? "scale-110" : "scale-100 opacity-55 hover:opacity-80"}
-                `}
-                aria-label={`Dan ${day.day}`}
-              >
-                {/* parallelogram shape */}
-                <span
+        {/* Scrollable strip */}
+        <div className="relative w-full">
+          {/* Scrollable strip */}
+          <div
+            ref={stripRef}
+            className="w-full overflow-x-auto no-scrollbar px-4 touch-pan-x"
+            style={{ scrollbarWidth: "none" }}
+          >
+          <div className="flex gap-2.5 w-max">
+            {days.map((day, index) => {
+              const isActive = index === selectedIndex;
+              const isDayToday = day.isToday;
+              const isDayPromo = day.hasPromo;
+
+              return (
+                <button
+                  key={`chip-${day.day}`}
+                  ref={(el) => (chipRefs.current[index] = el)}
+                  onClick={() => { navigator?.vibrate?.(20); setSelectedIndex(index); }}
                   className={`
-                    absolute inset-0 rounded-sm
-                    ${isActive ? (isDayToday ? "bg-[#FFD700]" : "bg-white") : "bg-white/20"}
+                    relative flex items-center justify-center
+                    h-14 w-11 shrink-0
+                    transition duration-200
+                    ${isActive ? "scale-110" : "scale-100 opacity-55 hover:opacity-80"}
                   `}
-                  style={{ transform: "skewX(-12deg)" }}
-                />
-                {/* number */}
-                <span
-                  className={`
-                    relative z-10
-                    ${russoOne.className}
-                    text-[18px] leading-none italic font-bold
-                    ${isActive ? "text-black" : "text-white"}
-                  `}
+                  aria-label={`Dan ${day.day}`}
                 >
-                  {day.day}
-                </span>
-              </button>
-            );
-          })}
+                  {/* parallelogram background */}
+                  <span
+                    className={`
+                      absolute inset-0 rounded-sm
+                      ${isActive ? (isDayToday ? "bg-[#FFD700]" : "bg-white") : "bg-white/20"}
+                    `}
+                    style={{
+                      transform: "skewX(-12deg)",
+                      ...(isDayToday ? {
+                        border: "1.5px solid rgba(255,215,0,0.5)",
+                        boxShadow: "0 0 12px rgba(255,215,0,0.25)",
+                      } : {}),
+                    }}
+                  />
+
+                  {/* today dot — top right */}
+                  {isDayToday && (
+                    <span
+                      className="absolute top-1 right-1 z-20 rounded-full"
+                      style={{ width: 4, height: 4, background: "#FFD700" }}
+                    />
+                  )}
+
+                  {/* promo dot — bottom center, wrapper handles position, inner handles animation */}
+                  {isDayPromo && (
+                    <span
+                      className="absolute bottom-1 left-1/2 z-20"
+                      style={{ transform: "translateX(-50%)" }}
+                    >
+                      <span
+                        className="block rounded-full promo-dot-pulse"
+                        style={{ width: 5, height: 5, background: "#4CAF50" }}
+                      />
+                    </span>
+                  )}
+
+                  {/* number */}
+                  <span
+                    className={`
+                      relative z-10
+                      ${russoOne.className}
+                      text-[18px] leading-none italic font-bold
+                      ${isActive ? "text-black" : "text-white"}
+                    `}
+                  >
+                    {day.day}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          </div>{/* close scrollable strip */}
+        </div>{/* close relative strip wrapper */}
+
+        {/* Dots row: [← arrow] [dots] [→ arrow] */}
+        <div className="flex justify-center items-center gap-1.5 mt-2.5 px-4">
+
+          {/* Left arrow */}
+          <svg
+            className="nudge-left shrink-0"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="rgba(255,255,255,0.5)"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{
+              opacity: swipeHintPhase === "hidden" ? 0 : swipeHintPhase === "fading" ? 0 : 1,
+              transition: "opacity 0.5s",
+            }}
+          >
+            <polyline points="15,18 9,12 15,6" />
+          </svg>
+
+          {/* Dots */}
+          <div className="flex items-center gap-1.5">
+            {Array.from({ length: NUM_DOTS }).map((_, i) => (
+              <span
+                key={i}
+                className="block transition-all duration-300"
+                style={{
+                  height: 4,
+                  width: i === activeDot ? 16 : 4,
+                  borderRadius: i === activeDot ? 2 : "50%",
+                  background: i === activeDot ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.25)",
+                }}
+              />
+            ))}
+          </div>
+
+          {/* Right arrow */}
+          <svg
+            className="nudge-right shrink-0"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="rgba(255,255,255,0.5)"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{
+              opacity: swipeHintPhase === "hidden" ? 0 : swipeHintPhase === "fading" ? 0 : 1,
+              transition: "opacity 0.5s",
+            }}
+          >
+            <polyline points="9,18 15,12 9,6" />
+          </svg>
+
         </div>
       </div>
 
       {/* ── LARGE BALL ── */}
       <div className="flex flex-col items-center gap-4">
-        <button
-          data-day-button
-          data-day={selectedDay?.day}
-          disabled={locked}
-          className={`
-            relative rounded-full overflow-hidden
-            w-[min(72vw,320px)] h-[min(72vw,320px)]
-            ${ballRing}
-            bg-black/40
-            transition duration-300
-            ${locked ? "opacity-50 cursor-not-allowed" : "cursor-pointer active:scale-[0.97]"}
-          `}
-          aria-label={selectedDay ? `Dan ${selectedDay.day}` : ""}
-        >
-          {selectedDay?.icon && (
-            <img
-              src={selectedDay.icon}
-              alt="ball"
-              className="w-full h-full object-cover"
-            />
-          )}
+        <div className="relative flex items-center justify-center">
 
-          {/* lock overlay */}
-          {locked && (
-            <div
-              className="absolute inset-0 bg-[#00000080] bg-center bg-no-repeat bg-size-[60px_60px]"
-              style={{ backgroundImage: "url('./img/lock.png')" }}
-            />
-          )}
+          {/* Radial glow behind everything */}
+          <span
+            className="absolute rounded-full pointer-events-none ball-glow-breathe"
+            style={{
+              width: "calc(min(72vw, 320px) + 80px)",
+              height: "calc(min(72vw, 320px) + 80px)",
+              background: "radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)",
+            }}
+          />
 
-          {/* today pulse ring */}
-          {isToday && (
-            <span className="pointer-events-none absolute inset-0 rounded-full animate-ping ring-2 ring-[#FACC01]/30" />
-          )}
-        </button>
+          {/* Second (larger, behind) pulse ring */}
+          <span
+            className="absolute rounded-full pointer-events-none ball-pulse-ring-delay"
+            style={{
+              width: "calc(min(72vw, 320px) + 44px)",
+              height: "calc(min(72vw, 320px) + 44px)",
+              border: "1px solid rgba(255,255,255,0.04)",
+            }}
+          />
 
-        {/* date number + month label */}
+          {/* Outer pulse ring */}
+          <span
+            className="absolute rounded-full pointer-events-none ball-pulse-ring"
+            style={{
+              width: "calc(min(72vw, 320px) + 24px)",
+              height: "calc(min(72vw, 320px) + 24px)",
+              border: "2px solid rgba(255,255,255,0.08)",
+            }}
+          />
+
+          <button
+            data-day-button
+            data-day={selectedDay?.day}
+            disabled={locked}
+            className={`
+              relative rounded-full overflow-hidden
+              w-[min(72vw,320px)] h-[min(72vw,320px)]
+              ${ballRing}
+              bg-black/40
+              transition duration-300
+              ${locked ? "opacity-50 cursor-not-allowed" : "cursor-pointer active:scale-[0.97]"}
+            `}
+            aria-label={selectedDay ? `Dan ${selectedDay.day}` : ""}
+          >
+            {selectedDay?.icon && (
+              <img
+                src={selectedDay.icon}
+                alt="ball"
+                className="w-full h-full object-cover"
+              />
+            )}
+
+            {locked && (
+              <div
+                className="absolute inset-0 bg-[#00000080] bg-center bg-no-repeat bg-size-[60px_60px]"
+                style={{ backgroundImage: "url('./img/lock.png')" }}
+              />
+            )}
+
+            {isToday && (
+              <span className="pointer-events-none absolute inset-0 rounded-full animate-ping ring-2 ring-[#FACC01]/30" />
+            )}
+          </button>
+        </div>
+
+        {/* date number */}
         {selectedDay && (
           <div className="flex flex-col items-center gap-1">
             <span
@@ -158,7 +323,6 @@ export default function CalendarMobileFootball({
             >
               {selectedDay.day.toString().padStart(2, "0")}
             </span>
-
           </div>
         )}
 
