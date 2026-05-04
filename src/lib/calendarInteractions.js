@@ -124,7 +124,7 @@ function renderNormalModal(entry, lang = "sr") {
 // -----------------------------
 // MAIN RENDER
 // -----------------------------
-function renderModalHTML(entry, lang = "sr") {
+function renderModalHTML(entry, lang = "sr", theme = "default") {
   if (!entry) {
     return lang === "sr"
       ? "<p>Ne postoje promocije za ovaj dan.</p>"
@@ -159,6 +159,7 @@ function renderModalHTML(entry, lang = "sr") {
       lang,
       shareKey,
       threshold: 0.7,
+      theme,
     });
   }
 
@@ -178,6 +179,7 @@ export function initCalendarInteractions(rootSelector = "#calendar-root") {
   const payload = JSON.parse(dataEl.textContent || "{}");
   const days = Array.isArray(payload.days) ? payload.days : [];
   const lang = payload.lang || "sr";
+  const theme = payload.theme || "default";
 
   const modal = root.querySelector("#promo-modal");
   const content = root.querySelector("#promo-content");
@@ -216,7 +218,7 @@ export function initCalendarInteractions(rootSelector = "#calendar-root") {
   }
 
   function openModal(entry) {
-    content.innerHTML = renderModalHTML(entry, lang);
+    content.innerHTML = renderModalHTML(entry, lang, theme);
 
     modal.classList.remove("hidden");
     document.body.style.overflow = "hidden";

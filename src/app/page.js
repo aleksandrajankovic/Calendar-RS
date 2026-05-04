@@ -150,34 +150,25 @@ export async function generateMetadata({ searchParams }) {
       : now.getMonth();
 
   const isCurrentMonth = year === now.getFullYear() && month === now.getMonth();
+  const canonical = isCurrentMonth ? `${BASE_URL}/` : `${BASE_URL}/?y=${year}&m=${month}`;
 
-  const canonical = isCurrentMonth
-    ? `${BASE_URL}/`
-    : `${BASE_URL}/?y=${year}&m=${month}`;
+  // seoMeta from DB overrides the auto-generated per-month title/description
+  const settings = await prisma.calendarSettings.findFirst();
+  const seo = settings?.seoMeta?.sr || {};
 
   const monthSr = MONTH_NAMES_SR[month];
-  const title = `Kalendar Promocija ${monthSr} ${year} | Meridianbet`;
-  const description = `Otkrijte dnevne promocije za ${monthSr} ${year}. Iskoristite ekskluzivne nagrade uz Meridianbet Kalendar Promocija.`;
+  const title = seo.title || `Kalendar Promocija ${monthSr} ${year} | Meridianbet`;
+  const description = seo.description || `Otkrijte dnevne promocije za ${monthSr} ${year}. Iskoristite ekskluzivne nagrade uz Meridianbet Kalendar Promocija.`;
 
   return {
     title,
     description,
     alternates: {
       canonical,
-      languages: {
-        "sr": canonical,
-        "x-default": canonical,
-      },
+      languages: { sr: canonical, "x-default": canonical },
     },
-    openGraph: {
-      url: canonical,
-      title,
-      description,
-    },
-    twitter: {
-      title,
-      description,
-    },
+    openGraph: { url: canonical, title, description },
+    twitter: { title, description },
   };
 }
 

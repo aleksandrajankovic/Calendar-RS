@@ -21,6 +21,7 @@ model CalendarSettings {
   calendarTitle    Json?
   logoUrl          String?
   theme            String?
+  seoMeta          Json?
   updatedAt        DateTime @updatedAt
 }
 model SpecialPromotion {

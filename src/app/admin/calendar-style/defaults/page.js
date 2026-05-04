@@ -18,6 +18,8 @@ export default function DefaultSettingsPage() {
   const [titleSr, setTitleSr]                   = useState("PRAZNIČNE MISIJE");
   const [logoUrl, setLogoUrl]                   = useState("/img/meridianbet-ng.png");
   const [theme, setTheme]                       = useState("default");
+  const [seoTitleSr, setSeoTitleSr]             = useState("");
+  const [seoDescSr, setSeoDescSr]               = useState("");
   const [loading, setLoading]                   = useState(true);
   const [saving, setSaving]                     = useState(false);
   const [showGallery, setShowGallery]           = useState(false);
@@ -33,6 +35,8 @@ export default function DefaultSettingsPage() {
         setTitleSr(d.calendarTitle?.sr || "PRAZNIČNE MISIJE");
         setLogoUrl(d.logoUrl || "/img/meridianbet-ng.png");
         setTheme(d.theme || "default");
+        setSeoTitleSr(d.seoMeta?.sr?.title || "");
+        setSeoDescSr(d.seoMeta?.sr?.description || "");
       })
       .catch(() => toast.error("Error loading settings."))
       .finally(() => setLoading(false));
@@ -63,6 +67,7 @@ export default function DefaultSettingsPage() {
           calendarTitle: { sr: titleSr },
           logoUrl,
           theme,
+          seoMeta: { sr: { title: seoTitleSr, description: seoDescSr } },
         }),
       });
       if (!res.ok) throw new Error((await res.text().catch(() => "")) || `HTTP ${res.status}`);
@@ -73,6 +78,8 @@ export default function DefaultSettingsPage() {
       setTitleSr(d.calendarTitle?.sr || "PRAZNIČNE MISIJE");
       setLogoUrl(d.logoUrl || "/img/meridianbet-ng.png");
       setTheme(d.theme || "default");
+      setSeoTitleSr(d.seoMeta?.sr?.title || "");
+      setSeoDescSr(d.seoMeta?.sr?.description || "");
       toast.success("Default settings saved.");
     } catch (e) {
       toast.error(`Error: ${e.message || "Saving failed."}`);
@@ -153,9 +160,10 @@ export default function DefaultSettingsPage() {
               <p className="text-sm text-neutral-500">
                 Choose the visual style for the calendar. "Football" shows balls instead of cards.
               </p>
-              <div className="flex gap-3">
+              <div className="flex gap-3 flex-wrap">
                 {[
-                  { value: "default", label: "Default" },
+                  { value: "default", label: "Default (vertical)" },
+                  { value: "default-horizontal", label: "Default (horizontal)" },
                   { value: "football", label: "⚽ Football" },
                 ].map((opt) => (
                   <button
@@ -284,6 +292,38 @@ export default function DefaultSettingsPage() {
                   }
                 </div>
               </div>
+            </div>
+          </AdminTableCard>
+
+          {/* ── SEO / META ── */}
+          <AdminTableCard title="SEO / Meta Tags">
+            <div className="p-4 space-y-4">
+              <p className="text-sm text-neutral-500">
+                Meta title and description used in search engines and social previews. Overrides the auto-generated per-month metadata.
+              </p>
+              <label className="block">
+                <span className="mb-1 inline-block text-sm text-neutral-600">Meta title (SR)</span>
+                <input
+                  className="w-full border border-[#D0D0D0] rounded px-2.5 py-2 text-sm"
+                  value={seoTitleSr}
+                  onChange={(e) => setSeoTitleSr(e.target.value)}
+                  placeholder="Kalendar Promocija | Meridianbet"
+                  maxLength={120}
+                />
+                <span className="mt-0.5 text-xs text-neutral-400">{seoTitleSr.length}/120 characters</span>
+              </label>
+              <label className="block">
+                <span className="mb-1 inline-block text-sm text-neutral-600">Meta description (SR)</span>
+                <textarea
+                  className="w-full border border-[#D0D0D0] rounded px-2.5 py-2 text-sm resize-none"
+                  rows={3}
+                  value={seoDescSr}
+                  onChange={(e) => setSeoDescSr(e.target.value)}
+                  placeholder="Otkrijte dnevne promocije i iskoristite ekskluzivne nagrade..."
+                  maxLength={320}
+                />
+                <span className="mt-0.5 text-xs text-neutral-400">{seoDescSr.length}/320 characters</span>
+              </label>
             </div>
           </AdminTableCard>
 

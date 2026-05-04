@@ -6,7 +6,10 @@ import prisma from "@/lib/db";
 import { getAdminFromRequest } from "@/lib/auth";
 
 const VALID_POS = ["left", "center", "right"];
-const VALID_THEMES = ["default", "football"];
+const VALID_THEMES = ["default", "default-horizontal", "football"];
+const DEFAULT_SEO_META = {
+  sr: { title: "Kalendar Promocija | Meridianbet", description: "Otkrijte dnevne promocije i iskoristite ekskluzivne nagrade uz Meridianbet Kalendar Promocija." },
+};
 
 export async function GET(req) {
   const session = await getAdminFromRequest(req);
@@ -21,6 +24,7 @@ export async function GET(req) {
     calendarTitle:    row?.calendarTitle    || { sr: "PRAZNIČNE MISIJE", en: "HOLIDAY MISSIONS" },
     logoUrl:          row?.logoUrl          || "/img/meridianbet-ng.png",
     theme:            row?.theme            || "default",
+    seoMeta:          row?.seoMeta          || DEFAULT_SEO_META,
   });
 }
 
@@ -55,6 +59,16 @@ export async function PUT(req) {
 
   if ("theme" in body)
     patch.theme = VALID_THEMES.includes(body.theme) ? body.theme : "default";
+
+  if ("seoMeta" in body) {
+    const s = body.seoMeta;
+    patch.seoMeta = {
+      sr: {
+        title:       (typeof s?.sr?.title       === "string" ? s.sr.title.trim()       : "") || DEFAULT_SEO_META.sr.title,
+        description: (typeof s?.sr?.description === "string" ? s.sr.description.trim() : "") || DEFAULT_SEO_META.sr.description,
+      },
+    };
+  }
 
   if ("monthBackgrounds" in body) {
     let cleaned = null;
@@ -93,5 +107,6 @@ export async function PUT(req) {
     calendarTitle:    row.calendarTitle    || { sr: "PRAZNIČNE MISIJE", en: "HOLIDAY MISSIONS" },
     logoUrl:          row.logoUrl          || "/img/meridianbet-ng.png",
     theme:            row.theme            || "default",
+    seoMeta:          row.seoMeta          || DEFAULT_SEO_META,
   });
 }

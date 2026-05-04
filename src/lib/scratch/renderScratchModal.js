@@ -21,6 +21,7 @@ export function renderScratchModal({
   shareKey,
   threshold = 0.7,
   coverSrc = "/img/scratchCard.png",
+  theme = "default",
 }) {
   const { imgSrc, restHtml } = extractFirstImg(richHtml);
 
@@ -59,6 +60,7 @@ export function renderScratchModal({
           data-key="${safeKey}"
           data-cover="${coverSrc}"
           data-threshold="${threshold}"
+          data-theme="${theme}"
           class="absolute -inset-px z-10 block touch-none select-none"
           style="width:calc(100% + 2px); height:calc(100% + 2px); background-color:#6b21a8"
         ></canvas>

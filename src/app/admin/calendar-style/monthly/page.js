@@ -181,7 +181,8 @@ export default function MonthlySettingsPage() {
                     Use global default
                   </button>
                   {[
-                    { value: "default", label: "Default" },
+                    { value: "default", label: "Default (vertical)" },
+                    { value: "default-horizontal", label: "Default (horizontal)" },
                     { value: "football", label: "⚽ Football" },
                   ].map((opt) => (
                     <button
@@ -348,6 +349,7 @@ export default function MonthlySettingsPage() {
                       const tags = [
                         bg.inactive && "⚠ deactivated",
                         bg.theme === "football" && "⚽ football",
+                        bg.theme === "default-horizontal" && "↔ horizontal",
                         bg.titleSr && "title",
                         bg.position && `position: ${bg.position}`,
                         bg.desktop  && "desktop bg",

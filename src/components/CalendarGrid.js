@@ -2,6 +2,7 @@ import { buildCalendarData } from "@/lib/calendarGridHelpers";
 import CalendarDayCell from "./CalendarDayCell";
 import CalendarGhostCell from "./CalendarGhostCell";
 import CalendarMobileStack from "./CalendarMobileStack";
+import CalendarMobileVertical from "./CalendarMobileVertical";
 import CalendarDayBall from "./CalendarDayBall";
 import CalendarGhostBall from "./CalendarGhostBall";
 import CalendarMobileFootball from "./CalendarMobileFootball";
@@ -114,7 +115,9 @@ export default function CalendarGrid({
               prevMonth={prevMonth}
               nextMonth={nextMonth}
             />
-          : <CalendarMobileStack adminPreview={adminPreview} lang={lang} />
+          : theme === "default-horizontal"
+            ? <CalendarMobileStack adminPreview={adminPreview} lang={lang} />
+            : <CalendarMobileVertical adminPreview={adminPreview} />
         }
       </div>
 
@@ -183,6 +186,7 @@ export default function CalendarGrid({
             year,
             month,
             lang,
+            theme,
           }),
         }}
       />
