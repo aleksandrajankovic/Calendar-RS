@@ -366,7 +366,7 @@ export function initCalendarInteractions(rootSelector = "#calendar-root") {
 
     const day = Number(btn.getAttribute("data-day"));
     const entry = days.find((d) => d.day === day);
-    if (!entry) return;
+    if (!entry || !entry.hasPromo) return;
 
     const category =
       btn.getAttribute("data-category") || entry.category || "ALL";

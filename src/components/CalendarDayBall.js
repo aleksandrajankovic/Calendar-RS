@@ -2,7 +2,7 @@
 import { fwc2026UltraCondensed } from "@/app/fonts";
 
 export default function CalendarDayBall({ cell, adminPreview }) {
-  const locked = cell.isLocked && !adminPreview;
+  const locked = cell.isLocked && !adminPreview && !cell.isToday;
   const isToday = cell.isToday;
   const isGold = cell.category === "GOLD";
 
