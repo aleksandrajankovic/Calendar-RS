@@ -10,6 +10,7 @@ const CATEGORIES = [
   { value: "CASINO", label: "Casino" },
   { value: "MISSIONS", label: "Missions" },
   { value: "ALL", label: "All" },
+  { value: "GOLD", label: "Zlatna lopta" },
 ];
 
 // yyyy-mm-dd ⇄ {year, month(0-11), day}

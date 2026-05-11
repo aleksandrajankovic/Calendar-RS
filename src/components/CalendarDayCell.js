@@ -32,6 +32,7 @@ export default function CalendarDayCell({ cell, lang, adminPreview }) {
       <button
         data-day-button
         data-day={cell.day}
+        data-category={category}
         disabled={locked} // ⬅️ BUDUĆI DANI ZAKLJUČANI, PROŠLI + DANAS OTKLJUČANI
         className={`relative w-full h-full rounded-[12px] overflow-hidden border 
           ${gradientClass}

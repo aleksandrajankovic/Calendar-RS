@@ -18,8 +18,13 @@ const ALLOWED_ATTRIBUTES = {
   a: ["href", "target", "rel"],
   img: ["src", "alt", "width", "height", "style"],
   div: ["style"],
-  span: ["style"],
+  span: ["style", "data-fs", "data-color"],
   p: ["style"],
+  h1: ["style"],
+  h2: ["style"],
+  h3: ["style"],
+  h4: ["style"],
+  li: ["style"],
 };
 
 export function sanitizeRichHtml(html) {

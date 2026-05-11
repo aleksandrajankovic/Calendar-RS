@@ -61,7 +61,7 @@ export default function CalendarGrid({
 
               if (cell.type === "day") {
                 if (isFootball) {
-                  if (!cell.hasPromo && !cell.isFutureForUx) {
+                  if (!cell.hasPromo && !cell.isFutureForUx && !cell.isToday) {
                     return <CalendarGhostBall key={cell.key} cell={cell} />;
                   }
                   return (

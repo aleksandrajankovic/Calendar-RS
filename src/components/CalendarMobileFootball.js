@@ -100,8 +100,11 @@ export default function CalendarMobileFootball({
   const selectedDay = days[selectedIndex];
   const locked = selectedDay?.isLocked && !adminPreview;
   const isToday = selectedDay?.isToday;
+  const isGold = selectedDay?.category === "GOLD";
 
-  const ballRing = isToday
+  const ballRing = isGold
+    ? "border-2 border-[#f8d97a]"
+    : isToday
     ? "ring-4 ring-[#FACC01] shadow-[0_0_40px_rgba(250,204,1,0.8)]"
     : "ring-1 ring-white/15";
 
@@ -308,17 +311,30 @@ export default function CalendarMobileFootball({
           <button
             data-day-button
             data-day={selectedDay?.day}
+            data-category={selectedDay?.category || "ALL"}
             disabled={locked}
             className={`
               relative rounded-full overflow-hidden
               w-[var(--football-ball-size)] h-[var(--football-ball-size)]
               ${ballRing}
+              ${isGold && !locked ? "gold-ball-glow" : ""}
               bg-black/40
               transition duration-300
               ${locked ? "opacity-50 cursor-not-allowed" : "cursor-pointer active:scale-[0.97]"}
             `}
             aria-label={selectedDay ? `Dan ${selectedDay.day}` : ""}
           >
+            {isGold && !locked && (
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 z-10"
+                style={{
+                  background:
+                    "linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.22) 50%, transparent 80%)",
+                  animation: "gold-shimmer 2.8s linear infinite",
+                }}
+              />
+            )}
             {selectedDay?.icon && (
               <img
                 src={selectedDay.icon}

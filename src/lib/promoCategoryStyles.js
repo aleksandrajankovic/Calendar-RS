@@ -5,6 +5,7 @@ export const CATEGORY_GRADIENT_CLASSES = {
   CASINO: "bg-[linear-gradient(110.5deg,_#59029D_2.58%,_#000000_92.56%)]",
   MISSIONS: "bg-[linear-gradient(110.5deg,_#4F2A17_2.58%,_#000000_92.56%)]",
   ALL: "bg-[linear-gradient(110.5deg,_#284755_2.58%,_#000000_92.56%)]",
+  GOLD: "bg-[linear-gradient(110.5deg,_#5c3d00_2.58%,_#1a1000_92.56%)]",
 };
 
 // fallback ako stigne nešto čudno iz baze
@@ -21,6 +22,8 @@ export function getCategoryLabel(category) {
       return "Casino";
     case "MISSIONS":
       return "Missions";
+    case "GOLD":
+      return "Zlatna lopta";
     case "ALL":
     default:
       return "All";

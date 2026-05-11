@@ -34,7 +34,6 @@ function renderNormalModal(entry, lang = "sr") {
   if (contentHtml) {
     const imgMatch = contentHtml.match(/<img[^>]*>/i);
     if (imgMatch) {
-      // Strip inline dimensions so CSS fully controls sizing
       imageHtml = imgMatch[0]
         .replace(/\s+width="[^"]*"/gi, "")
         .replace(/\s+height="[^"]*"/gi, "")
@@ -80,9 +79,13 @@ function renderNormalModal(entry, lang = "sr") {
           ? `
         <div class="
           text-sm leading-relaxed text-white/90
-          [&_p]:mb-2 [&_p:last-child]:mb-0
-          [&_strong]:font-semibold
-          [&_ul]:list-disc [&_ul]:pl-5
+          [&_strong]:font-semibold [&_em]:italic [&_u]:underline
+          [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-1
+          [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:my-1
+          [&_li]:mb-0.5
+          [&_h1]:text-xl [&_h1]:font-bold [&_h1]:mb-1 [&_h1]:mt-2
+          [&_h2]:text-lg [&_h2]:font-bold [&_h2]:mb-1 [&_h2]:mt-2
+          [&_h3]:text-base [&_h3]:font-bold [&_h3]:mb-1 [&_h3]:mt-2
         ">
           ${contentHtml}
         </div>`
@@ -191,15 +194,39 @@ export function initCalendarInteractions(rootSelector = "#calendar-root") {
   let isOpen = false;
   let previousUrl = null;
 
+  // ---- Modal style helpers ----
+
+  function resetModalStyles() {
+    modal.style.opacity = "";
+    modal.style.transition = "";
+  }
+
+  // ---- Dialog open/close animations ----
+
   function animateOpen() {
     if (!dialog) return;
 
-    dialog.classList.remove("opacity-100", "translate-y-0", "scale-100");
-    dialog.classList.add("opacity-0", "translate-y-4", "scale-95");
+    dialog.classList.remove(
+      "opacity-100", "translate-y-0", "scale-100",
+      "opacity-0", "translate-y-4", "scale-95"
+    );
+
+    dialog.style.opacity = "0";
+    dialog.style.transform = "scale(0.85)";
+    dialog.style.transition =
+      "opacity 300ms cubic-bezier(0.34,1.56,0.64,1), transform 300ms cubic-bezier(0.34,1.56,0.64,1)";
 
     requestAnimationFrame(() => {
-      dialog.classList.remove("opacity-0", "translate-y-4", "scale-95");
-      dialog.classList.add("opacity-100", "translate-y-0", "scale-100");
+      requestAnimationFrame(() => {
+        dialog.style.opacity = "1";
+        dialog.style.transform = "scale(1)";
+        setTimeout(() => {
+          dialog.style.transition = "";
+          dialog.style.opacity = "";
+          dialog.style.transform = "";
+          dialog.classList.add("opacity-100", "translate-y-0", "scale-100");
+        }, 320);
+      });
     });
   }
 
@@ -209,15 +236,20 @@ export function initCalendarInteractions(rootSelector = "#calendar-root") {
       return;
     }
 
+    // Clear any lingering inline styles from open animation
+    dialog.style.opacity = "";
+    dialog.style.transform = "";
+    dialog.style.transition = "";
+
     dialog.classList.remove("opacity-100", "translate-y-0", "scale-100");
     dialog.classList.add("opacity-0", "translate-y-4", "scale-95");
 
-    setTimeout(() => {
-      cb?.();
-    }, 200); // match duration-200
+    setTimeout(() => cb?.(), 200);
   }
 
-  function openModal(entry) {
+  // ---- Open modal (with optional overlay fade + dialog delay) ----
+
+  function openModal(entry, { overlayFadeDuration = 0, dialogDelay = 0 } = {}) {
     content.innerHTML = renderModalHTML(entry, lang, theme);
 
     modal.classList.remove("hidden");
@@ -225,24 +257,39 @@ export function initCalendarInteractions(rootSelector = "#calendar-root") {
     isOpen = true;
 
     previousUrl = window.location.href;
-
     if (entry && entry.shareUrl) {
       history.pushState({ promo: true }, "", entry.shareUrl);
     }
 
-    animateOpen();
+    if (overlayFadeDuration > 0) {
+      modal.style.opacity = "0";
+      modal.style.transition = `opacity ${overlayFadeDuration}ms ease-out`;
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          modal.style.opacity = "1";
+          setTimeout(() => {
+            modal.style.opacity = "";
+            modal.style.transition = "";
+          }, overlayFadeDuration + 50);
+        })
+      );
+    }
 
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const canvas = document.getElementById("scratch-canvas");
-        if (canvas) initScratch();
-      });
-    });
+    setTimeout(() => {
+      animateOpen();
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          const canvas = document.getElementById("scratch-canvas");
+          if (canvas) initScratch();
+        })
+      );
+    }, dialogDelay);
   }
 
   function closeModal({ fromPopstate = false } = {}) {
     isOpen = false;
     document.body.style.overflow = "";
+    resetModalStyles();
 
     animateClose(() => {
       modal.classList.add("hidden");
@@ -254,18 +301,81 @@ export function initCalendarInteractions(rootSelector = "#calendar-root") {
     });
   }
 
-  // Klik na dan – otvori modal (samo jedan tip)
+  // ---- Ball click animations ----
+
+  function animateRegularBallClick(btn, entry) {
+    // 0ms: spring overshoot up
+    btn.style.transition = "transform 150ms cubic-bezier(0.34,1.56,0.64,1)";
+    btn.style.transform = "scale(1.18)";
+
+    // 150ms: collapse to 0
+    setTimeout(() => {
+      btn.style.transition =
+        "transform 250ms ease-in, opacity 250ms ease-in";
+      btn.style.transform = "scale(0)";
+      btn.style.opacity = "0";
+    }, 150);
+
+    // 300ms: show modal
+    setTimeout(() => {
+      btn.style.transform = "";
+      btn.style.opacity = "";
+      btn.style.transition = "";
+      openModal(entry, { overlayFadeDuration: 200, dialogDelay: 100 });
+    }, 300);
+  }
+
+  function animateGoldBallClick(btn, entry) {
+    // 0ms: anticipation shake, scale builds to 1.15
+    btn.style.animation = "gold-click-shake 300ms ease-in-out forwards";
+
+    // 300ms: ball zooms with intense glow
+    setTimeout(() => {
+      btn.style.animation = "";
+      btn.style.transition =
+        "transform 200ms ease-out, box-shadow 200ms ease-out";
+      btn.style.transform = "scale(1.6)";
+      btn.style.boxShadow = "0 0 60px 30px rgba(248,217,122,0.8)";
+    }, 300);
+
+    // 500ms: ball collapses and fades + open modal
+    setTimeout(() => {
+      btn.style.transition =
+        "transform 250ms ease-in, opacity 250ms ease-in, box-shadow 150ms ease-in";
+      btn.style.transform = "scale(0.3)";
+      btn.style.opacity = "0";
+      btn.style.boxShadow = "";
+      openModal(entry, { overlayFadeDuration: 200, dialogDelay: 100 });
+    }, 500);
+
+    // Reset ball inline styles after popup is open
+    setTimeout(() => {
+      btn.style.transform = "";
+      btn.style.opacity = "";
+      btn.style.transition = "";
+      btn.style.boxShadow = "";
+      btn.style.animation = "";
+    }, 850);
+  }
+
+  // ---- Click listener ----
+
   root.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-day-button]");
     if (!btn) return;
 
     const day = Number(btn.getAttribute("data-day"));
     const entry = days.find((d) => d.day === day);
-
-    // ako nema entry-ja (budući dan bez promo) → ništa se ne dešava
     if (!entry) return;
 
-    openModal(entry);
+    const category =
+      btn.getAttribute("data-category") || entry.category || "ALL";
+
+    if (category === "GOLD") {
+      animateGoldBallClick(btn, entry);
+    } else {
+      animateRegularBallClick(btn, entry);
+    }
   });
 
   // X dugme

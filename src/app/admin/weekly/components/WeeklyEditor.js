@@ -21,6 +21,7 @@ const CATEGORIES = [
   { value: "CASINO", label: "Casino" },
   { value: "MISSIONS", label: "Missions" },
   { value: "ALL", label: "All" },
+  { value: "GOLD", label: "Zlatna lopta" },
 ];
 
 export default function WeeklyEditor({ initial, onCancel, onSave }) {

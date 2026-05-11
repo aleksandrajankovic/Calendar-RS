@@ -11,6 +11,7 @@ enum PromoCategory {
   CASINO
   MISSIONS
   ALL
+  GOLD
 }
 model CalendarSettings {
   id               Int      @id
