@@ -23,6 +23,8 @@ export default function CalendarMobileFootball({
   const hideHintListenerRef = useRef(null);
   const isTouchingStripRef = useRef(false);
   const lastSwipeVibrateAtRef = useRef(0);
+  const ballTouchRef = useRef({ startX: 0, startY: 0 });
+  const ballSwipedRef = useRef(false);
 
   useEffect(() => {
     const dataEl = document.getElementById("calendar-data");
@@ -275,7 +277,27 @@ export default function CalendarMobileFootball({
       </div>
 
       {/* ── LARGE BALL ── */}
-      <div className="flex flex-col items-center gap-4">
+      <div
+        className="flex flex-col items-center gap-4"
+        onTouchStart={(e) => {
+          ballTouchRef.current.startX = e.touches[0].clientX;
+          ballTouchRef.current.startY = e.touches[0].clientY;
+          ballSwipedRef.current = false;
+        }}
+        onTouchEnd={(e) => {
+          const dx = e.changedTouches[0].clientX - ballTouchRef.current.startX;
+          const dy = e.changedTouches[0].clientY - ballTouchRef.current.startY;
+          if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+            ballSwipedRef.current = true;
+            if (dx < 0) {
+              setSelectedIndex((i) => Math.min(i + 1, days.length - 1));
+            } else {
+              setSelectedIndex((i) => Math.max(i - 1, 0));
+            }
+            navigator?.vibrate?.(20);
+          }
+        }}
+      >
         <div className="relative flex items-center justify-center">
 
           {/* Radial glow behind everything */}
@@ -312,6 +334,7 @@ export default function CalendarMobileFootball({
             data-day-button
             data-day={selectedDay?.day}
             data-category={selectedDay?.category || "ALL"}
+            onClick={(e) => { if (ballSwipedRef.current) { e.stopPropagation(); ballSwipedRef.current = false; } }}
             disabled={locked}
             className={`
               relative rounded-full overflow-hidden

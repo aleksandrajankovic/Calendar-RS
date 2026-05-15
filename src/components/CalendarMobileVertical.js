@@ -155,13 +155,13 @@ export default function CalendarMobileVertical({ adminPreview = false }) {
                     className="absolute right-0 inset-y-0 h-full w-[50%] object-cover object-center"
                     loading="lazy"
                   />
-                ) : (
+                ) : locked ? (
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                     <div className="flex items-center justify-center w-9 h-9 rounded-full bg-black/35">
                       <img src="./img/lock.png" alt="" className="w-10 h-10 object-contain" loading="lazy" />
                     </div>
                   </div>
-                )
+                ) : null
               )}
 
               {!isGhost && (
