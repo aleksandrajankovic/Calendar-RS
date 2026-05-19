@@ -1,5 +1,6 @@
 // src/lib/scratch/initScratch.js
 import confetti from "canvas-confetti";
+import { markDayOpened } from "@/lib/calendarProgress";
 
 function getAnonUserId() {
   try {
@@ -149,6 +150,13 @@ export function initScratch() {
     try {
       localStorage.setItem(storageKey, "1");
     } catch {}
+
+    const y = parseInt(canvas.dataset.year, 10);
+    const m = parseInt(canvas.dataset.month, 10);
+    const d = parseInt(canvas.dataset.day, 10);
+    if (!isNaN(y) && !isNaN(m) && !isNaN(d)) {
+      markDayOpened(y, m, d);
+    }
 
     hint?.remove();
     hint1?.remove();

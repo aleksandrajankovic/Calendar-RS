@@ -126,7 +126,7 @@ export default function SpecialsAdminPage() {
   // lg: date | title | category | link | status | toggle | actions
   const rowGrid =
     "grid grid-cols-1 sm:grid-cols-[140px_1fr] " +
-    "lg:grid-cols-[140px_1fr_120px_1.5fr_120px_120px_160px]"; // 👈 dodata kolona za kategoriju
+    "lg:grid-cols-[140px_1fr_120px_1.5fr_120px_120px_160px]"; 
 
   return (
     <>
@@ -196,7 +196,7 @@ export default function SpecialsAdminPage() {
         columns={[
           { key: "date", label: "Date", width: "140px" },
           { key: "title", label: "Title" },
-          { key: "category", label: "Category", width: "120px" }, // 👈 NOVO
+          { key: "category", label: "Category", width: "120px" }, 
           { key: "link", label: "Link", width: "1.5fr" },
           { key: "status", label: "Status", width: "120px" },
           { key: "toggle", label: "Toggle", width: "120px" },

@@ -8,7 +8,8 @@ import { unstable_cache } from "next/cache";
 import { redirect } from "next/navigation";
 import SnowOverlay from "@/components/SnowOverlay";
 import AdminLogoutButton from "@/components/AdminLogoutButton";
-import { fwc2026UltraCondensed } from "@/app/fonts";
+import ProgressBar from "@/components/ProgressBar";
+import { bebasNeue } from "@/app/fonts";
 
 // -------------------------
 // HELPERS
@@ -343,7 +344,7 @@ export default async function Home({ searchParams }) {
             <h1
               className={`${
                 theme === "football"
-                  ? `text-[36px] md:text-[58px] font-normal tracking-[0.03em] ${fwc2026UltraCondensed.className}`
+                  ? `text-[28px] md:text-[44px] font-normal tracking-[0.06em] ${bebasNeue.className}`
                   : "text-3xl md:text-5xl font-extrabold tracking-tight"
               } text-white text-center ${headingAlign} ${
                 theme === "football" ? "mt-10 mb-4 [@media(min-height:800px)]:mb-10 md:mt-10 md:mb-10" : "my-[30px]"
@@ -351,6 +352,8 @@ export default async function Home({ searchParams }) {
             >
               {calendarTitle}
             </h1>
+
+            <ProgressBar year={year} month={month} weekly={weekly} specials={specials} />
 
             {isAdmin && (
               <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -416,7 +419,7 @@ export default async function Home({ searchParams }) {
                 prevMonth={prevMonth}
                 nextMonth={nextMonth}
                 className="text-base"
-                labelClassName={theme === "football" ? fwc2026UltraCondensed.className : ""}
+                labelClassName={theme === "football" ? bebasNeue.className : ""}
               />
             </div>
           </div>

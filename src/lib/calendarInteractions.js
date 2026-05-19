@@ -163,6 +163,9 @@ function renderModalHTML(entry, lang = "sr", theme = "default") {
       shareKey,
       threshold: 0.7,
       theme,
+      year: entry?.year,
+      month: entry?.month,
+      day: entry?.day,
     });
   }
 
@@ -251,6 +254,11 @@ export function initCalendarInteractions(rootSelector = "#calendar-root") {
 
   function openModal(entry, { overlayFadeDuration = 0, dialogDelay = 0 } = {}) {
     content.innerHTML = renderModalHTML(entry, lang, theme);
+    if (entry?.year != null && entry?.month != null && entry?.day) {
+      window.dispatchEvent(new CustomEvent("mb-day-viewed", {
+        detail: { year: entry.year, month: entry.month, day: entry.day },
+      }));
+    }
 
     modal.classList.remove("hidden");
     document.body.style.overflow = "hidden";

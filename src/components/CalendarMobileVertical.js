@@ -4,11 +4,14 @@
 import { useEffect, useState } from "react";
 import { getCategoryGradient } from "@/lib/promoCategoryStyles";
 import { rowdies } from "@/app/fonts";
+import { getOpenedDays } from "@/lib/calendarProgress";
 
 export default function CalendarMobileVertical({ adminPreview = false }) {
   const [days, setDays] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [touchStartY, setTouchStartY] = useState(null);
+  const [calMeta, setCalMeta] = useState(null);
+  const [openedDays, setOpenedDays] = useState(new Set());
 
   useEffect(() => {
     const dataEl = document.getElementById("calendar-data");
@@ -59,11 +62,27 @@ export default function CalendarMobileVertical({ adminPreview = false }) {
       setTimeout(() => {
         setDays(combinedDays);
         setActiveIndex(initialIndex);
+        if (typeof year === "number" && typeof month === "number") {
+          setCalMeta({ year, month });
+        }
       }, 0);
     } catch {
       // ignore
     }
   }, []);
+
+  useEffect(() => {
+    if (!calMeta) return;
+    const { year, month } = calMeta;
+    setOpenedDays(getOpenedDays(year, month));
+    const handler = (e) => {
+      if (e.detail?.year === year && e.detail?.month === month) {
+        setOpenedDays(getOpenedDays(year, month));
+      }
+    };
+    window.addEventListener("mb-day-opened", handler);
+    return () => window.removeEventListener("mb-day-opened", handler);
+  }, [calMeta]);
 
   const goPrev = () => setActiveIndex((idx) => (idx > 0 ? idx - 1 : idx));
   const goNext = () => setActiveIndex((idx) => (idx < days.length - 1 ? idx + 1 : idx));
@@ -162,6 +181,27 @@ export default function CalendarMobileVertical({ adminPreview = false }) {
                     </div>
                   </div>
                 ) : null
+              )}
+
+              {/* Progress check circle */}
+              {!isGhost && (
+                <div
+                  className={`
+                    absolute bottom-3 left-4 z-20
+                    w-[18px] h-[18px] rounded-full
+                    flex items-center justify-center
+                    transition-all duration-300
+                    ${openedDays.has(day.day)
+                      ? "bg-white/90"
+                      : "border border-white/25 bg-black/20"}
+                  `}
+                >
+                  {openedDays.has(day.day) && (
+                    <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                      <path d="M1 3.5L3.5 6 9 1" stroke="#000" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </div>
               )}
 
               {!isGhost && (

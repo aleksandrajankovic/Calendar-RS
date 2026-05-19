@@ -2,8 +2,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { fwc2026UltraCondensed } from "@/app/fonts";
+import { russoOne } from "@/app/fonts";
 import MonthPagination from "@/components/MonthPagination";
+import ProgressRing from "@/components/ProgressRing";
+import { getOpenedDays } from "@/lib/calendarProgress";
 
 const NUM_DOTS = 7;
 
@@ -25,6 +27,8 @@ export default function CalendarMobileFootball({
   const lastSwipeVibrateAtRef = useRef(0);
   const ballTouchRef = useRef({ startX: 0, startY: 0 });
   const ballSwipedRef = useRef(false);
+  const [progressSteps, setProgressSteps] = useState([]);
+  const [openedDays, setOpenedDays] = useState(new Set());
 
   useEffect(() => {
     const dataEl = document.getElementById("calendar-data");
@@ -41,10 +45,60 @@ export default function CalendarMobileFootball({
 
       setDays(currentDays);
       setSelectedIndex(todayIndex >= 0 ? todayIndex : 0);
+
+      if (typeof year === "number" && typeof month === "number") {
+        setOpenedDays(getOpenedDays(year, month));
+      }
     } catch {
       // ignore
     }
-  }, []);
+  }, [year, month]);
+
+  // Reaktivno računanje koraka: prati trenutno prikazanu loptu
+  useEffect(() => {
+    if (!days.length || typeof year !== "number" || typeof month !== "number") return;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const activeDay = days[selectedIndex]?.day ?? today.getDate();
+
+    const goldDays = days
+      .filter((d) => d.category === "GOLD" && d.hasPromo)
+      .map((d) => d.day)
+      .sort((a, b) => a - b);
+
+    if (!goldDays.length) { setProgressSteps([]); return; }
+
+    let segIdx = goldDays.findIndex((g) => g >= activeDay);
+    if (segIdx === -1) segIdx = goldDays.length - 1;
+
+    const segEnd   = goldDays[segIdx];
+    const segStart = segIdx === 0 ? 1 : goldDays[segIdx - 1] + 1;
+
+    const steps = [];
+    for (let d = segStart; d <= segEnd; d++) {
+      const data = days.find((cd) => cd.day === d);
+      if (!data?.hasPromo) continue; // samo dani sa promocijom
+      steps.push({
+        day: d,
+        category: data.category || "ALL",
+        isToday: data.isToday || false,
+        isFuture: data.isFutureForUx || false,
+      });
+    }
+    setProgressSteps(steps);
+  }, [days, selectedIndex, year, month]);
+
+  useEffect(() => {
+    if (typeof year !== "number" || typeof month !== "number") return;
+    const onOpened = (e) => {
+      if (e.detail?.year === year && e.detail?.month === month) {
+        setOpenedDays(getOpenedDays(year, month));
+      }
+    };
+    window.addEventListener("mb-day-opened", onOpened);
+    return () => window.removeEventListener("mb-day-opened", onOpened);
+  }, [year, month]);
 
   // Auto-scroll chip into view when selectedIndex changes
   useEffect(() => {
@@ -202,8 +256,8 @@ export default function CalendarMobileFootball({
                   <span
                     className={`
                       relative z-10
-                      ${fwc2026UltraCondensed.className}
-                      text-[22px] leading-none font-normal tracking-[0.02em]
+                      ${russoOne.className}
+                      text-[18px] leading-none italic font-bold
                       ${isActive ? "text-black" : "text-white"}
                     `}
                   >
@@ -330,6 +384,9 @@ export default function CalendarMobileFootball({
             }}
           />
 
+          {/* Progress ring around the ball */}
+          <ProgressRing steps={progressSteps} openedDays={openedDays} />
+
           <button
             data-day-button
             data-day={selectedDay?.day}
@@ -384,8 +441,8 @@ export default function CalendarMobileFootball({
           <div className="flex flex-col items-center gap-1">
             <span
               className={`
-                ${fwc2026UltraCondensed.className}
-                text-[42px] leading-none font-normal tracking-[0.02em]
+                ${russoOne.className}
+                text-[22px] leading-none italic font-bold
                 ${isToday ? "text-[#FFD700]" : "text-white"}
               `}
             >
@@ -402,7 +459,7 @@ export default function CalendarMobileFootball({
             prevMonth={prevMonth}
             nextMonth={nextMonth}
             className="text-lg mt-1"
-            labelClassName={`${fwc2026UltraCondensed.className} text-2xl leading-none`}
+            labelClassName={`${russoOne.className} text-base leading-none`}
           />
         )}
       </div>
