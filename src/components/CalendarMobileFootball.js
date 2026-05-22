@@ -402,6 +402,7 @@ export default function CalendarMobileFootball({
               transition duration-300
               ${locked ? "opacity-50 cursor-not-allowed" : "cursor-pointer active:scale-[0.97]"}
             `}
+            style={{ boxShadow: "18px 6px 40px rgba(0,0,0,0.75)" }}
             aria-label={selectedDay ? `Dan ${selectedDay.day}` : ""}
           >
             {isGold && !locked && (
