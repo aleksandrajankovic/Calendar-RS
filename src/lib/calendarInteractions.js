@@ -13,7 +13,7 @@ function renderNormalModal(entry, lang = "sr") {
       : "<p>No promotions for this day.</p>";
   }
 
-  const { promo, type } = entry;
+  const { promo } = entry;
 
   const title = entry.title || (promo && promo.title) || "";
   const button = entry.button || (promo && promo.button) || "";
@@ -42,13 +42,9 @@ function renderNormalModal(entry, lang = "sr") {
     }
   }
 
-  let categoryLabel;
-  if (type === "special") {
-    categoryLabel =
-      lang === "sr" ? "Ekskluzivna promocija" : "Special promotion";
-  } else {
-    categoryLabel = lang === "sr" ? "Nedeljna promocija" : "Weekly promotion";
-  }
+  const categoryLabel = (entry?.category || category) === "GOLD"
+    ? (lang === "sr" ? "Ekskluzivna promocija" : "Exclusive promotion")
+    : "";
 
   const openUrl = link && String(link);
   const canOpen = openUrl && openUrl !== "#";
@@ -158,7 +154,6 @@ function renderModalHTML(entry, lang = "sr", theme = "default") {
       link,
       button: defaultButtonLabel,
       buttonColor,
-      type,
       lang,
       shareKey,
       threshold: 0.7,
@@ -166,6 +161,7 @@ function renderModalHTML(entry, lang = "sr", theme = "default") {
       year: entry?.year,
       month: entry?.month,
       day: entry?.day,
+      category: entry?.category,
     });
   }
 

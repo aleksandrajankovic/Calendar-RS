@@ -16,26 +16,21 @@ export function renderScratchModal({
   link,
   button,
   buttonColor,
-  type,
   lang,
   shareKey,
   threshold = 0.7,
-  coverSrc = "/img/scratchCard.png",
+  coverSrc = "/img/greb.jpg",
   theme = "default",
   year,
   month,
   day,
+  category,
 }) {
   const { imgSrc, restHtml } = extractFirstImg(richHtml);
 
-  const categoryLabel =
-    type === "special"
-      ? lang === "sr"
-        ? "Ekskluzivna promocija"
-        : "Special promotion"
-      : lang === "sr"
-      ? "Nedeljna promocija"
-      : "Weekly promotion";
+  const categoryLabel = category === "GOLD"
+    ? (lang === "sr" ? "Ekskluzivna promocija" : "Exclusive promotion")
+    : "";
 
   const isYellow = buttonColor === "yellow";
   const canOpen = link && link !== "#";
