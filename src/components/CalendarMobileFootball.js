@@ -54,40 +54,18 @@ export default function CalendarMobileFootball({
     }
   }, [year, month]);
 
-  // Reaktivno računanje koraka: prati trenutno prikazanu loptu
   useEffect(() => {
-    if (!days.length || typeof year !== "number" || typeof month !== "number") return;
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const activeDay = days[selectedIndex]?.day ?? today.getDate();
-
-    const goldDays = days
-      .filter((d) => d.category === "GOLD" && d.hasPromo)
-      .map((d) => d.day)
-      .sort((a, b) => a - b);
-
-    if (!goldDays.length) { setProgressSteps([]); return; }
-
-    let segIdx = goldDays.findIndex((g) => g >= activeDay);
-    if (segIdx === -1) segIdx = goldDays.length - 1;
-
-    const segEnd   = goldDays[segIdx];
-    const segStart = segIdx === 0 ? 1 : goldDays[segIdx - 1] + 1;
-
-    const steps = [];
-    for (let d = segStart; d <= segEnd; d++) {
-      const data = days.find((cd) => cd.day === d);
-      if (!data?.hasPromo) continue; // samo dani sa promocijom
-      steps.push({
-        day: d,
-        category: data.category || "ALL",
-        isToday: data.isToday || false,
-        isFuture: data.isFutureForUx || false,
-      });
-    }
+    if (!days.length) return;
+    const steps = days
+      .filter((d) => d.hasPromo)
+      .map((d) => ({
+        day: d.day,
+        category: d.category || "ALL",
+        isToday: d.isToday || false,
+        isFuture: d.isFutureForUx || false,
+      }));
     setProgressSteps(steps);
-  }, [days, selectedIndex, year, month]);
+  }, [days]);
 
   useEffect(() => {
     if (typeof year !== "number" || typeof month !== "number") return;
