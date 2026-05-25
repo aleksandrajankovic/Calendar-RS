@@ -168,8 +168,25 @@ export async function generateMetadata({ searchParams }) {
       canonical,
       languages: { sr: canonical, "x-default": canonical },
     },
-    openGraph: { url: canonical, title, description },
-    twitter: { title, description },
+    openGraph: {
+      url: canonical,
+      title,
+      description,
+      images: [
+        {
+          url: "https://cloud.merbet.com/Preview-image/calendar-universal.png",
+          width: 1200,
+          height: 630,
+          alt: "Kalendar Promocija",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["https://cloud.merbet.com/Preview-image/calendar-universal.png"],
+    },
   };
 }
 
