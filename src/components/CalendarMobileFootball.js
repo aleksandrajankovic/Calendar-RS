@@ -4,8 +4,6 @@
 import { useEffect, useRef, useState } from "react";
 import { russoOne } from "@/app/fonts";
 import MonthPagination from "@/components/MonthPagination";
-import ProgressRing from "@/components/ProgressRing";
-import { getOpenedDays } from "@/lib/calendarProgress";
 
 const NUM_DOTS = 7;
 
@@ -27,9 +25,6 @@ export default function CalendarMobileFootball({
   const lastSwipeVibrateAtRef = useRef(0);
   const ballTouchRef = useRef({ startX: 0, startY: 0 });
   const ballSwipedRef = useRef(false);
-  const [progressSteps, setProgressSteps] = useState([]);
-  const [openedDays, setOpenedDays] = useState(new Set());
-
   useEffect(() => {
     const dataEl = document.getElementById("calendar-data");
     if (!dataEl) return;
@@ -45,37 +40,9 @@ export default function CalendarMobileFootball({
 
       setDays(currentDays);
       setSelectedIndex(todayIndex >= 0 ? todayIndex : 0);
-
-      if (typeof year === "number" && typeof month === "number") {
-        setOpenedDays(getOpenedDays(year, month));
-      }
     } catch {
       // ignore
     }
-  }, [year, month]);
-
-  useEffect(() => {
-    if (!days.length) return;
-    const steps = days
-      .filter((d) => d.hasPromo)
-      .map((d) => ({
-        day: d.day,
-        category: d.category || "ALL",
-        isToday: d.isToday || false,
-        isFuture: d.isFutureForUx || false,
-      }));
-    setProgressSteps(steps);
-  }, [days]);
-
-  useEffect(() => {
-    if (typeof year !== "number" || typeof month !== "number") return;
-    const onOpened = (e) => {
-      if (e.detail?.year === year && e.detail?.month === month) {
-        setOpenedDays(getOpenedDays(year, month));
-      }
-    };
-    window.addEventListener("mb-day-opened", onOpened);
-    return () => window.removeEventListener("mb-day-opened", onOpened);
   }, [year, month]);
 
   // Auto-scroll chip into view when selectedIndex changes
@@ -362,8 +329,6 @@ export default function CalendarMobileFootball({
             }}
           />
 
-          {/* Progress ring around the ball */}
-          <ProgressRing steps={progressSteps} openedDays={openedDays} />
 
           <button
             data-day-button

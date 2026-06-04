@@ -8,7 +8,7 @@ import { unstable_cache } from "next/cache";
 import { redirect } from "next/navigation";
 import SnowOverlay from "@/components/SnowOverlay";
 import AdminLogoutButton from "@/components/AdminLogoutButton";
-import ProgressBar from "@/components/ProgressBar";
+import LeaderboardButton from "@/components/LeaderboardButton";
 import { bebasNeue } from "@/app/fonts";
 
 // -------------------------
@@ -339,6 +339,10 @@ export default async function Home({ searchParams }) {
             />
           </a>
 
+          <div className={theme === "football" ? "absolute right-4" : ""}>
+            <LeaderboardButton />
+          </div>
+
         </header>
 
         <main
@@ -370,7 +374,6 @@ export default async function Home({ searchParams }) {
               {calendarTitle}
             </h1>
 
-            <ProgressBar year={year} month={month} weekly={weekly} specials={specials} />
 
             {isAdmin && (
               <div className="mt-2 flex flex-wrap items-center gap-2">
