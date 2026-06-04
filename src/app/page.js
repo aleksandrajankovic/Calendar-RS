@@ -339,7 +339,7 @@ export default async function Home({ searchParams }) {
             />
           </a>
 
-          <div className={theme === "football" ? "absolute right-4" : ""}>
+          <div className={theme === "football" ? "absolute right-4 hidden md:block" : ""}>
             <LeaderboardButton />
           </div>
 
@@ -374,6 +374,11 @@ export default async function Home({ searchParams }) {
               {calendarTitle}
             </h1>
 
+            {theme === "football" && (
+              <div className="md:hidden flex justify-center mb-4">
+                <LeaderboardButton />
+              </div>
+            )}
 
             {isAdmin && (
               <div className="mt-2 flex flex-wrap items-center gap-2">
