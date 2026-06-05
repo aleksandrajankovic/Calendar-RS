@@ -19,7 +19,7 @@ export function renderScratchModal({
   lang,
   shareKey,
   threshold = 0.7,
-  coverSrc = "/img/greb.jpg",
+  coverSrc = "/img/f3.jpg",
   theme = "default",
   year,
   month,

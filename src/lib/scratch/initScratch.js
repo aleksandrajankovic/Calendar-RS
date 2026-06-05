@@ -162,8 +162,9 @@ export function initScratch() {
     hint1?.remove();
 
     if (theme === "football") {
-      const ball = confetti.shapeFromText({ text: "⚽", scalar: 2 });
-      const base = { scalar: 2, flat: true, ticks: 400, gravity: 3.5, decay: 0.9, shapes: [ball] };
+      const ballWhite = confetti.shapeFromText({ text: "⚽", scalar: 1.2 });
+      const ballGold  = confetti.shapeFromText({ text: "🟡", scalar: 1.2 });
+      const base = { scalar: 1.2, flat: true, ticks: 400, gravity: 3.5, decay: 0.9, shapes: [ballWhite, ballGold] };
       for (let i = 0; i < 10; i++) {
         setTimeout(() => {
           confetti({

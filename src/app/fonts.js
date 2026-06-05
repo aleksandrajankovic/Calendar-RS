@@ -32,3 +32,9 @@ export const fwc2026UltraCondensed = localFont({
   weight: "500",
   style: "normal",
 });
+
+export const exo2Black = localFont({
+  src: "./fonts/exo2/Exo2-Black.ttf",
+  weight: "900",
+  style: "normal",
+});

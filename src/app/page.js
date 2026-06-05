@@ -9,7 +9,7 @@ import { redirect } from "next/navigation";
 import SnowOverlay from "@/components/SnowOverlay";
 import AdminLogoutButton from "@/components/AdminLogoutButton";
 import LeaderboardButton from "@/components/LeaderboardButton";
-import { bebasNeue } from "@/app/fonts";
+import { bebasNeue, exo2Black } from "@/app/fonts";
 
 // -------------------------
 // HELPERS
@@ -365,7 +365,7 @@ export default async function Home({ searchParams }) {
             <h1
               className={`${
                 theme === "football"
-                  ? `text-[28px] md:text-[44px] font-normal tracking-[0.06em] ${bebasNeue.className}`
+                  ? `text-[28px] md:text-[44px] font-black tracking-[0.06em] ${exo2Black.className}`
                   : "text-3xl md:text-5xl font-extrabold tracking-tight"
               } text-white text-center ${headingAlign} ${
                 theme === "football" ? "mt-10 mb-4 [@media(min-height:800px)]:mb-10 md:mt-10 md:mb-10" : "my-[30px]"

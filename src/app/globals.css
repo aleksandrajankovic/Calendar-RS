@@ -245,7 +245,7 @@ button {
 }
 
 #scratch-canvas {
-  cursor: url("/img/coin.png") 16 16, pointer;
+  cursor: url("/img/kopacka-01.png") 16 16, pointer;
 }
 /* Admin može da klikne future */
 .admin-preview .future button,
