@@ -9,6 +9,7 @@ import { redirect } from "next/navigation";
 import SnowOverlay from "@/components/SnowOverlay";
 import AdminLogoutButton from "@/components/AdminLogoutButton";
 import LeaderboardButton from "@/components/LeaderboardButton";
+import CountdownTimer from "@/components/CountdownTimer";
 import { bebasNeue, exo2Black } from "@/app/fonts";
 
 // -------------------------
@@ -373,6 +374,8 @@ export default async function Home({ searchParams }) {
             >
               {calendarTitle}
             </h1>
+
+            <CountdownTimer targetIso="2026-06-11T00:00:00" label="Kalendar se otvara za" />
 
             {theme === "football" && (
               <div className="md:hidden flex justify-center mb-4">
