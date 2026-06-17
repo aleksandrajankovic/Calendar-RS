@@ -112,7 +112,7 @@ export function renderScratchModal({
       ${
         canOpen
           ? `<div class="pt-5 flex justify-center">
-              <a href="${link}" target="_blank" rel="noreferrer"
+              <a href="${link}"
                  class="w-4/5 max-w-[360px] px-4 py-3 rounded-[10px]
                         text-sm text-center font-semibold
                         ${
