@@ -66,8 +66,16 @@ export function buildCalendarData({
   // GLAVNI – dani tekućeg meseca
   for (let day = 1; day <= daysInMonth; day++) {
     const d = new Date(year, month, day);
-    const isFuture = d > today;
-    const isToday = d.toDateString() === today.toDateString();
+    const srbParts = new Intl.DateTimeFormat("en-US", {
+      timeZone: "Europe/Belgrade",
+      year: "numeric", month: "2-digit", day: "2-digit",
+    }).formatToParts(today);
+    const srbY = parseInt(srbParts.find(p => p.type === "year").value);
+    const srbM = parseInt(srbParts.find(p => p.type === "month").value) - 1;
+    const srbD = parseInt(srbParts.find(p => p.type === "day").value);
+    const todayDateOnly = new Date(srbY, srbM, srbD);
+    const isFuture = d > todayDateOnly;
+    const isToday = d.getTime() === todayDateOnly.getTime();
 
     const { promo, type } = pickPromoForDate(d, weekly, specialsMap);
     const icon =
