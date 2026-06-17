@@ -94,7 +94,8 @@ function renderNormalModal(entry, lang = "sr") {
         <div class="pt-5 mt-2 flex justify-center">
           <a
             href="${openUrl}"
-            target="_self"
+            target="_blank"
+            rel="noopener noreferrer"
             class="
               w-4/5 max-w-[360px]
               inline-flex items-center justify-center

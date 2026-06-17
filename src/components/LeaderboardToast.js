@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 
-const STORAGE_KEY = "leaderboard_toast_seen_v1";
+const STORAGE_KEY = "leaderboard_toast_seen_v2";
 
 export default function LeaderboardToast() {
   const [visible, setVisible] = useState(false);

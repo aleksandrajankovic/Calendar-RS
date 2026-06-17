@@ -17,6 +17,7 @@ export default function CalendarGrid({
   theme = "default",
   prevMonth = null,
   nextMonth = null,
+  today,
 }) {
   const { cells, daysPayload } = buildCalendarData({
     year,
@@ -25,6 +26,7 @@ export default function CalendarGrid({
     specials,
     adminPreview,
     lang,
+    today: today ?? new Date(),
   });
 
   const isFootball = theme === "football";

@@ -436,6 +436,7 @@ export default async function Home({ searchParams }) {
                 theme={theme}
                 prevMonth={prevMonth}
                 nextMonth={nextMonth}
+                today={now}
               />
             </div>
 
