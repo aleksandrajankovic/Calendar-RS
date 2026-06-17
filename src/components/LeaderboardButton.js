@@ -258,7 +258,7 @@ export default function LeaderboardButton() {
                             Učitavam...
                           </>
                         ) : (
-                          `Prikaži još (${all.length - visibleCount} preostalo)`
+                          `Prikaži još`
                         )}
                       </button>
                     )}
