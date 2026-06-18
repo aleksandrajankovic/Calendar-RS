@@ -250,7 +250,12 @@ export default function LeaderboardButton() {
                           }, 400);
                         }}
                         disabled={loadingMore}
-                        className="mt-4 w-full py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-xs font-semibold transition flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="mt-4 w-full py-2.5 rounded-full text-white/80 hover:text-white text-xs font-semibold transition flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                        style={{
+                          background: "rgba(255,255,255,0.04)",
+                          border: "1px solid rgba(99,102,241,0.6)",
+                          boxShadow: "0 0 10px rgba(99,102,241,0.35), inset 0 0 10px rgba(99,102,241,0.08)",
+                        }}
                       >
                         {loadingMore ? (
                           <>
@@ -258,7 +263,7 @@ export default function LeaderboardButton() {
                             Učitavam...
                           </>
                         ) : (
-                          `Prikaži još`
+                          `Prikaži još (${all.length - visibleCount} preostalo)`
                         )}
                       </button>
                     )}
