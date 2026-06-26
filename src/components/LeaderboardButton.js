@@ -121,6 +121,27 @@ export default function LeaderboardButton() {
         Rang lista
       </button>
 
+      <style>{`
+        .leaderboard-scroll {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(250,204,1,0.4) transparent;
+        }
+        .leaderboard-scroll::-webkit-scrollbar {
+          width: 4px;
+        }
+        .leaderboard-scroll::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .leaderboard-scroll::-webkit-scrollbar-thumb {
+          background: rgba(250,204,1,0.35);
+          border-radius: 99px;
+          transition: background 0.2s;
+        }
+        .leaderboard-scroll::-webkit-scrollbar-thumb:hover {
+          background: rgba(250,204,1,0.65);
+        }
+      `}</style>
+
       {open && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center px-4"
@@ -222,13 +243,13 @@ export default function LeaderboardButton() {
                 return (
                   <>
                     {/* Zaglavlje kolona */}
-                    <div className="flex items-center gap-2 pb-2 mb-1 border-b border-white/10 text-[10px] uppercase tracking-widest text-white/30 font-semibold">
+                    <div className="flex items-center gap-2 pb-2 mb-1 border-b border-white/10 text-[10px] uppercase tracking-widest text-white/30 font-semibold pr-3">
                       <span className="w-8 shrink-0 text-center">#</span>
                       <span className="flex-1">Account</span>
                       <span className="w-14 text-center">Izazovi</span>
                       <span className="w-16 text-right">Kvota</span>
                     </div>
-                    <ol className="space-y-0.5 max-h-[55vh] overflow-y-auto pr-1">
+                    <ol className="space-y-0.5 max-h-[55vh] overflow-y-auto leaderboard-scroll pr-3">
                       {visible.map((entry, i) => (
                         <li key={i} className="flex items-center gap-2 py-2 border-b border-white/5 last:border-0">
                           <span className={`w-8 shrink-0 text-center text-xs font-bold ${i === 0 ? "text-[#FACC01]" : i === 1 ? "text-white/50" : i === 2 ? "text-orange-400" : "text-white/25"}`}>
