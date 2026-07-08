@@ -21,7 +21,7 @@ export async function PUT(req, { params }) {
   const {
     year, month, day, icon, link, buttonColor, active, scratch,
     title, button, rich, richHtml,
-    translations: rawTranslations, defaultLang, category,
+    translations: rawTranslations, defaultLang, category, knockoutPhase,
   } = body;
 
   const translations = rawTranslations || {};
@@ -53,6 +53,7 @@ export async function PUT(req, { params }) {
     buttonColor: buttonColor || "green",
     translations: Object.keys(translations).length ? translations : null,
     category: category || "ALL",
+    knockoutPhase: knockoutPhase || null,
   };
 
   const row = await prisma.specialPromotion.upsert({

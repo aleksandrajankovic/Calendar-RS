@@ -76,6 +76,7 @@ function normalizeSpecials(rows = [], lang) {
       buttonColor: r.buttonColor || "green",
       category: r.category || "ALL",
       scratch: !!r.scratch,
+      knockoutPhase: r.knockoutPhase || null,
     };
   });
 }

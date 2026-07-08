@@ -12,6 +12,9 @@ enum PromoCategory {
   MISSIONS
   ALL
   GOLD
+  QUARTER_FINAL
+  SEMI_FINAL
+  FINAL
 }
 model CalendarSettings {
   id               Int      @id
@@ -26,19 +29,20 @@ model CalendarSettings {
   updatedAt        DateTime @updatedAt
 }
 model SpecialPromotion {
-  id           Int      @id @default(autoincrement())
-  year         Int
-  month        Int
-  day          Int
-  title        String
-  link         String
-  button       String
-  active       Boolean  @default(true)
-  icon         String?
-  buttonColor  String   @default("green")
-  rich         Json?
-  richHtml     String?
-  scratch      Boolean  @default(false)
+  id            Int      @id @default(autoincrement())
+  year          Int
+  month         Int
+  day           Int
+  title         String
+  link          String
+  button        String
+  active        Boolean  @default(true)
+  icon          String?
+  buttonColor   String   @default("green")
+  rich          Json?
+  richHtml      String?
+  scratch       Boolean  @default(false)
+  knockoutPhase String?
 
   translations Json?
   category     PromoCategory @default(ALL)

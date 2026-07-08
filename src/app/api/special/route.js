@@ -47,7 +47,7 @@ export async function POST(req) {
   const {
     year, month, day, icon, link, buttonColor, active, scratch,
     title, button, rich, richHtml,
-    translations: rawTranslations, defaultLang, category,
+    translations: rawTranslations, defaultLang, category, knockoutPhase,
   } = body;
 
   const translations = rawTranslations || {};
@@ -78,6 +78,7 @@ export async function POST(req) {
       buttonColor: buttonColor || "green",
       translations: Object.keys(translations).length ? translations : null,
       category: category || "ALL",
+      knockoutPhase: knockoutPhase || null,
     },
   });
 

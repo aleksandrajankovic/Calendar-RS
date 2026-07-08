@@ -22,6 +22,9 @@ const CATEGORIES = [
   { value: "MISSIONS", label: "Missions" },
   { value: "ALL", label: "All" },
   { value: "GOLD", label: "Zlatna lopta" },
+  { value: "QUARTER_FINAL", label: "⚽ Četvrtfinale (1/4)" },
+  { value: "SEMI_FINAL", label: "⚽ Polufinale (1/2)" },
+  { value: "FINAL", label: "🏆 Finale" },
 ];
 
 export default function WeeklyEditor({ initial, onCancel, onSave }) {

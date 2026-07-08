@@ -1,12 +1,21 @@
 // src/components/CalendarDayBall.js
 import { rowdies } from "@/app/fonts";
+import {
+  KNOCKOUT_CATEGORIES,
+  getKnockoutRingClass,
+  getKnockoutBadgeLabel,
+  getKnockoutBadgeClass,
+} from "@/lib/promoCategoryStyles";
 
 export default function CalendarDayBall({ cell, adminPreview }) {
   const locked = cell.isLocked && !adminPreview && !cell.isToday;
   const isToday = cell.isToday;
   const isGold = cell.category === "GOLD";
+  const knockoutPhase = cell.knockoutPhase || (KNOCKOUT_CATEGORIES.has(cell.category) ? cell.category : null);
 
-  const ringClass = isGold
+  const ringClass = knockoutPhase
+    ? ""
+    : isGold
     ? "border-2 border-[#f8d97a]"
     : isToday
     ? "ring-2 ring-[#FACC01] shadow-[0_0_18px_rgba(250,204,1,0.9)]"
@@ -24,6 +33,13 @@ export default function CalendarDayBall({ cell, adminPreview }) {
           <span className="pointer-events-none absolute inset-0 z-20 rounded-full animate-ping ring-1 ring-[#FACC01]/40" />
         )}
 
+        {/* knockout badge — top-right corner, visible even when locked */}
+        {knockoutPhase && (
+          <span className={`knockout-badge ${getKnockoutBadgeClass(knockoutPhase)}`}>
+            {getKnockoutBadgeLabel(knockoutPhase)}
+          </span>
+        )}
+
       <button
         data-day-button
         data-day={cell.day}
@@ -33,6 +49,7 @@ export default function CalendarDayBall({ cell, adminPreview }) {
           relative rounded-full overflow-hidden
           w-full h-full
           ${ringClass}
+          ${knockoutPhase ? getKnockoutRingClass(knockoutPhase) : ""}
           ${isGold && !locked ? "gold-ball-glow" : ""}
           transition duration-200
           ${locked ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:scale-[1.06] active:scale-[0.97]"}
@@ -58,7 +75,7 @@ export default function CalendarDayBall({ cell, adminPreview }) {
           <img
             src={cell.icon}
             alt="ball"
-            className="w-full h-full object-cover"
+            className={`w-full h-full object-cover${knockoutPhase && !locked ? " knockout-ball-spin" : ""}`}
             loading="lazy"
           />
         )}

@@ -60,6 +60,7 @@ export default function SpecialEditor({ initial, onCancel, onSaved }) {
       translations: baseTranslations,
 
       category: initial?.category || "ALL",
+      knockoutPhase: initial?.knockoutPhase || null,
     };
   }, [initial]);
 
@@ -148,6 +149,7 @@ export default function SpecialEditor({ initial, onCancel, onSaved }) {
         rich: mainT.rich || null,
         richHtml: mainT.richHtml || "",
         category: form.category || "ALL",
+        knockoutPhase: form.knockoutPhase || null,
       };
 
       const res = await fetch(url, {
@@ -392,6 +394,39 @@ export default function SpecialEditor({ initial, onCancel, onSaved }) {
                   }
                 >
                   {cat.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Knockout phase */}
+        <div className="mt-2">
+          <span className="mb-1 inline-block text-sm text-neutral-800">
+            Knockout faza{" "}
+            <span className="text-neutral-400 font-normal">(kombinuje se sa kategorijom)</span>
+          </span>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { value: null, label: "Nema" },
+              { value: "QUARTER_FINAL", label: "⚽ Četvrtfinale (1/4)" },
+              { value: "SEMI_FINAL", label: "⚽ Polufinale (1/2)" },
+              { value: "FINAL", label: "🏆 Finale" },
+            ].map((opt) => {
+              const selected = (form.knockoutPhase || null) === opt.value;
+              return (
+                <button
+                  key={String(opt.value)}
+                  type="button"
+                  onClick={() => set("knockoutPhase", opt.value)}
+                  className={
+                    "px-3 py-1 rounded-full text-[11px] font-medium border transition " +
+                    (selected
+                      ? "bg-[#17BB00] text-white border-[#17BB00]"
+                      : "bg-white text-neutral-700 border-neutral-300 hover:bg-neutral-100")
+                  }
+                >
+                  {opt.label}
                 </button>
               );
             })}

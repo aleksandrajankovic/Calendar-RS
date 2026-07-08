@@ -90,6 +90,7 @@ export function buildCalendarData({
 
     const category = promo?.category || "ALL";
     const scratch = !!promo?.scratch;
+    const knockoutPhase = promo?.knockoutPhase || null;
 
     // cell za grid (desktop)
     cells.push({
@@ -102,6 +103,7 @@ export function buildCalendarData({
       isLocked,
       icon,
       category,
+      knockoutPhase,
       isSpecial: type === "special",
     });
 
@@ -126,6 +128,7 @@ export function buildCalendarData({
       buttonColor,
       category,
       scratch,
+      knockoutPhase,
 
       hasPromo: Boolean(promo),
       isToday,
@@ -143,6 +146,7 @@ export function buildCalendarData({
             category,
             icon,
             scratch,
+            knockoutPhase,
           }
         : null,
     });
