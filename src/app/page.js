@@ -9,7 +9,6 @@ import { redirect } from "next/navigation";
 import SnowOverlay from "@/components/SnowOverlay";
 import AdminLogoutButton from "@/components/AdminLogoutButton";
 import LeaderboardButton from "@/components/LeaderboardButton";
-import LeaderboardToast from "@/components/LeaderboardToast";
 import CountdownTimer from "@/components/CountdownTimer";
 import { bebasNeue, exo2Black } from "@/app/fonts";
 
@@ -320,7 +319,6 @@ export default async function Home({ searchParams }) {
 
    return (
     <>
-      <LeaderboardToast />
       {/* TOP HEADER BAR */}
       <div className="min-h-[100dvh] flex flex-col overflow-hidden">
         <header

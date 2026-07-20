@@ -65,6 +65,13 @@ function parseCSV(text) {
 }
 
 const PAGE_SIZE = 10;
+const MEDALS = ["🥇", "🥈", "🥉"];
+const PODIUM_ORDER = [1, 0, 2]; // prikaz: 2. mesto, 1. mesto, 3. mesto
+const PODIUM_STYLE = [
+  { h: "h-28", ring: "border-[#FACC01]/50", grad: "from-[#FACC01]/25 to-transparent", text: "text-[#FACC01]" }, // 1.
+  { h: "h-20", ring: "border-white/25", grad: "from-white/10 to-transparent", text: "text-white/70" }, // 2.
+  { h: "h-16", ring: "border-orange-400/40", grad: "from-orange-400/15 to-transparent", text: "text-orange-300" }, // 3.
+];
 
 export default function LeaderboardButton() {
   const [open, setOpen] = useState(false);
@@ -103,10 +110,19 @@ export default function LeaderboardButton() {
     }
   }, [data]);
 
+  // Auto-popup pri svakom učitavanju stranice. Na football temi se ovaj
+  // button montira 2x (desktop + mobile, jedan od njih uvek CSS-hidden) —
+  // svaka instanca se otvara nezavisno, vidljiva će se stvarno prikazati,
+  // sakrivena samo promeni svoje (nevidljivo) stanje.
   useEffect(() => {
-    window.addEventListener("open-leaderboard", openModal);
-    return () => window.removeEventListener("open-leaderboard", openModal);
-  }, [openModal]);
+    if (!FEED_URL) return;
+
+    const t = setTimeout(() => {
+      openModal();
+    }, 1200);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -238,29 +254,63 @@ export default function LeaderboardButton() {
                 </div>
               ) : data ? (() => {
                 const all = Array.isArray(data) ? data : data.items ?? [];
+                const top3 = all.slice(0, 3);
                 const visible = all.slice(0, visibleCount);
+                const rest = visible.slice(3);
                 const hasMore = visibleCount < all.length;
                 return (
                   <>
-                    {/* Zaglavlje kolona */}
-                    <div className="flex items-center gap-2 pb-2 mb-1 border-b border-white/10 text-[10px] uppercase tracking-widest text-white/30 font-semibold pr-3">
-                      <span className="w-8 shrink-0 text-center">#</span>
-                      <span className="flex-1">Account</span>
-                      <span className="w-14 text-center">Izazovi</span>
-                      <span className="w-16 text-right">Kvota</span>
-                    </div>
-                    <ol className="space-y-0.5 max-h-[55vh] overflow-y-auto leaderboard-scroll pr-3">
-                      {visible.map((entry, i) => (
-                        <li key={i} className="flex items-center gap-2 py-2 border-b border-white/5 last:border-0">
-                          <span className={`w-8 shrink-0 text-center text-xs font-bold ${i === 0 ? "text-[#FACC01]" : i === 1 ? "text-white/50" : i === 2 ? "text-orange-400" : "text-white/25"}`}>
-                            {i + 1}.
-                          </span>
-                          <span className="flex-1 text-white/90 text-sm tabular-nums">{entry.account}</span>
-                          <span className="w-14 text-center text-white/70 text-sm tabular-nums">{entry.izazovi}</span>
-                          <span className="w-16 text-right text-[#FACC01] text-sm font-semibold tabular-nums">{entry.kvotaLabel}</span>
-                        </li>
-                      ))}
-                    </ol>
+                    {/* Podijum — top 3 */}
+                    {top3.length > 0 && (
+                      <div className="flex items-end justify-center gap-2 pb-5 pt-1">
+                        {PODIUM_ORDER.map((idx) => {
+                          const entry = top3[idx];
+                          if (!entry) return null;
+                          const style = PODIUM_STYLE[idx];
+                          return (
+                            <div key={idx} className="flex flex-col items-center gap-1.5 w-[30%]">
+                              <span className="text-xl leading-none">{MEDALS[idx]}</span>
+                              <span className={`text-xs font-semibold truncate max-w-full ${style.text}`}>
+                                {entry.account}
+                              </span>
+                              <span className="text-[10px] text-white/40 tabular-nums">kvota {entry.kvotaLabel}</span>
+                              <div
+                                className={`w-full ${style.h} rounded-t-lg border-t border-x ${style.ring} bg-gradient-to-b ${style.grad} flex flex-col items-center justify-center gap-1`}
+                              >
+                                <span className="text-[9px] uppercase tracking-widest text-white/30 font-semibold">Izazovi</span>
+                                <span className={`${idx === 0 ? "text-2xl" : "text-lg"} font-extrabold tabular-nums ${style.text}`}>
+                                  {entry.izazovi}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {rest.length > 0 && (
+                      <>
+                        {/* Zaglavlje kolona */}
+                        <div className="flex items-center gap-2 pb-2 mb-1 border-b border-white/10 text-[10px] uppercase tracking-widest text-white/30 font-semibold pr-3">
+                          <span className="w-8 shrink-0 text-center">#</span>
+                          <span className="flex-1">Account</span>
+                          <span className="w-14 text-center">Izazovi</span>
+                          <span className="w-16 text-right">Kvota</span>
+                        </div>
+                        <ol className="space-y-0.5 max-h-[55vh] overflow-y-auto leaderboard-scroll pr-3">
+                          {rest.map((entry, i) => (
+                            <li key={i} className="flex items-center gap-2 py-2 border-b border-white/5 last:border-0">
+                              <span className="w-8 shrink-0 text-center text-xs font-bold text-white/25">
+                                {i + 4}.
+                              </span>
+                              <span className="flex-1 text-white/90 text-sm tabular-nums">{entry.account}</span>
+                              <span className="w-14 text-center text-white/70 text-sm tabular-nums">{entry.izazovi}</span>
+                              <span className="w-16 text-right text-[#FACC01] text-sm font-semibold tabular-nums">{entry.kvotaLabel}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      </>
+                    )}
                     {hasMore && (
                       <button
                         onClick={() => {
