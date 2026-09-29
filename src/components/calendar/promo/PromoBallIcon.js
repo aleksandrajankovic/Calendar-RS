@@ -19,7 +19,10 @@ export default function PromoBallIcon({
       width={0}
       height={0}
       sizes={sizes}
-      priority={!lazy}
+      // Glavna lopta (LCP): eager + visok prioritet, ali bez <link preload> —
+      // preload bi je skidao i na desktopu, gde je mobilni prikaz sakriven
+      loading={lazy ? "lazy" : "eager"}
+      fetchPriority={lazy ? undefined : "high"}
       className={`w-full h-full object-cover${spin ? " knockout-ball-spin" : ""}`}
     />
   );

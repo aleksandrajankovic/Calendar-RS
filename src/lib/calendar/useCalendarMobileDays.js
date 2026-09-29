@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const GHOST_COUNT = 4;
 
@@ -31,38 +31,19 @@ function buildGhostDays(year, month) {
   return ghostDays;
 }
 
-// Čita #calendar-data (koji CalendarGrid renderuje server-side), dodaje "ghost"
-// dane s kraja prethodnog meseca i bira početni aktivni dan (danas, ili prvi
-// dan s promocijom). Deljeno između mobilnih kartica (Stack/Vertical varijante).
-export function useCalendarMobileDays() {
-  const [days, setDays] = useState([]);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [year, setYear] = useState(null);
-  const [month, setMonth] = useState(null);
+function pickInitialIndex(days) {
+  let i = days.findIndex((d) => d.isToday);
+  if (i === -1) i = days.findIndex((d) => d.hasPromo);
+  return i === -1 ? 0 : i;
+}
 
-  useEffect(() => {
-    const dataEl = document.getElementById("calendar-data");
-    if (!dataEl) return;
-
-    try {
-      const payload = JSON.parse(dataEl.textContent || "{}");
-      const allDays = Array.isArray(payload.days) ? payload.days : [];
-      const currentDays = allDays.filter((d) => d && typeof d.day === "number");
-      const ghostDays = buildGhostDays(payload.year, payload.month);
-      const combinedDays = [...ghostDays, ...currentDays];
-
-      let todayIndex = combinedDays.findIndex((d) => d.isToday);
-      if (todayIndex === -1) todayIndex = combinedDays.findIndex((d) => d.hasPromo);
-      if (todayIndex === -1) todayIndex = 0;
-
-      setDays(combinedDays);
-      setActiveIndex(todayIndex);
-      setYear(payload.year);
-      setMonth(payload.month);
-    } catch {
-      // ignore
-    }
-  }, []);
+// Dani tekućeg meseca stižu sa servera (CalendarGrid) kao prop, pa se kartice
+// renderuju već u HTML-u (brži LCP). Dodaje "ghost" dane s kraja prethodnog meseca
+// i bira početni aktivni dan (danas, ili prvi dan s promocijom). Deljeno između
+// mobilnih kartica (Stack/Vertical varijante); promena meseca remount-uje (key).
+export function useCalendarMobileDays(initialDays = [], year = null, month = null) {
+  const [days] = useState(() => [...buildGhostDays(year, month), ...initialDays]);
+  const [activeIndex, setActiveIndex] = useState(() => pickInitialIndex(days));
 
   return { days, activeIndex, setActiveIndex, year, month };
 }

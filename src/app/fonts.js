@@ -1,7 +1,12 @@
 // src/app/fonts.js
 import localFont from "next/font/local";
-import { Anton, Bebas_Neue, Bungee, Rowdies, Russo_One } from "next/font/google";
+import { Bebas_Neue, Rowdies, Russo_One } from "next/font/google";
 
+// preload: false za fontove specifične za temu — next/font inače preload-uje SVE
+// deklarisane fontove na svakoj stranici, pa na sporoj mreži guše LCP sliku.
+// Font se i dalje učitava čim ga stranica koristi (display: swap).
+
+// Brojevi dana (default i football desktop) — vidljivi odmah, ostaje preload
 export const rowdies = Rowdies({
   subsets: ["latin"],
   weight: "700",
@@ -10,31 +15,18 @@ export const rowdies = Rowdies({
 export const russoOne = Russo_One({
   subsets: ["latin"],
   weight: "400",
-});
-
-export const bungee = Bungee({
-  subsets: ["latin"],
-  weight: "400",
-});
-
-export const anton = Anton({
-  subsets: ["latin"],
-  weight: "400",
+  preload: false,
 });
 
 export const bebasNeue = Bebas_Neue({
   subsets: ["latin"],
   weight: "400",
-});
-
-export const fwc2026UltraCondensed = localFont({
-  src: "./fonts/FWC2026-UltraCondensedMedium.ttf",
-  weight: "500",
-  style: "normal",
+  preload: false,
 });
 
 export const exo2Black = localFont({
   src: "./fonts/exo2/Exo2-Black.ttf",
   weight: "900",
   style: "normal",
+  preload: false,
 });

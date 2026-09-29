@@ -15,15 +15,24 @@ import {
 
 const NUM_DOTS = 7;
 
+function pickInitialIndex(days) {
+  let i = days.findIndex((d) => d.isToday);
+  if (i === -1) i = days.findIndex((d) => d.hasPromo);
+  return i === -1 ? 0 : i;
+}
+
 export default function CalendarMobileFootball({
+  initialDays = [],
   adminPreview = false,
   year,
   month,
   prevMonth = null,
   nextMonth = null,
 }) {
-  const [days, setDays] = useState([]);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  // Dani stižu sa servera kao prop (ne čitaju se iz #calendar-data posle mount-a),
+  // pa se lopta renderuje već u HTML-u. Promena meseca remount-uje komponentu (key).
+  const days = initialDays;
+  const [selectedIndex, setSelectedIndex] = useState(() => pickInitialIndex(initialDays));
   const [swipeHintPhase, setSwipeHintPhase] = useState("visible"); // visible | fading | hidden
   const [activeDot, setActiveDot] = useState(0);
   const chipRefs = useRef([]);
@@ -34,26 +43,6 @@ export default function CalendarMobileFootball({
   const ballTouchRef = useRef({ startX: 0, startY: 0 });
   const ballSwipedRef = useRef(false);
   const initialScrollDoneRef = useRef(false);
-  useEffect(() => {
-    const dataEl = document.getElementById("calendar-data");
-    if (!dataEl) return;
-
-    try {
-      const payload = JSON.parse(dataEl.textContent || "{}");
-      const allDays = Array.isArray(payload.days) ? payload.days : [];
-      const currentDays = allDays.filter((d) => d && typeof d.day === "number");
-
-      let todayIndex = currentDays.findIndex((d) => d.isToday);
-      if (todayIndex === -1) todayIndex = currentDays.findIndex((d) => d.hasPromo);
-      if (todayIndex === -1) todayIndex = 0;
-
-      setDays(currentDays);
-      setSelectedIndex(todayIndex >= 0 ? todayIndex : 0);
-    } catch {
-      // ignore
-    }
-  }, [year, month]);
-
   // Auto-scroll chip into view when selectedIndex changes
   useEffect(() => {
     if (!days.length) return;

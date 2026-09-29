@@ -6,11 +6,15 @@ const roboto = Roboto({
   subsets: ["latin", "latin-ext", "cyrillic"],
   weight: ["400", "500", "700"],
   variable: "--font-roboto",
+  // Koristi ga samo admin panel — bez preload-a na javnoj stranici
+  preload: false,
 });
 const robotoCondensed = Roboto_Condensed({
   subsets: ["latin", "latin-ext", "cyrillic"],
   weight: ["400", "500", "700"],
   variable: "--font-roboto-condensed",
+  // Koristi ga samo admin panel — bez preload-a na javnoj stranici
+  preload: false,
 });
 
 export const metadata = {

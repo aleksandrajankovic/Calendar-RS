@@ -1,5 +1,5 @@
 // src/components/CalendarPageView.js
-import Image from "next/image";
+import Image, { getImageProps } from "next/image";
 import CalendarGrid from "@/components/calendar/CalendarGrid";
 import CalendarEnhancer from "@/components/calendar/CalendarEnhancer";
 import MonthPagination from "@/components/calendar/MonthPagination";
@@ -42,12 +42,18 @@ export default function CalendarPageView({
     pos === "right"  ? "md:text-right" :
                        "md:text-left";
 
+  // Pozadina kao <picture> sa responzivnim verzijama (next/image optimizer) umesto
+  // CSS background-image, koji uvek skida original — na telefonu je ovo LCP slika.
+  const bgCommon = { alt: "", fill: true, sizes: "100vw", fetchPriority: "high", loading: "eager" };
+  const { props: { srcSet: bgDesktopSrcSet } } = getImageProps({ ...bgCommon, src: bgImageUrl });
+  const { props: bgMobileProps } = getImageProps({ ...bgCommon, src: bgImageUrlMobile });
+
   return (
     <>
 
-      {/* Preload hero pozadine — ubrzava LCP jer browser inače otkriva CSS background-image tek posle CSSOM parsinga */}
-      <link rel="preload" as="image" href={bgImageUrl} media="(min-width: 768px)" fetchPriority="high" />
-      <link rel="preload" as="image" href={bgImageUrlMobile} media="(max-width: 767px)" fetchPriority="high" />
+      {/* Preload hero pozadine (samo verzija za dati ekran) — browser je inače otkriva tek pri layout-u */}
+      <link rel="preload" as="image" imageSrcSet={bgDesktopSrcSet} imageSizes="100vw" media="(min-width: 768px)" fetchPriority="high" />
+      <link rel="preload" as="image" imageSrcSet={bgMobileProps.srcSet} imageSizes="100vw" media="(max-width: 767px)" fetchPriority="high" />
 
       {/* TOP HEADER BAR */}
       <div className="min-h-[100dvh] flex flex-col overflow-hidden">
@@ -77,16 +83,14 @@ export default function CalendarPageView({
         </header>
 
         <main
-          className={`relative z-0 w-full flex-1 bg-no-repeat bg-cover bg-center calendar-bg overflow-hidden md:overflow-auto flex justify-center ${mainJustify}`}
-          style={{ backgroundImage: `url("${bgImageUrl}")` }}
+          className={`relative z-0 w-full flex-1 overflow-hidden md:overflow-auto flex justify-center ${mainJustify}`}
         >
-          {/* MOBILE BG */}
-          <div
-            className="pointer-events-none absolute inset-0 md:hidden bg-no-repeat bg-cover bg-center -z-10 calendar-mobile-bg"
-            style={{
-              backgroundImage: `url("${bgImageUrlMobile}")`,
-            }}
-          />
+          {/* BACKGROUND — desktop/mobile verzija preko <source media> */}
+          <picture>
+            <source media="(min-width: 768px)" srcSet={bgDesktopSrcSet} sizes="100vw" />
+            {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
+            <img {...bgMobileProps} className="pointer-events-none object-cover object-center -z-10 calendar-mobile-bg" />
+          </picture>
 
           <SnowOverlay />
 

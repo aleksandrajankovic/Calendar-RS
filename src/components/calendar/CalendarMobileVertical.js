@@ -8,8 +8,8 @@ import { getOpenedDays } from "@/lib/calendar/calendarProgress";
 import { useCalendarMobileDays } from "@/lib/calendar/useCalendarMobileDays";
 import PromoIcon from "@/components/calendar/promo/PromoIcon";
 
-export default function CalendarMobileVertical({ adminPreview = false }) {
-  const { days, activeIndex, setActiveIndex, year, month } = useCalendarMobileDays();
+export default function CalendarMobileVertical({ initialDays = [], year: yearProp = null, month: monthProp = null, adminPreview = false }) {
+  const { days, activeIndex, setActiveIndex, year, month } = useCalendarMobileDays(initialDays, yearProp, monthProp);
   const [touchStartY, setTouchStartY] = useState(null);
   const [openedDays, setOpenedDays] = useState(new Set());
 
@@ -111,6 +111,8 @@ export default function CalendarMobileVertical({ adminPreview = false }) {
                 !locked && day.hasPromo && day.icon ? (
                   <PromoIcon
                     src={day.icon}
+                    sizes="180px"
+                    priority={offset === 0}
                     className="absolute right-0 inset-y-0 h-full w-[50%] object-cover object-center"
                   />
                 ) : locked ? (

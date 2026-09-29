@@ -59,6 +59,7 @@ export default function CalendarDayCell({ cell, lang, adminPreview }) {
         {/* ikonica / lock */}
         <PromoIcon
           src={cell.icon}
+          sizes="(min-width: 1024px) 150px, 110px"
           className="absolute right-0 inset-y-0 h-full w-[90%] object-contain object-right"
         />
         {locked && <LockOverlay />}

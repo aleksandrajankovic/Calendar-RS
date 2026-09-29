@@ -8,8 +8,8 @@ import { useCalendarMobileDays } from "@/lib/calendar/useCalendarMobileDays";
 import PromoIcon from "@/components/calendar/promo/PromoIcon";
 import LockOverlay from "@/components/calendar/promo/LockOverlay";
 
-export default function CalendarMobileStack({ adminPreview = false }) {
-  const { days, activeIndex, setActiveIndex } = useCalendarMobileDays();
+export default function CalendarMobileStack({ initialDays = [], year = null, month = null, adminPreview = false }) {
+  const { days, activeIndex, setActiveIndex } = useCalendarMobileDays(initialDays, year, month);
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -140,12 +140,15 @@ export default function CalendarMobileStack({ adminPreview = false }) {
                 !locked && day.hasPromo && day.icon ? (
                   <PromoIcon
                     src={day.icon}
+                    sizes="260px"
+                    priority={offset === 0}
                     className="absolute inset-y-[-55px] h-[100%] w-auto object-cover object-center drop-shadow-[0_12px_25px_rgba(0,0,0,0.7)]"
                   />
                 ) : (
                   <>
                     <PromoIcon
                       src={day.icon}
+                      sizes="210px"
                       className="absolute right-0 inset-y-0 h-full w-[90%] object-cover object-right"
                     />
                     {locked && <LockOverlay size="44px 44px" className="z-20" />}
