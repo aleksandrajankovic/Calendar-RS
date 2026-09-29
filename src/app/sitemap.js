@@ -2,9 +2,9 @@
 import prisma from "@/lib/db";
 import { BASE_URL, monthHref } from "@/lib/calendar/calendarPage";
 
-// Bez ovoga Next generiše sitemap samo jednom, u build-u — novi/izmenjeni
-// specijali dodati preko admin panela se ne bi videli do sledećeg deploy-a.
-export const revalidate = 3600; // 1h
+// Generiše se po zahtevu, ne u build-u: Docker build nema DATABASE_URL, pa bi
+// prerender (upit u bazu) oborio ceo build. Uz to su novi specijali iz admina odmah vidljivi.
+export const dynamic = "force-dynamic";
 
 export default async function sitemap() {
   const [weeklyMonths, specialMonths, settings] = await Promise.all([
