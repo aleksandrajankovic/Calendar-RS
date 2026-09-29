@@ -1,29 +1,15 @@
 // src/components/CalendarMobileVertical.js — vertical card stack (swipe up/down)
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { getCategoryGradient } from "@/lib/calendar/promoCategoryStyles";
 import { rowdies } from "@/app/fonts";
-import { getOpenedDays } from "@/lib/calendar/calendarProgress";
 import { useCalendarMobileDays } from "@/lib/calendar/useCalendarMobileDays";
 import PromoIcon from "@/components/calendar/promo/PromoIcon";
 
 export default function CalendarMobileVertical({ initialDays = [], year: yearProp = null, month: monthProp = null, adminPreview = false }) {
-  const { days, activeIndex, setActiveIndex, year, month } = useCalendarMobileDays(initialDays, yearProp, monthProp);
+  const { days, activeIndex, setActiveIndex } = useCalendarMobileDays(initialDays, yearProp, monthProp);
   const [touchStartY, setTouchStartY] = useState(null);
-  const [openedDays, setOpenedDays] = useState(new Set());
-
-  useEffect(() => {
-    if (year == null || month == null) return;
-    setOpenedDays(getOpenedDays(year, month));
-    const handler = (e) => {
-      if (e.detail?.year === year && e.detail?.month === month) {
-        setOpenedDays(getOpenedDays(year, month));
-      }
-    };
-    window.addEventListener("mb-day-opened", handler);
-    return () => window.removeEventListener("mb-day-opened", handler);
-  }, [year, month]);
 
   const goPrev = () => setActiveIndex((idx) => (idx > 0 ? idx - 1 : idx));
   const goNext = () => setActiveIndex((idx) => (idx < days.length - 1 ? idx + 1 : idx));
@@ -74,7 +60,6 @@ export default function CalendarMobileVertical({ initialDays = [], year: yearPro
               key={`mobile-v-${index}-${day.day}`}
               data-day-button
               data-day={day.day}
-              data-click-anim="press"
               disabled={locked || isGhost}
               onClick={() => !isGhost && setActiveIndex(index)}
               className={`
@@ -123,27 +108,6 @@ export default function CalendarMobileVertical({ initialDays = [], year: yearPro
                     </div>
                   </div>
                 ) : null
-              )}
-
-              {/* Progress check circle */}
-              {!isGhost && (
-                <div
-                  className={`
-                    absolute bottom-3 left-4 z-20
-                    w-[18px] h-[18px] rounded-full
-                    flex items-center justify-center
-                    transition-all duration-300
-                    ${openedDays.has(day.day)
-                      ? "bg-white/90"
-                      : "border border-white/25 bg-black/20"}
-                  `}
-                >
-                  {openedDays.has(day.day) && (
-                    <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                      <path d="M1 3.5L3.5 6 9 1" stroke="#000" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  )}
-                </div>
               )}
 
               {!isGhost && (

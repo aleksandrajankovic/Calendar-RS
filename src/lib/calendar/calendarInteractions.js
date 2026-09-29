@@ -140,33 +140,11 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
     });
   }
 
-  // ---- Ball click animations ----
-  // Web Animations API + zasebna `scale`/`rotate` svojstva umesto btn.style.transform:
-  // mobilne kartice (Stack/Vertical) su pozicionirane preko inline `transform: translate(...)`,
-  // pa bi upis u style.transform pregazio poziciju (kartica/broj skoči u stranu), a
-  // brisanje posle animacije ostavilo karticu na pogrešnom mestu. Animacija ovde ne
-  // dira inline stilove — posle cancel() element se vraća tačno kakav je bio.
+  // ---- Click animation ----
+  // Isti blagi "pritisak" za sve teme i uređaje (kartice, lopte, desktop grid).
+  // Web Animations API + zasebno `scale` svojstvo: ne dira inline style.transform,
+  // kojim su mobilne kartice (Stack/Vertical) pozicionirane.
 
-  function animateRegularBallClick(btn, entry) {
-    const anim = btn.animate(
-      [
-        // 0–150ms: spring overshoot, 150–400ms: collapse + fade
-        { scale: "1", easing: "cubic-bezier(0.34,1.56,0.64,1)" },
-        { scale: "1.18", offset: 0.375, easing: "ease-in" },
-        { scale: "0", opacity: 0 },
-      ],
-      { duration: 400, fill: "forwards" }
-    );
-
-    // 300ms: show modal
-    setTimeout(() => {
-      anim.cancel();
-      openModal(entry, { overlayFadeDuration: 200, dialogDelay: 100 });
-    }, 300);
-  }
-
-  // Kartice (mobilni Stack/Vertical): blagi "pritisak" bez nestajanja — collapse
-  // animacija je pravljena za lopte i na karticama izgleda kao da polje nestane
   function animatePressClick(btn, entry) {
     btn.animate(
       [
@@ -182,33 +160,6 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
     }, 200);
   }
 
-  function animateGoldBallClick(btn, entry) {
-    const anim = btn.animate(
-      [
-        // 0–300ms: anticipation shake, scale builds to 1.15 (ex gold-click-shake)
-        { rotate: "0deg", scale: "1", easing: "ease-in-out" },
-        { rotate: "-6deg", scale: "1.05", offset: 0.08 },
-        { rotate: "6deg", scale: "1.08", offset: 0.16 },
-        { rotate: "-6deg", scale: "1.11", offset: 0.24 },
-        { rotate: "6deg", scale: "1.14", offset: 0.32 },
-        { rotate: "0deg", scale: "1.15", offset: 0.4, easing: "ease-out" },
-        // 300–500ms: zoom with intense glow
-        { scale: "1.6", boxShadow: "0 0 60px 30px rgba(248,217,122,0.8)", offset: 0.667, easing: "ease-in" },
-        // 500–750ms: collapse + fade
-        { scale: "0.3", opacity: 0 },
-      ],
-      { duration: 750, fill: "forwards" }
-    );
-
-    // 500ms: open modal
-    setTimeout(() => {
-      openModal(entry, { overlayFadeDuration: 200, dialogDelay: 100 });
-    }, 500);
-
-    // Reset after popup is open
-    setTimeout(() => anim.cancel(), 850);
-  }
-
   // ---- Click listener ----
 
   root.addEventListener("click", (e) => {
@@ -219,16 +170,7 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
     const entry = days.find((d) => d.day === day);
     if (!entry || !entry.hasPromo) return;
 
-    const category =
-      btn.getAttribute("data-category") || entry.category || "ALL";
-
-    if (btn.dataset.clickAnim === "press") {
-      animatePressClick(btn, entry);
-    } else if (category === "GOLD") {
-      animateGoldBallClick(btn, entry);
-    } else {
-      animateRegularBallClick(btn, entry);
-    }
+    animatePressClick(btn, entry);
   });
 
   // X dugme
