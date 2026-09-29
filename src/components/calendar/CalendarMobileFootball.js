@@ -33,6 +33,7 @@ export default function CalendarMobileFootball({
   const lastSwipeVibrateAtRef = useRef(0);
   const ballTouchRef = useRef({ startX: 0, startY: 0 });
   const ballSwipedRef = useRef(false);
+  const initialScrollDoneRef = useRef(false);
   useEffect(() => {
     const dataEl = document.getElementById("calendar-data");
     if (!dataEl) return;
@@ -57,9 +58,17 @@ export default function CalendarMobileFootball({
   useEffect(() => {
     if (!days.length) return;
     const chip = chipRefs.current[selectedIndex];
-    if (chip && stripRef.current) {
-      chip.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    const strip = stripRef.current;
+    if (!chip || !strip) return;
+
+    // Prvo pozicioniranje (učitavanje stranice) — odmah, bez animacije. Smooth skrol
+    // Chrome tretira kao korisnički skrol i prekida merenje LCP-a (PageSpeed: NO_LCP).
+    if (!initialScrollDoneRef.current) {
+      initialScrollDoneRef.current = true;
+      strip.scrollLeft = chip.offsetLeft - (strip.clientWidth - chip.offsetWidth) / 2;
+      return;
     }
+    chip.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
   }, [selectedIndex, days.length]);
 
   // Scroll listeners: dots tracking + swipe hint hide

@@ -19,23 +19,36 @@ function pad(n) {
 
 export default function CountdownTimer({ targetIso, label = "Do prve promocije" }) {
   const target = new Date(targetIso).getTime();
-  const [remaining, setRemaining] = useState(() => calcRemaining(target));
+  // Vreme se računa tek u browseru (posle mount-a). Da se računa i na serveru,
+  // sekunde (i sat, zbog UTC vremenske zone na serveru) se ne bi poklopile sa
+  // klijentom → React hydration greška #418 → ceo sadržaj se ponovo iscrtava
+  // (PageSpeed tada prijavljuje NO_LCP).
+  const [mounted, setMounted] = useState(false);
+  const [remaining, setRemaining] = useState(null);
 
   useEffect(() => {
-    if (!remaining) return;
+    setMounted(true);
+    setRemaining(calcRemaining(target));
     const id = setInterval(() => {
-      setRemaining(calcRemaining(target));
+      const r = calcRemaining(target);
+      setRemaining(r);
+      if (!r) clearInterval(id);
     }, 1000);
     return () => clearInterval(id);
   }, [target]);
 
-  if (!remaining) return null;
+  if (!Number.isFinite(target)) return null;
+  // Odbrojavanje davno prošlo — ne prikazuj ni placeholder (prag od 1 dan da
+  // server i klijent sigurno daju isti rezultat)
+  if (!mounted && target < Date.now() - 86400000) return null;
+  if (mounted && !remaining) return null;
 
+  // Pre mount-a: isti raspored sa "--" da ne bi bilo pomeranja sadržaja (CLS)
   const units = [
-    { value: remaining.days,    label: remaining.days === 1 ? "dan" : "dana" },
-    { value: remaining.hours,   label: "sati" },
-    { value: remaining.minutes, label: "min" },
-    { value: remaining.seconds, label: "sek" },
+    { value: remaining?.days,    label: remaining?.days === 1 ? "dan" : "dana" },
+    { value: remaining?.hours,   label: "sati" },
+    { value: remaining?.minutes, label: "min" },
+    { value: remaining?.seconds, label: "sek" },
   ];
 
   return (
@@ -59,7 +72,7 @@ export default function CountdownTimer({ targetIso, label = "Do prve promocije" 
             )}
             <div className="flex flex-col items-center w-10 md:w-12">
               <span className="text-white font-bold text-2xl md:text-3xl tabular-nums leading-none">
-                {pad(u.value)}
+                {u.value == null ? "--" : pad(u.value)}
               </span>
               <span className="text-white/40 text-[10px] uppercase tracking-wider mt-1">
                 {u.label}
