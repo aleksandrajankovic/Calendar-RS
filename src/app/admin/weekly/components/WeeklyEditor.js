@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import RichEditor from "@/components/RichEditor";
+import RichEditor from "@/components/admin-shared/RichEditor";
 import ImageGalleryModal from "../../components/ImageGalleryModal";
+import { monthHref } from "@/lib/calendar/calendarUrls";
 
 const LABELS = [
   "Monday",
@@ -85,7 +86,7 @@ export default function WeeklyEditor({ initial, onCancel, onSave }) {
     const m =
       typeof form.month === "number" ? form.month : new Date().getMonth();
 
-    const url = `/?y=${y}&m=${m}`;
+    const url = monthHref(y, m);
     window.open(url, "_blank", "noopener,noreferrer"); // novi tab
   }
 

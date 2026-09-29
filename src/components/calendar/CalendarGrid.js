@@ -1,4 +1,5 @@
-import { buildCalendarData } from "@/lib/calendarGridHelpers";
+import { buildCalendarData } from "@/lib/calendar/calendarGridHelpers";
+import { renderModalHTML } from "@/lib/calendar/promoModalHtml";
 import CalendarDayCell from "./CalendarDayCell";
 import CalendarGhostCell from "./CalendarGhostCell";
 import CalendarMobileStack from "./CalendarMobileStack";
@@ -18,6 +19,7 @@ export default function CalendarGrid({
   prevMonth = null,
   nextMonth = null,
   today,
+  openDay = null,
 }) {
   const { cells, daysPayload } = buildCalendarData({
     year,
@@ -30,6 +32,11 @@ export default function CalendarGrid({
   });
 
   const isFootball = theme === "football";
+
+  // Kad je poznat dan koji treba otvoren pri učitavanju (/promo/[iso]/[slug]),
+  // renderujemo sadržaj popup-a direktno na serveru — vidljiv bez izvršavanja JS-a.
+  const openEntry = openDay != null ? daysPayload.find((d) => d.day === openDay && d.hasPromo) : null;
+  const openHtml = openEntry ? renderModalHTML(openEntry, lang, theme) : null;
 
   return (
     <section
@@ -127,7 +134,7 @@ export default function CalendarGrid({
       <div
         id="promo-modal"
         role="presentation"
-        className="fixed inset-0 z-40 hidden bg-black/70 px-4"
+        className={`fixed inset-0 z-40 ${openHtml ? "" : "hidden"} bg-black/70 px-4`}
       >
         <div className="w-full h-full flex items-center justify-center pointer-events-none">
         <div
@@ -165,14 +172,15 @@ export default function CalendarGrid({
             ✕
           </button>
 
-          <div
-            id="promo-content"
-            className="
-              mt-6
-              overflow-y-auto
-              pr-2
-            "
-          ></div>
+          {openHtml ? (
+            <div
+              id="promo-content"
+              className="mt-6 overflow-y-auto pr-2"
+              dangerouslySetInnerHTML={{ __html: openHtml }}
+            />
+          ) : (
+            <div id="promo-content" className="mt-6 overflow-y-auto pr-2" />
+          )}
         </div>
         </div>
       </div>

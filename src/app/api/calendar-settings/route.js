@@ -25,6 +25,8 @@ export async function GET(req) {
     logoUrl:          row?.logoUrl          || "/img/meridianbet-ng.png",
     theme:            row?.theme            || "default",
     seoMeta:          row?.seoMeta          || DEFAULT_SEO_META,
+    countdownTargetIso: row?.countdownTargetIso || "",
+    countdownLabel:     row?.countdownLabel     || "",
   });
 }
 
@@ -70,6 +72,14 @@ export async function PUT(req) {
     };
   }
 
+  if ("countdownTargetIso" in body) {
+    const raw = (body.countdownTargetIso || "").trim();
+    patch.countdownTargetIso = raw && !Number.isNaN(new Date(raw).getTime()) ? raw : null;
+  }
+
+  if ("countdownLabel" in body)
+    patch.countdownLabel = (body.countdownLabel || "").trim() || null;
+
   if ("monthBackgrounds" in body) {
     let cleaned = null;
     const raw = body.monthBackgrounds;
@@ -108,5 +118,7 @@ export async function PUT(req) {
     logoUrl:          row.logoUrl          || "/img/meridianbet-ng.png",
     theme:            row.theme            || "default",
     seoMeta:          row.seoMeta          || DEFAULT_SEO_META,
+    countdownTargetIso: row.countdownTargetIso || "",
+    countdownLabel:     row.countdownLabel     || "",
   });
 }

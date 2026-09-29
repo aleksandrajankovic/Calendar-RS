@@ -4,7 +4,7 @@ export const runtime = "nodejs";
 import { revalidateTag } from "next/cache";
 import prisma from "@/lib/db";
 import { getAdminFromRequest } from "@/lib/auth";
-import { sanitizeRichHtml } from "@/lib/sanitize";
+import { sanitizeRichHtml, sanitizeTranslations } from "@/lib/sanitize";
 import { sanitizeLink } from "@/lib/validate";
 
 const DEFAULT_LANG = "pt";
@@ -87,7 +87,7 @@ export async function PUT(req) {
     active: Boolean(active ?? true),
     scratch: !!scratch,
     buttonColor: buttonColor || "green",
-    translations: Object.keys(translations).length ? translations : null,
+    translations: sanitizeTranslations(translations),
     category: category || "ALL",
   };
 

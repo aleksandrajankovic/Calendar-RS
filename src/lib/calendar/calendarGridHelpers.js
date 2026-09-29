@@ -1,5 +1,5 @@
 // src/lib/calendarGridHelpers.js
-import { buildPromoUrlISO, slugify } from "@/lib/slug";
+import { buildPromoUrlISO, slugify } from "@/lib/calendar/slug";
 
 function asArray(x) {
   if (Array.isArray(x)) return x;

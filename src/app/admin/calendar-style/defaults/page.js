@@ -20,6 +20,8 @@ export default function DefaultSettingsPage() {
   const [theme, setTheme]                       = useState("default");
   const [seoTitleSr, setSeoTitleSr]             = useState("");
   const [seoDescSr, setSeoDescSr]               = useState("");
+  const [countdownTargetIso, setCountdownTargetIso] = useState("");
+  const [countdownLabel, setCountdownLabel]         = useState("");
   const [loading, setLoading]                   = useState(true);
   const [saving, setSaving]                     = useState(false);
   const [showGallery, setShowGallery]           = useState(false);
@@ -37,6 +39,8 @@ export default function DefaultSettingsPage() {
         setTheme(d.theme || "default");
         setSeoTitleSr(d.seoMeta?.sr?.title || "");
         setSeoDescSr(d.seoMeta?.sr?.description || "");
+        setCountdownTargetIso(d.countdownTargetIso || "");
+        setCountdownLabel(d.countdownLabel || "");
       })
       .catch(() => toast.error("Error loading settings."))
       .finally(() => setLoading(false));
@@ -68,6 +72,8 @@ export default function DefaultSettingsPage() {
           logoUrl,
           theme,
           seoMeta: { sr: { title: seoTitleSr, description: seoDescSr } },
+          countdownTargetIso,
+          countdownLabel,
         }),
       });
       if (!res.ok) throw new Error((await res.text().catch(() => "")) || `HTTP ${res.status}`);
@@ -80,6 +86,8 @@ export default function DefaultSettingsPage() {
       setTheme(d.theme || "default");
       setSeoTitleSr(d.seoMeta?.sr?.title || "");
       setSeoDescSr(d.seoMeta?.sr?.description || "");
+      setCountdownTargetIso(d.countdownTargetIso || "");
+      setCountdownLabel(d.countdownLabel || "");
       toast.success("Default settings saved.");
     } catch (e) {
       toast.error(`Error: ${e.message || "Saving failed."}`);
@@ -323,6 +331,30 @@ export default function DefaultSettingsPage() {
                   maxLength={320}
                 />
                 <span className="mt-0.5 text-xs text-neutral-400">{seoDescSr.length}/320 characters</span>
+              </label>
+            </div>
+          </AdminTableCard>
+
+          {/* ── COUNTDOWN ── */}
+          <AdminTableCard title="Countdown Timer">
+            <div className="p-4 space-y-4">
+              <label className="block">
+                <span className="mb-1 inline-block text-sm text-neutral-600">Target date and time</span>
+                <input
+                  type="datetime-local"
+                  className="w-full border border-[#D0D0D0] rounded px-2.5 py-2 text-sm"
+                  value={countdownTargetIso}
+                  onChange={(e) => setCountdownTargetIso(e.target.value)}
+                />
+              </label>
+              <label className="block">
+                <span className="mb-1 inline-block text-sm text-neutral-600">Label</span>
+                <input
+                  className="w-full border border-[#D0D0D0] rounded px-2.5 py-2 text-sm"
+                  value={countdownLabel}
+                  onChange={(e) => setCountdownLabel(e.target.value)}
+                  placeholder="Kalendar se otvara za"
+                />
               </label>
             </div>
           </AdminTableCard>

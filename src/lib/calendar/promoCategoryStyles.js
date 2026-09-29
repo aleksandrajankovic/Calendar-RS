@@ -39,6 +39,13 @@ export function getCategoryLabel(category) {
   }
 }
 
+// Naslov "Ekskluzivna promocija" badge-a u modalu, samo za GOLD kategoriju
+export function getExclusiveBadgeLabel(category, lang = "sr") {
+  return category === "GOLD"
+    ? (lang === "sr" ? "Ekskluzivna promocija" : "Exclusive promotion")
+    : "";
+}
+
 export const KNOCKOUT_CATEGORIES = new Set(["QUARTER_FINAL", "SEMI_FINAL", "FINAL"]);
 
 export function getKnockoutRingClass(category) {

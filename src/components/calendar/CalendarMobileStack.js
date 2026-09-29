@@ -1,68 +1,16 @@
 // src/components/CalendarMobileStack.jsx
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { getCategoryGradient } from "@/lib/promoCategoryStyles";
+import { useEffect, useRef } from "react";
+import { getCategoryGradient } from "@/lib/calendar/promoCategoryStyles";
 import { rowdies } from "@/app/fonts";
+import { useCalendarMobileDays } from "@/lib/calendar/useCalendarMobileDays";
+import PromoIcon from "@/components/calendar/promo/PromoIcon";
+import LockOverlay from "@/components/calendar/promo/LockOverlay";
 
 export default function CalendarMobileStack({ adminPreview = false }) {
-  const [days, setDays] = useState([]);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const { days, activeIndex, setActiveIndex } = useCalendarMobileDays();
   const containerRef = useRef(null);
-
-  useEffect(() => {
-    const dataEl = document.getElementById("calendar-data");
-    if (!dataEl) return;
-
-    try {
-      const payload = JSON.parse(dataEl.textContent || "{}");
-      const allDays = Array.isArray(payload.days) ? payload.days : [];
-
-const year = payload.year;
-      const month = payload.month;
-
-      const currentDays = allDays.filter((d) => d && typeof d.day === "number");
-
-      let ghostDays = [];
-      if (typeof year === "number" && typeof month === "number") {
-        const prevLastDate = new Date(year, month, 0);
-        const prevMonthDays = prevLastDate.getDate();
-        const prevMonthIndex = prevLastDate.getMonth();
-        const prevYear = prevLastDate.getFullYear();
-
-        const GHOST_COUNT = 4;
-        const start = Math.max(1, prevMonthDays - GHOST_COUNT + 1);
-
-        for (let dayNum = start; dayNum <= prevMonthDays; dayNum++) {
-          ghostDays.push({
-            day: dayNum,
-            year: prevYear,
-            month: prevMonthIndex,
-            hasPromo: false,
-            isFutureForUx: false,
-            isLocked: true,
-            category: "ALL",
-            icon: null,
-            isGhost: true,
-            isToday: false,
-          });
-        }
-      }
-
-      const combinedDays = [...ghostDays, ...currentDays];
-
-      let todayIndex = combinedDays.findIndex((d) => d.isToday);
-      if (todayIndex === -1) {
-        todayIndex = combinedDays.findIndex((d) => d.hasPromo);
-      }
-      if (todayIndex === -1) todayIndex = 0;
-
-      setDays(combinedDays);
-      setActiveIndex(todayIndex >= 0 ? todayIndex : 0);
-    } catch {
-      // ignore
-    }
-  }, []);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -189,47 +137,20 @@ const year = payload.year;
 
               {/* slika / ikonice */}
               {!isGhost && (
-                <>
-                  {!locked && day.hasPromo && day.icon ? (
-                    <img
+                !locked && day.hasPromo && day.icon ? (
+                  <PromoIcon
+                    src={day.icon}
+                    className="absolute inset-y-[-55px] h-[100%] w-auto object-cover object-center drop-shadow-[0_12px_25px_rgba(0,0,0,0.7)]"
+                  />
+                ) : (
+                  <>
+                    <PromoIcon
                       src={day.icon}
-                      alt="promo icon"
-                      className="
-                      absolute
-                      inset-y-[-55px]
-                      h-[100%]
-                      w-auto
-                      object-cover
-                      object-center
-                      drop-shadow-[0_12px_25px_rgba(0,0,0,0.7)]
-                    "
-                      loading="lazy"
+                      className="absolute right-0 inset-y-0 h-full w-[90%] object-cover object-right"
                     />
-                  ) : (
-                    <>
-                      {day.icon && (
-                        <img
-                          src={day.icon}
-                          alt="promo icon"
-                          className="absolute right-0 inset-y-0
-                            h-full w-[90%]
-                            object-cover object-right"
-                          loading="lazy"
-                        />
-                      )}
-
-                      {locked && (
-                        <div className="absolute z-20 inset-0 pointer-events-none">
-                          <div className="absolute inset-0 bg-[#00000080]" />
-                          <div
-                            className="absolute inset-0 bg-center bg-no-repeat bg-[length:44px_44px]"
-                            style={{ backgroundImage: "url('./img/lock.png')" }}
-                          />
-                        </div>
-                      )}
-                    </>
-                  )}
-                </>
+                    {locked && <LockOverlay size="44px 44px" className="z-20" />}
+                  </>
+                )
               )}
             </button>
           );

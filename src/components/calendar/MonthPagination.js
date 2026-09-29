@@ -1,4 +1,5 @@
 // src/components/MonthPagination.js
+import { monthHref } from "@/lib/calendar/calendarUrls";
 
 export default function MonthPagination({
   year,
@@ -15,7 +16,7 @@ export default function MonthPagination({
     <div className={`inline-flex items-center gap-4 rounded-full bg-black/40 px-4 py-2 text-white ${className}`}>
       {prevMonth ? (
         <a
-          href={`/?y=${prevMonth.y}&m=${prevMonth.m}`}
+          href={monthHref(prevMonth.y, prevMonth.m)}
           className="p-1 hover:opacity-80"
           aria-label="Previous month"
         >
@@ -31,7 +32,7 @@ export default function MonthPagination({
 
       {nextMonth ? (
         <a
-          href={`/?y=${nextMonth.y}&m=${nextMonth.m}`}
+          href={monthHref(nextMonth.y, nextMonth.m)}
           className="p-1 hover:opacity-80"
           aria-label="Next month"
         >

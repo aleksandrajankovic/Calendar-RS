@@ -6,6 +6,7 @@ import fs from "node:fs/promises";
 import crypto from "node:crypto";
 import sharp from "sharp";
 import { getAdminFromRequest } from "@/lib/auth";
+import { sanitizeSvg } from "@/lib/sanitize";
 
 const MAX_BYTES = 5 * 1024 * 1024; // 5MB
 const MAX_WIDTH = 1600;
@@ -42,11 +43,12 @@ export async function POST(req) {
   const uploadsDir = path.join(process.cwd(), "public", "uploads");
   await fs.mkdir(uploadsDir, { recursive: true });
 
-  // SVG — sačuvaj direktno bez konverzije
+  // SVG — sanitizuj (ukloni <script>, on*= handlere, javascript:/data: linkove) pre čuvanja
   if (mime === "image/svg+xml") {
     const fileName = `${baseName}-${hash}.svg`;
     const outPath = path.join(uploadsDir, fileName);
-    await fs.writeFile(outPath, inputBuf);
+    const clean = sanitizeSvg(inputBuf.toString("utf8"));
+    await fs.writeFile(outPath, clean, "utf8");
     return Response.json({ url: `/uploads/${fileName}` });
   }
 

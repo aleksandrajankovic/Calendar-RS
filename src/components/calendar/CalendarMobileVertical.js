@@ -2,78 +2,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getCategoryGradient } from "@/lib/promoCategoryStyles";
+import { getCategoryGradient } from "@/lib/calendar/promoCategoryStyles";
 import { rowdies } from "@/app/fonts";
-import { getOpenedDays } from "@/lib/calendarProgress";
+import { getOpenedDays } from "@/lib/calendar/calendarProgress";
+import { useCalendarMobileDays } from "@/lib/calendar/useCalendarMobileDays";
+import PromoIcon from "@/components/calendar/promo/PromoIcon";
 
 export default function CalendarMobileVertical({ adminPreview = false }) {
-  const [days, setDays] = useState([]);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const { days, activeIndex, setActiveIndex, year, month } = useCalendarMobileDays();
   const [touchStartY, setTouchStartY] = useState(null);
-  const [calMeta, setCalMeta] = useState(null);
   const [openedDays, setOpenedDays] = useState(new Set());
 
   useEffect(() => {
-    const dataEl = document.getElementById("calendar-data");
-    if (!dataEl) return;
-
-    try {
-      const payload = JSON.parse(dataEl.textContent || "{}");
-      const allDays = Array.isArray(payload.days) ? payload.days : [];
-
-      const year = payload.year;
-      const month = payload.month;
-
-      const currentDays = allDays.filter((d) => d && typeof d.day === "number");
-
-      let ghostDays = [];
-      if (typeof year === "number" && typeof month === "number") {
-        const prevLastDate = new Date(year, month, 0);
-        const prevMonthDays = prevLastDate.getDate();
-        const prevMonthIndex = prevLastDate.getMonth();
-        const prevYear = prevLastDate.getFullYear();
-
-        const GHOST_COUNT = 4;
-        const start = Math.max(1, prevMonthDays - GHOST_COUNT + 1);
-
-        for (let dayNum = start; dayNum <= prevMonthDays; dayNum++) {
-          ghostDays.push({
-            day: dayNum,
-            year: prevYear,
-            month: prevMonthIndex,
-            hasPromo: false,
-            isFutureForUx: false,
-            isLocked: true,
-            category: "ALL",
-            icon: null,
-            isGhost: true,
-            isToday: false,
-          });
-        }
-      }
-
-      const combinedDays = [...ghostDays, ...currentDays];
-
-      let todayIndex = combinedDays.findIndex((d) => d.isToday);
-      if (todayIndex === -1) todayIndex = combinedDays.findIndex((d) => d.hasPromo);
-      if (todayIndex === -1) todayIndex = 0;
-
-      const initialIndex = todayIndex >= 0 ? todayIndex : 0;
-      setTimeout(() => {
-        setDays(combinedDays);
-        setActiveIndex(initialIndex);
-        if (typeof year === "number" && typeof month === "number") {
-          setCalMeta({ year, month });
-        }
-      }, 0);
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!calMeta) return;
-    const { year, month } = calMeta;
+    if (year == null || month == null) return;
     setOpenedDays(getOpenedDays(year, month));
     const handler = (e) => {
       if (e.detail?.year === year && e.detail?.month === month) {
@@ -82,7 +23,7 @@ export default function CalendarMobileVertical({ adminPreview = false }) {
     };
     window.addEventListener("mb-day-opened", handler);
     return () => window.removeEventListener("mb-day-opened", handler);
-  }, [calMeta]);
+  }, [year, month]);
 
   const goPrev = () => setActiveIndex((idx) => (idx > 0 ? idx - 1 : idx));
   const goNext = () => setActiveIndex((idx) => (idx < days.length - 1 ? idx + 1 : idx));
@@ -168,16 +109,14 @@ export default function CalendarMobileVertical({ adminPreview = false }) {
 
               {!isGhost && (
                 !locked && day.hasPromo && day.icon ? (
-                  <img
+                  <PromoIcon
                     src={day.icon}
-                    alt="promo icon"
                     className="absolute right-0 inset-y-0 h-full w-[50%] object-cover object-center"
-                    loading="lazy"
                   />
                 ) : locked ? (
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                     <div className="flex items-center justify-center w-9 h-9 rounded-full bg-black/35">
-                      <img src="./img/lock.png" alt="" className="w-10 h-10 object-contain" loading="lazy" />
+                      <img src="/img/lock.png" alt="" className="w-10 h-10 object-contain" loading="lazy" />
                     </div>
                   </div>
                 ) : null

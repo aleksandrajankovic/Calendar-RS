@@ -1,6 +1,6 @@
 // src/lib/scratch/initScratch.js
 import confetti from "canvas-confetti";
-import { markDayOpened } from "@/lib/calendarProgress";
+import { markDayOpened } from "@/lib/calendar/calendarProgress";
 
 function getAnonUserId() {
   try {

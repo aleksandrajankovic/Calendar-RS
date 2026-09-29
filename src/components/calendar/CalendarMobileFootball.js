@@ -3,13 +3,15 @@
 
 import { useEffect, useRef, useState } from "react";
 import { russoOne } from "@/app/fonts";
-import MonthPagination from "@/components/MonthPagination";
+import MonthPagination from "@/components/calendar/MonthPagination";
+import PromoBallIcon from "@/components/calendar/promo/PromoBallIcon";
+import LockOverlay from "@/components/calendar/promo/LockOverlay";
 import {
   KNOCKOUT_CATEGORIES,
   getKnockoutRingClass,
   getKnockoutBadgeLabel,
   getKnockoutBadgeClass,
-} from "@/lib/promoCategoryStyles";
+} from "@/lib/calendar/promoCategoryStyles";
 
 const NUM_DOTS = 7;
 
@@ -379,20 +381,9 @@ export default function CalendarMobileFootball({
                 }}
               />
             )}
-            {selectedDay?.icon && (
-              <img
-                src={selectedDay.icon}
-                alt="ball"
-                className={`w-full h-full object-cover${knockoutPhase && !locked ? " knockout-ball-spin" : ""}`}
-              />
-            )}
+            <PromoBallIcon src={selectedDay?.icon} spin={knockoutPhase && !locked} lazy={false} />
 
-            {locked && (
-              <div
-                className="absolute inset-0 bg-[#00000080] bg-center bg-no-repeat bg-size-[60px_60px]"
-                style={{ backgroundImage: "url('./img/lock.png')" }}
-              />
-            )}
+            {locked && <LockOverlay size="60px 60px" />}
 
             {isToday && (
               <span className="pointer-events-none absolute inset-0 rounded-full animate-ping ring-2 ring-[#FACC01]/30" />

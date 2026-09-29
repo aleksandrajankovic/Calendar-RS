@@ -3,7 +3,9 @@ import { rowdies } from "@/app/fonts";
 import {
   getCategoryGradient,
   getCategoryLabel,
-} from "@/lib/promoCategoryStyles";
+} from "@/lib/calendar/promoCategoryStyles";
+import PromoIcon from "@/components/calendar/promo/PromoIcon";
+import LockOverlay from "@/components/calendar/promo/LockOverlay";
 
 const dayNumberClass = `
   ${rowdies.className}
@@ -55,39 +57,11 @@ export default function CalendarDayCell({ cell, lang, adminPreview }) {
         </span>
 
         {/* ikonica / lock */}
-        {!locked && cell.hasPromo && cell.icon ? (
-          // otključan dan – samo promo ikonica
-          <img
-            src={cell.icon}
-            alt="promo icon"
-            className="absolute right-0 inset-y-0
-              h-full w-[90%]
-              object-contain object-right"
-            loading="lazy"
-          />
-        ) : (
-          <>
-            {/* ikonica u pozadini, ako postoji */}
-            {cell.icon && (
-              <img
-                src={cell.icon}
-                alt="promo icon"
-                className="absolute right-0 inset-y-0
-                  h-full w-[90%]
-                  object-contain object-right"
-                loading="lazy"
-              />
-            )}
-
-            {/* overlay + lock samo kad je zaključan dan */}
-            {locked && (
-              <div
-                className="absolute inset-0 pointer-events-none bg-[#00000080] bg-center bg-no-repeat"
-                style={{ backgroundImage: "url('./img/lock.png')" }}
-              />
-            )}
-          </>
-        )}
+        <PromoIcon
+          src={cell.icon}
+          className="absolute right-0 inset-y-0 h-full w-[90%] object-contain object-right"
+        />
+        {locked && <LockOverlay />}
       </button>
     </div>
   );

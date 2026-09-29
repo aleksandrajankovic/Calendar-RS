@@ -5,7 +5,9 @@ import {
   getKnockoutRingClass,
   getKnockoutBadgeLabel,
   getKnockoutBadgeClass,
-} from "@/lib/promoCategoryStyles";
+} from "@/lib/calendar/promoCategoryStyles";
+import PromoBallIcon from "@/components/calendar/promo/PromoBallIcon";
+import LockOverlay from "@/components/calendar/promo/LockOverlay";
 
 export default function CalendarDayBall({ cell, adminPreview }) {
   const locked = cell.isLocked && !adminPreview && !cell.isToday;
@@ -71,22 +73,10 @@ export default function CalendarDayBall({ cell, adminPreview }) {
         )}
 
         {/* ball image */}
-        {cell.icon && (
-          <img
-            src={cell.icon}
-            alt="ball"
-            className={`w-full h-full object-cover${knockoutPhase && !locked ? " knockout-ball-spin" : ""}`}
-            loading="lazy"
-          />
-        )}
+        <PromoBallIcon src={cell.icon} spin={knockoutPhase && !locked} />
 
         {/* lock overlay */}
-        {locked && (
-          <div
-            className="absolute inset-0 bg-[#00000080] bg-center bg-no-repeat bg-size-[36%_36%]"
-            style={{ backgroundImage: "url('./img/lock.png')" }}
-          />
-        )}
+        {locked && <LockOverlay size="36% 36%" />}
       </button>
       </div>
 

@@ -1,4 +1,5 @@
 // src/lib/scratch/renderScratchModal.js
+import { getExclusiveBadgeLabel } from "@/lib/calendar/promoCategoryStyles";
 
 function extractFirstImg(richHtml = "") {
   if (!richHtml) return { imgSrc: "", restHtml: "" };
@@ -28,9 +29,7 @@ export function renderScratchModal({
 }) {
   const { imgSrc, restHtml } = extractFirstImg(richHtml);
 
-  const categoryLabel = category === "GOLD"
-    ? (lang === "sr" ? "Ekskluzivna promocija" : "Exclusive promotion")
-    : "";
+  const categoryLabel = getExclusiveBadgeLabel(category, lang);
 
   const isYellow = buttonColor === "yellow";
   const canOpen = link && link !== "#";
