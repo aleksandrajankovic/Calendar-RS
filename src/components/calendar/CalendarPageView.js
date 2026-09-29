@@ -1,4 +1,5 @@
 // src/components/CalendarPageView.js
+import Image from "next/image";
 import CalendarGrid from "@/components/calendar/CalendarGrid";
 import CalendarEnhancer from "@/components/calendar/CalendarEnhancer";
 import MonthPagination from "@/components/calendar/MonthPagination";
@@ -63,9 +64,13 @@ export default function CalendarPageView({
             rel="noreferrer"
             aria-label="Meridianbet Calendar main site"
           >
-            <img
+            <Image
               src={logoUrl}
               alt="Meridianbet"
+              width={0}
+              height={0}
+              priority
+              sizes={theme === "football" ? "(min-width: 768px) 180px, 145px" : "(min-width: 768px) 115px, 90px"}
               className={theme === "football" ? "h-8 md:h-10 w-auto" : "h-5 md:h-[25px] w-auto"}
             />
           </a>

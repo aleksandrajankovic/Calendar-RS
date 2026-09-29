@@ -390,7 +390,12 @@ export default function CalendarMobileFootball({
                 }}
               />
             )}
-            <PromoBallIcon src={selectedDay?.icon} spin={knockoutPhase && !locked} lazy={false} />
+            <PromoBallIcon
+              src={selectedDay?.icon}
+              spin={knockoutPhase && !locked}
+              lazy={false}
+              sizes="(min-height: 800px) min(68vw, 292px), min(72vw, 320px)"
+            />
 
             {locked && <LockOverlay size="60px 60px" />}
 
