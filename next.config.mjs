@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    // CSS (~16 KB) ide direktno u HTML umesto kao zasebni fajlovi koji blokiraju
+    // prvo iscrtavanje (PageSpeed: "Render-blocking requests").
+    inlineCss: true,
+  },
   images: {
     // Optimizovane (smanjene) verzije slika se keširaju godinu dana — /uploads/
     // imena su hash-ovana po sadržaju, pa nova slika uvek dobija novo ime.
