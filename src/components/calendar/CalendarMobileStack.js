@@ -89,6 +89,7 @@ export default function CalendarMobileStack({ initialDays = [], year = null, mon
               key={`mobile-${index}-${day.day}`}
               data-day-button
               data-day={day.day}
+              data-click-anim="press"
               disabled={locked || isGhost}
               onClick={() => !isGhost && setActiveIndex(index)}
               className={`

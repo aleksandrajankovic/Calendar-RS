@@ -74,6 +74,7 @@ export default function CalendarMobileVertical({ initialDays = [], year: yearPro
               key={`mobile-v-${index}-${day.day}`}
               data-day-button
               data-day={day.day}
+              data-click-anim="press"
               disabled={locked || isGhost}
               onClick={() => !isGhost && setActiveIndex(index)}
               className={`

@@ -141,60 +141,72 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
   }
 
   // ---- Ball click animations ----
+  // Web Animations API + zasebna `scale`/`rotate` svojstva umesto btn.style.transform:
+  // mobilne kartice (Stack/Vertical) su pozicionirane preko inline `transform: translate(...)`,
+  // pa bi upis u style.transform pregazio poziciju (kartica/broj skoči u stranu), a
+  // brisanje posle animacije ostavilo karticu na pogrešnom mestu. Animacija ovde ne
+  // dira inline stilove — posle cancel() element se vraća tačno kakav je bio.
 
   function animateRegularBallClick(btn, entry) {
-    // 0ms: spring overshoot up
-    btn.style.transition = "transform 150ms cubic-bezier(0.34,1.56,0.64,1)";
-    btn.style.transform = "scale(1.18)";
-
-    // 150ms: collapse to 0
-    setTimeout(() => {
-      btn.style.transition =
-        "transform 250ms ease-in, opacity 250ms ease-in";
-      btn.style.transform = "scale(0)";
-      btn.style.opacity = "0";
-    }, 150);
+    const anim = btn.animate(
+      [
+        // 0–150ms: spring overshoot, 150–400ms: collapse + fade
+        { scale: "1", easing: "cubic-bezier(0.34,1.56,0.64,1)" },
+        { scale: "1.18", offset: 0.375, easing: "ease-in" },
+        { scale: "0", opacity: 0 },
+      ],
+      { duration: 400, fill: "forwards" }
+    );
 
     // 300ms: show modal
     setTimeout(() => {
-      btn.style.transform = "";
-      btn.style.opacity = "";
-      btn.style.transition = "";
+      anim.cancel();
       openModal(entry, { overlayFadeDuration: 200, dialogDelay: 100 });
     }, 300);
   }
 
+  // Kartice (mobilni Stack/Vertical): blagi "pritisak" bez nestajanja — collapse
+  // animacija je pravljena za lopte i na karticama izgleda kao da polje nestane
+  function animatePressClick(btn, entry) {
+    btn.animate(
+      [
+        { scale: "1", easing: "cubic-bezier(0.34,1.56,0.64,1)" },
+        { scale: "1.05", offset: 0.45, easing: "ease-out" },
+        { scale: "1" },
+      ],
+      { duration: 260 }
+    );
+
+    setTimeout(() => {
+      openModal(entry, { overlayFadeDuration: 200, dialogDelay: 100 });
+    }, 200);
+  }
+
   function animateGoldBallClick(btn, entry) {
-    // 0ms: anticipation shake, scale builds to 1.15
-    btn.style.animation = "gold-click-shake 300ms ease-in-out forwards";
+    const anim = btn.animate(
+      [
+        // 0–300ms: anticipation shake, scale builds to 1.15 (ex gold-click-shake)
+        { rotate: "0deg", scale: "1", easing: "ease-in-out" },
+        { rotate: "-6deg", scale: "1.05", offset: 0.08 },
+        { rotate: "6deg", scale: "1.08", offset: 0.16 },
+        { rotate: "-6deg", scale: "1.11", offset: 0.24 },
+        { rotate: "6deg", scale: "1.14", offset: 0.32 },
+        { rotate: "0deg", scale: "1.15", offset: 0.4, easing: "ease-out" },
+        // 300–500ms: zoom with intense glow
+        { scale: "1.6", boxShadow: "0 0 60px 30px rgba(248,217,122,0.8)", offset: 0.667, easing: "ease-in" },
+        // 500–750ms: collapse + fade
+        { scale: "0.3", opacity: 0 },
+      ],
+      { duration: 750, fill: "forwards" }
+    );
 
-    // 300ms: ball zooms with intense glow
+    // 500ms: open modal
     setTimeout(() => {
-      btn.style.animation = "";
-      btn.style.transition =
-        "transform 200ms ease-out, box-shadow 200ms ease-out";
-      btn.style.transform = "scale(1.6)";
-      btn.style.boxShadow = "0 0 60px 30px rgba(248,217,122,0.8)";
-    }, 300);
-
-    // 500ms: ball collapses and fades + open modal
-    setTimeout(() => {
-      btn.style.transition =
-        "transform 250ms ease-in, opacity 250ms ease-in, box-shadow 150ms ease-in";
-      btn.style.transform = "scale(0.3)";
-      btn.style.opacity = "0";
-      btn.style.boxShadow = "";
       openModal(entry, { overlayFadeDuration: 200, dialogDelay: 100 });
     }, 500);
 
-    // Reset ball inline styles after popup is open
-    setTimeout(() => {
-      btn.style.transform = "";
-      btn.style.opacity = "";
-      btn.style.transition = "";
-      btn.style.boxShadow = "";
-      btn.style.animation = "";
-    }, 850);
+    // Reset after popup is open
+    setTimeout(() => anim.cancel(), 850);
   }
 
   // ---- Click listener ----
@@ -210,7 +222,9 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
     const category =
       btn.getAttribute("data-category") || entry.category || "ALL";
 
-    if (category === "GOLD") {
+    if (btn.dataset.clickAnim === "press") {
+      animatePressClick(btn, entry);
+    } else if (category === "GOLD") {
       animateGoldBallClick(btn, entry);
     } else {
       animateRegularBallClick(btn, entry);
