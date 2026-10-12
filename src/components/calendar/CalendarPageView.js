@@ -130,7 +130,7 @@ export default function CalendarPageView({
             )}
 
             <div
-              className={`${theme === "football" ? "mt-2 md:mt-1" : "mt-6"}${topOffset ? " md:[margin-top:var(--cal-top-offset)]" : ""}`}
+              className={`${theme === "football" ? "mt-2 md:mt-1" : "mt-6"}${topOffset ? " md:[padding-top:var(--cal-top-offset)]" : ""}`}
               style={topOffset ? { "--cal-top-offset": `${topOffset}vh` } : undefined}
             >
               <CalendarGrid
