@@ -20,6 +20,7 @@ export default function CalendarPageView({
   bgImageUrlMobile,
   pos,
   calendarTitle,
+  topOffset,
   theme,
   isMonthInactive,
   prevMonth,
@@ -128,7 +129,10 @@ export default function CalendarPageView({
               </div>
             )}
 
-            <div className={theme === "football" ? "mt-2 md:mt-1" : "mt-6"}>
+            <div
+              className={`${theme === "football" ? "mt-2 md:mt-1" : "mt-6"}${topOffset ? " md:[margin-top:var(--cal-top-offset)]" : ""}`}
+              style={topOffset ? { "--cal-top-offset": `${topOffset}vh` } : undefined}
+            >
               <CalendarGrid
                 year={year}
                 month={month}

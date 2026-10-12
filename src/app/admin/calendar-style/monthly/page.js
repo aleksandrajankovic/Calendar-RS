@@ -82,7 +82,7 @@ export default function MonthlySettingsPage() {
   const configuredKeys = useMemo(
     () => Object.keys(monthBackgrounds).filter((k) => {
       const v = monthBackgrounds[k];
-      return v?.desktop || v?.mobile || v?.position || v?.titleSr || v?.inactive || v?.theme;
+      return v?.desktop || v?.mobile || v?.position || v?.titleSr || v?.inactive || v?.theme || v?.topOffset;
     }),
     [monthBackgrounds]
   );
@@ -224,6 +224,28 @@ export default function MonthlySettingsPage() {
                 </div>
               </div>
 
+              {/* ── TOP OFFSET PER MONTH ── */}
+              <div className="pt-3 border-t border-neutral-100">
+                <label className="block text-sm font-medium text-neutral-800 mb-1">
+                  Space above calendar (desktop)
+                </label>
+                <p className="text-xs text-neutral-400 mb-2">
+                  Pushes the calendar down, e.g. when the background has its own title. % of screen height, 0–40.
+                </p>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={0}
+                    max={40}
+                    className="w-24 border border-[#D0D0D0] rounded px-2.5 py-1.5 text-sm"
+                    value={currentBg.topOffset || ""}
+                    onChange={(e) => setField("topOffset", e.target.value === "" ? null : Number(e.target.value))}
+                    placeholder="0"
+                  />
+                  <span className="text-sm text-neutral-500">%</span>
+                </div>
+              </div>
+
               {/* ── POSITION PER MONTH ── */}
               <div className="pt-3 border-t border-neutral-100">
                 <label className="block text-sm font-medium text-neutral-800 mb-2">
@@ -352,6 +374,7 @@ export default function MonthlySettingsPage() {
                         bg.theme === "default-horizontal" && "↔ horizontal",
                         bg.titleSr && "title",
                         bg.position && `position: ${bg.position}`,
+                        bg.topOffset && `space above: ${bg.topOffset}%`,
                         bg.desktop  && "desktop bg",
                         bg.mobile   && "mobile bg",
                       ].filter(Boolean).join(", ");

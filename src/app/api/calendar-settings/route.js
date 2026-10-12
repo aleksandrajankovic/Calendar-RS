@@ -94,8 +94,11 @@ export async function PUT(req) {
           const titleSr  = (val.titleSr  || "").trim() || null;
           const inactive = val.inactive === true ? true : null;
           const theme    = VALID_THEMES.includes(val.theme) ? val.theme : null;
-          if (desktop || mobile || position || titleSr || inactive || theme)
-            out[key] = { desktop, mobile, position, titleSr, inactive, theme };
+          // dodatni razmak iznad kalendara na desktopu, u % visine ekrana (0–40)
+          const off      = Math.round(Number(val.topOffset));
+          const topOffset = off > 0 ? Math.min(off, 40) : null;
+          if (desktop || mobile || position || titleSr || inactive || theme || topOffset)
+            out[key] = { desktop, mobile, position, titleSr, inactive, theme, topOffset };
         }
       }
       cleaned = Object.keys(out).length ? out : null;

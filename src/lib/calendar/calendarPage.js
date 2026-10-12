@@ -228,6 +228,9 @@ export async function loadCalendarPageData({ year, month, isAdmin, lang = "sr" }
   // pozicija kalendara — per-month override > global default
   const pos = monthBg.position || calendarSettings?.calendarPosition || "left";
 
+  // dodatni razmak iznad kalendara (desktop, vh) — da kalendar ne prekriva naslov na pozadini
+  const topOffset = monthBg.topOffset || 0;
+
   // naslov kalendara — per-month override > global calendarTitle > hardcoded fallback;
   // prazan globalni naslov ("") znači da se naslov ne prikazuje
   const monthTitle = monthBg.titleSr;
@@ -263,6 +266,7 @@ export async function loadCalendarPageData({ year, month, isAdmin, lang = "sr" }
     bgImageUrlMobile,
     pos,
     calendarTitle,
+    topOffset,
     theme,
     isMonthInactive,
     prevMonth,

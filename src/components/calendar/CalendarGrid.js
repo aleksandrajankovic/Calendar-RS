@@ -64,7 +64,8 @@ export default function CalendarGrid({
           <div
             className={`grid grid-cols-7 gap-1.5 md:gap-2 ${
               isFootball
-                ? "auto-rows-[70px] md:auto-rows-[78px] lg:auto-rows-[96px] xl:auto-rows-[104px]"
+                ? // redovi se smanjuju na nižim ekranima (max ~10.5vh) da ceo kalendar stane
+                  "auto-rows-[70px] md:auto-rows-[min(78px,10.5vh)] lg:auto-rows-[min(96px,10.5vh)] xl:auto-rows-[min(104px,10.5vh)]"
                 : "auto-rows-[52px] md:auto-rows-[70px] lg:auto-rows-[95px]"
             }`}
             data-cal-grid
