@@ -24,7 +24,7 @@ export default function PromoBallIcon({
       // preload bi je skidao i na desktopu, gde je mobilni prikaz sakriven
       loading={lazy ? "lazy" : "eager"}
       fetchPriority={lazy ? undefined : "high"}
-      className={`w-full h-full object-contain p-[7%]${spin ? " knockout-ball-spin" : ""}`}
+      className={`w-full h-full object-contain p-[11%]${spin ? " knockout-ball-spin" : ""}`}
     />
   );
 }
