@@ -1,5 +1,6 @@
 // src/components/promo/PromoBallIcon.js
-// "Lopta" ikonica za football temu — puni svoj krug, opciono se vrti za knockout faze.
+// "Lopta" ikonica za football temu — staje cela u svoj krug (contain + mali razmak od ivice,
+// da krug ne odseče ikonice koje nisu okrugle, npr. bundevu), opciono se vrti za knockout faze.
 // next/image: uploadovane ikonice su do 1024px, a prikazuju se dosta manje — Next pravi
 // manju verziju po uređaju (sizes) umesto da šalje original.
 import Image from "next/image";
@@ -23,7 +24,7 @@ export default function PromoBallIcon({
       // preload bi je skidao i na desktopu, gde je mobilni prikaz sakriven
       loading={lazy ? "lazy" : "eager"}
       fetchPriority={lazy ? undefined : "high"}
-      className={`w-full h-full object-cover${spin ? " knockout-ball-spin" : ""}`}
+      className={`w-full h-full object-contain p-[7%]${spin ? " knockout-ball-spin" : ""}`}
     />
   );
 }
