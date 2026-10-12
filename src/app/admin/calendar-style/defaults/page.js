@@ -34,7 +34,7 @@ export default function DefaultSettingsPage() {
         setBgUrl(d.bgImageUrl || "/img/bg-calendar.png");
         setBgUrlMobile(d.bgImageUrlMobile || "/img/bg-calendar-mobile.png");
         setCalendarPosition(d.calendarPosition || "left");
-        setTitleSr(d.calendarTitle?.sr || "PRAZNIČNE MISIJE");
+        setTitleSr(d.calendarTitle?.sr ?? "PRAZNIČNE MISIJE");
         setLogoUrl(d.logoUrl || "/img/meridianbet-ng.png");
         setTheme(d.theme || "default");
         setSeoTitleSr(d.seoMeta?.sr?.title || "");
@@ -81,7 +81,7 @@ export default function DefaultSettingsPage() {
       setBgUrl(d.bgImageUrl || "/img/bg-calendar.png");
       setBgUrlMobile(d.bgImageUrlMobile || "/img/bg-calendar-mobile.png");
       setCalendarPosition(d.calendarPosition || "left");
-      setTitleSr(d.calendarTitle?.sr || "PRAZNIČNE MISIJE");
+      setTitleSr(d.calendarTitle?.sr ?? "PRAZNIČNE MISIJE");
       setLogoUrl(d.logoUrl || "/img/meridianbet-ng.png");
       setTheme(d.theme || "default");
       setSeoTitleSr(d.seoMeta?.sr?.title || "");
@@ -143,7 +143,7 @@ export default function DefaultSettingsPage() {
           <AdminTableCard title="Calendar Title">
             <div className="p-4 space-y-4">
               <p className="text-sm text-neutral-500">
-                Main heading shown above the calendar.
+                Main heading shown above the calendar. Leave empty to hide it.
               </p>
               <div>
                 <input

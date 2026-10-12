@@ -54,7 +54,8 @@ export async function PUT(req) {
   if ("calendarTitle" in body) {
     const t = body.calendarTitle;
     patch.calendarTitle = {
-      sr: (typeof t?.sr === "string" ? t.sr.trim() : "") || "PRAZNIČNE MISIJE",
+      // prazan string je dozvoljen — kalendar se tada prikazuje bez naslova
+      sr: typeof t?.sr === "string" ? t.sr.trim() : "PRAZNIČNE MISIJE",
       en: (typeof t?.en === "string" ? t.en.trim() : "") || "HOLIDAY MISSIONS",
     };
   }

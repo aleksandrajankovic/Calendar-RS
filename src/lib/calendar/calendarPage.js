@@ -220,8 +220,6 @@ export async function loadCalendarPageData({ year, month, isAdmin, lang = "sr" }
 
   const specials = normalizeSpecials(specialRows, lang);
 
-  const logoUrl = calendarSettings?.logoUrl || "/img/meridianbet-ng.png";
-
   // background za kalendar — per-month override ima prioritet nad globalnim
   const monthBg = monthBgs[`${year}-${month}`] || {};
   const bgImageUrl = monthBg.desktop || calendarSettings?.bgImageUrl || "/img/bg-calendar.png";
@@ -230,10 +228,11 @@ export async function loadCalendarPageData({ year, month, isAdmin, lang = "sr" }
   // pozicija kalendara — per-month override > global default
   const pos = monthBg.position || calendarSettings?.calendarPosition || "left";
 
-  // naslov kalendara — per-month override > global calendarTitle > hardcoded fallback
+  // naslov kalendara — per-month override > global calendarTitle > hardcoded fallback;
+  // prazan globalni naslov ("") znači da se naslov ne prikazuje
   const monthTitle = monthBg.titleSr;
   const globalTitles = calendarSettings?.calendarTitle || {};
-  const calendarTitle = monthTitle || globalTitles["sr"] || "PRAZNIČNE MISIJE";
+  const calendarTitle = monthTitle || (globalTitles["sr"] ?? "PRAZNIČNE MISIJE");
 
   // tema kalendara — per-month override > global default
   const theme = monthBg.theme || calendarSettings?.theme || "default";
@@ -260,7 +259,6 @@ export async function loadCalendarPageData({ year, month, isAdmin, lang = "sr" }
   return {
     weekly,
     specials,
-    logoUrl,
     bgImageUrl,
     bgImageUrlMobile,
     pos,
