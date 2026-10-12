@@ -41,6 +41,8 @@ export function buildCalendarData({
   adminPreview = false,
   lang = "pt",
   today = new Date(),
+  dayFrom = null,
+  dayTo = null,
 }) {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstDay = new Date(year, month, 1).getDay();
@@ -52,8 +54,14 @@ export function buildCalendarData({
   const cells = [];
   const daysPayload = [];
 
+  // Skraćen mesec (npr. kampanja 15–31): prikazuju se samo dani iz opsega, bez dana
+  // susednih meseci. Svaki dan zadržava svoj pravi datum, pa otključavanje i dalje ide po datumu.
+  const from = Math.max(1, Math.min(dayFrom || 1, daysInMonth));
+  const to = Math.max(from, Math.min(dayTo || daysInMonth, daysInMonth));
+  const isRange = from > 1 || to < daysInMonth;
+
   // LEADING – dani prethodnog meseca
-  const leadingDays = startDay - 1;
+  const leadingDays = isRange ? 0 : startDay - 1;
   for (let i = 0; i < leadingDays; i++) {
     const dayNum = prevMonthDays - leadingDays + 1 + i;
     cells.push({
@@ -92,8 +100,8 @@ export function buildCalendarData({
     const scratch = !!promo?.scratch;
     const knockoutPhase = promo?.knockoutPhase || null;
 
-    // cell za grid (desktop)
-    cells.push({
+    // cell za grid (desktop) — samo dani iz opsega; payload (modal, deljeni linkovi) ostaje ceo mesec
+    if (day >= from && day <= to) cells.push({
       type: "day",
       key: `day-${day}`,
       day,
@@ -156,7 +164,13 @@ export function buildCalendarData({
   // TRAILING – dani sledećeg meseca da se popuni poslednji red
   const totalCells = cells.length;
   const remainder = totalCells % 7;
-  if (remainder !== 0) {
+  if (isRange && remainder !== 0) {
+    // skraćen mesec: nepotpun poslednji red se centrira praznim poljima ispred
+    const pad = Math.floor((7 - remainder) / 2);
+    const lastRowStart = totalCells - remainder;
+    const blanks = Array.from({ length: pad }, (_, i) => ({ type: "blank", key: `blank-${i}` }));
+    cells.splice(lastRowStart, 0, ...blanks);
+  } else if (remainder !== 0) {
     const nextDays = 7 - remainder;
     for (let i = 1; i <= nextDays; i++) {
       cells.push({
@@ -167,5 +181,5 @@ export function buildCalendarData({
     }
   }
 
-  return { cells, daysPayload };
+  return { cells, daysPayload, dayFrom: from, dayTo: to };
 }

@@ -82,7 +82,7 @@ export default function MonthlySettingsPage() {
   const configuredKeys = useMemo(
     () => Object.keys(monthBackgrounds).filter((k) => {
       const v = monthBackgrounds[k];
-      return v?.desktop || v?.mobile || v?.position || v?.titleSr || v?.inactive || v?.theme || v?.topOffset;
+      return v?.desktop || v?.mobile || v?.position || v?.titleSr || v?.inactive || v?.theme || v?.topOffset || v?.dayFrom || v?.dayTo;
     }),
     [monthBackgrounds]
   );
@@ -221,6 +221,38 @@ export default function MonthlySettingsPage() {
                       Preview: <span className="font-bold text-neutral-700">{currentBg.titleSr}</span>
                     </p>
                   )}
+                </div>
+              </div>
+
+              {/* ── DAY RANGE PER MONTH ── */}
+              <div className="pt-3 border-t border-neutral-100">
+                <label className="block text-sm font-medium text-neutral-800 mb-1">
+                  Visible days
+                </label>
+                <p className="text-xs text-neutral-400 mb-2">
+                  Show only part of the month, e.g. a campaign from 15 to 31. Leave empty to show the whole month.
+                </p>
+                <div className="flex items-center gap-2 text-sm text-neutral-500">
+                  <span>From</span>
+                  <input
+                    type="number"
+                    min={1}
+                    max={31}
+                    className="w-20 border border-[#D0D0D0] rounded px-2.5 py-1.5 text-sm"
+                    value={currentBg.dayFrom || ""}
+                    onChange={(e) => setField("dayFrom", e.target.value === "" ? null : Number(e.target.value))}
+                    placeholder="1"
+                  />
+                  <span>to</span>
+                  <input
+                    type="number"
+                    min={1}
+                    max={31}
+                    className="w-20 border border-[#D0D0D0] rounded px-2.5 py-1.5 text-sm"
+                    value={currentBg.dayTo || ""}
+                    onChange={(e) => setField("dayTo", e.target.value === "" ? null : Number(e.target.value))}
+                    placeholder="31"
+                  />
                 </div>
               </div>
 
@@ -375,6 +407,7 @@ export default function MonthlySettingsPage() {
                         bg.titleSr && "title",
                         bg.position && `position: ${bg.position}`,
                         bg.topOffset && `space above: ${bg.topOffset}%`,
+                        (bg.dayFrom || bg.dayTo) && `days: ${bg.dayFrom || 1}–${bg.dayTo || 31}`,
                         bg.desktop  && "desktop bg",
                         bg.mobile   && "mobile bg",
                       ].filter(Boolean).join(", ");

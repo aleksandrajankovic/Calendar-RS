@@ -20,8 +20,10 @@ export default function CalendarGrid({
   nextMonth = null,
   today,
   openDay = null,
+  dayFrom = null,
+  dayTo = null,
 }) {
-  const { cells, daysPayload } = buildCalendarData({
+  const { cells, daysPayload, dayFrom: from, dayTo: to } = buildCalendarData({
     year,
     month,
     weekly,
@@ -29,13 +31,15 @@ export default function CalendarGrid({
     adminPreview,
     lang,
     today: today ?? new Date(),
+    dayFrom,
+    dayTo,
   });
 
   const isFootball = theme === "football";
 
   // Mobilni prikazi dobijaju dane već na serveru (samo polja koja koriste),
   // da bi kartica/lopta sa slikom bila u HTML-u odmah — ne tek posle JS-a (brži LCP).
-  const mobileDays = daysPayload.map(
+  const mobileDays = daysPayload.filter((d) => d.day >= from && d.day <= to).map(
     ({ day, isToday, hasPromo, isLocked, isFutureForUx, category, knockoutPhase, icon }) => ({
       day, isToday, hasPromo, isLocked, isFutureForUx, category, knockoutPhase, icon,
     })
@@ -71,6 +75,8 @@ export default function CalendarGrid({
             data-cal-grid
           >
             {cells.map((cell) => {
+              if (cell.type === "blank") return <div key={cell.key} aria-hidden="true" />;
+
               if (cell.type === "prev" || cell.type === "next") {
                 return isFootball
                   ? <CalendarGhostBall key={cell.key} cell={cell} />

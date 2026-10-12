@@ -231,6 +231,10 @@ export async function loadCalendarPageData({ year, month, isAdmin, lang = "sr" }
   // dodatni razmak iznad kalendara (desktop, vh) — da kalendar ne prekriva naslov na pozadini
   const topOffset = monthBg.topOffset || 0;
 
+  // skraćen mesec — prikazuju se samo dani od-do (npr. kampanja 15–31)
+  const dayFrom = monthBg.dayFrom || null;
+  const dayTo = monthBg.dayTo || null;
+
   // naslov kalendara — per-month override > global calendarTitle > hardcoded fallback;
   // prazan globalni naslov ("") znači da se naslov ne prikazuje
   const monthTitle = monthBg.titleSr;
@@ -267,6 +271,8 @@ export async function loadCalendarPageData({ year, month, isAdmin, lang = "sr" }
     pos,
     calendarTitle,
     topOffset,
+    dayFrom,
+    dayTo,
     theme,
     isMonthInactive,
     prevMonth,

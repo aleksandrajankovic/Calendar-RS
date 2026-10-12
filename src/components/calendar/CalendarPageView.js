@@ -21,6 +21,8 @@ export default function CalendarPageView({
   pos,
   calendarTitle,
   topOffset,
+  dayFrom,
+  dayTo,
   theme,
   isMonthInactive,
   prevMonth,
@@ -145,6 +147,8 @@ export default function CalendarPageView({
                 nextMonth={nextMonth}
                 today={today}
                 openDay={openDay}
+                dayFrom={dayFrom}
+                dayTo={dayTo}
               />
             </div>
 
