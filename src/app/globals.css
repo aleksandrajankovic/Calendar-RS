@@ -244,7 +244,8 @@ button {
 }
 
 #scratch-canvas {
-  cursor: url("/img/kopacka-01.png") 16 16, pointer;
+  /* metla (64×120) — tačka grebanja je vrh četke dole levo */
+  cursor: url("/img/metla-64x120.png") 4 86, pointer;
 }
 /* Admin može da klikne future */
 .admin-preview .future button,
