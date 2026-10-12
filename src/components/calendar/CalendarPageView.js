@@ -21,6 +21,7 @@ export default function CalendarPageView({
   pos,
   calendarTitle,
   topOffset,
+  topOffsetMobile,
   dayFrom,
   dayTo,
   theme,
@@ -132,8 +133,17 @@ export default function CalendarPageView({
             )}
 
             <div
-              className={`${theme === "football" ? "mt-2 md:mt-1" : "mt-6"}${topOffset ? " md:[padding-top:var(--cal-top-offset)]" : ""}`}
-              style={topOffset ? { "--cal-top-offset": `${topOffset}vh` } : undefined}
+              className={`${theme === "football" ? "mt-2 md:mt-1" : "mt-6"}${
+                topOffset ? " md:[padding-top:var(--cal-top-offset)]" : ""
+              }${topOffsetMobile ? " max-md:[padding-top:var(--cal-top-offset-m)]" : ""}`}
+              style={{
+                ...(topOffset && { "--cal-top-offset": `${topOffset}vh` }),
+                // na telefonu se i velika lopta smanjuje za spušteni deo, da sve stane na ekran
+                ...(topOffsetMobile && {
+                  "--cal-top-offset-m": `${topOffsetMobile}dvh`,
+                  "--ball-max-h": `calc(100dvh - 380px - ${topOffsetMobile}dvh)`,
+                }),
+              }}
             >
               <CalendarGrid
                 year={year}

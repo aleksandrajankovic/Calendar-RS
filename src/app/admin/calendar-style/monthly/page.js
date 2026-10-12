@@ -82,7 +82,7 @@ export default function MonthlySettingsPage() {
   const configuredKeys = useMemo(
     () => Object.keys(monthBackgrounds).filter((k) => {
       const v = monthBackgrounds[k];
-      return v?.desktop || v?.mobile || v?.position || v?.titleSr || v?.inactive || v?.theme || v?.topOffset || v?.dayFrom || v?.dayTo;
+      return v?.desktop || v?.mobile || v?.position || v?.titleSr || v?.inactive || v?.theme || v?.topOffset || v?.topOffsetMobile || v?.dayFrom || v?.dayTo;
     }),
     [monthBackgrounds]
   );
@@ -259,22 +259,34 @@ export default function MonthlySettingsPage() {
               {/* ── TOP OFFSET PER MONTH ── */}
               <div className="pt-3 border-t border-neutral-100">
                 <label className="block text-sm font-medium text-neutral-800 mb-1">
-                  Space above calendar (desktop)
+                  Space above calendar
                 </label>
                 <p className="text-xs text-neutral-400 mb-2">
                   Pushes the calendar down, e.g. when the background has its own title. % of screen height, 0–40.
                 </p>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 text-sm text-neutral-500">
+                  <span>Desktop</span>
                   <input
                     type="number"
                     min={0}
                     max={40}
-                    className="w-24 border border-[#D0D0D0] rounded px-2.5 py-1.5 text-sm"
+                    className="w-20 border border-[#D0D0D0] rounded px-2.5 py-1.5 text-sm"
                     value={currentBg.topOffset || ""}
                     onChange={(e) => setField("topOffset", e.target.value === "" ? null : Number(e.target.value))}
                     placeholder="0"
                   />
-                  <span className="text-sm text-neutral-500">%</span>
+                  <span>%</span>
+                  <span className="ml-3">Mobile</span>
+                  <input
+                    type="number"
+                    min={0}
+                    max={40}
+                    className="w-20 border border-[#D0D0D0] rounded px-2.5 py-1.5 text-sm"
+                    value={currentBg.topOffsetMobile || ""}
+                    onChange={(e) => setField("topOffsetMobile", e.target.value === "" ? null : Number(e.target.value))}
+                    placeholder="0"
+                  />
+                  <span>%</span>
                 </div>
               </div>
 
@@ -407,6 +419,7 @@ export default function MonthlySettingsPage() {
                         bg.titleSr && "title",
                         bg.position && `position: ${bg.position}`,
                         bg.topOffset && `space above: ${bg.topOffset}%`,
+                        bg.topOffsetMobile && `space above (mobile): ${bg.topOffsetMobile}%`,
                         (bg.dayFrom || bg.dayTo) && `days: ${bg.dayFrom || 1}–${bg.dayTo || 31}`,
                         bg.desktop  && "desktop bg",
                         bg.mobile   && "mobile bg",

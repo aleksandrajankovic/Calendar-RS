@@ -97,12 +97,14 @@ export async function PUT(req) {
           // dodatni razmak iznad kalendara na desktopu, u % visine ekrana (0–40)
           const off      = Math.round(Number(val.topOffset));
           const topOffset = off > 0 ? Math.min(off, 40) : null;
+          const offM     = Math.round(Number(val.topOffsetMobile));
+          const topOffsetMobile = offM > 0 ? Math.min(offM, 40) : null;
           // skraćen mesec: prikazuju se samo dani od-do (1–31)
           const day = (v) => { const n = Math.round(Number(v)); return n >= 1 && n <= 31 ? n : null; };
           const dayFrom = day(val.dayFrom);
           const dayTo   = day(val.dayTo);
-          if (desktop || mobile || position || titleSr || inactive || theme || topOffset || dayFrom || dayTo)
-            out[key] = { desktop, mobile, position, titleSr, inactive, theme, topOffset, dayFrom, dayTo };
+          if (desktop || mobile || position || titleSr || inactive || theme || topOffset || topOffsetMobile || dayFrom || dayTo)
+            out[key] = { desktop, mobile, position, titleSr, inactive, theme, topOffset, topOffsetMobile, dayFrom, dayTo };
         }
       }
       cleaned = Object.keys(out).length ? out : null;

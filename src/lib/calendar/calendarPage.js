@@ -230,6 +230,7 @@ export async function loadCalendarPageData({ year, month, isAdmin, lang = "sr" }
 
   // dodatni razmak iznad kalendara (desktop, vh) — da kalendar ne prekriva naslov na pozadini
   const topOffset = monthBg.topOffset || 0;
+  const topOffsetMobile = monthBg.topOffsetMobile || 0;
 
   // skraćen mesec — prikazuju se samo dani od-do (npr. kampanja 15–31)
   const dayFrom = monthBg.dayFrom || null;
@@ -271,6 +272,7 @@ export async function loadCalendarPageData({ year, month, isAdmin, lang = "sr" }
     pos,
     calendarTitle,
     topOffset,
+    topOffsetMobile,
     dayFrom,
     dayTo,
     theme,
