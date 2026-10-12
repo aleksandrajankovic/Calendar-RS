@@ -162,9 +162,11 @@ export function initScratch() {
     hint1?.remove();
 
     if (theme === "football") {
-      const ballWhite = confetti.shapeFromText({ text: "⚽", scalar: 1.2 });
-      const ballGold  = confetti.shapeFromText({ text: "🟡", scalar: 1.2 });
-      const base = { scalar: 1.2, flat: true, ticks: 400, gravity: 3.5, decay: 0.9, shapes: [ballWhite, ballGold] };
+      // Halloween: bundeve (češće) + bombone, lizalice, duhovi, slepi miševi
+      const shape = (text) => confetti.shapeFromText({ text, scalar: 1.6 });
+      const pumpkin = shape("🎃");
+      const shapes = [pumpkin, pumpkin, pumpkin, shape("🍬"), shape("🍭"), shape("👻"), shape("🦇")];
+      const base = { scalar: 1.6, flat: true, ticks: 400, gravity: 3.5, decay: 0.9, shapes };
       for (let i = 0; i < 10; i++) {
         setTimeout(() => {
           confetti({
