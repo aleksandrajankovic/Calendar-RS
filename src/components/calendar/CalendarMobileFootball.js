@@ -119,7 +119,7 @@ export default function CalendarMobileFootball({
     : "ring-1 ring-white/15";
 
   return (
-    <div className="w-full flex flex-col items-center justify-start pt-3 pb-8 gap-5 [--football-ball-size:min(72vw,320px,var(--ball-max-h,320px))] [@media(min-height:800px)]:gap-6 [@media(min-height:800px)]:[--football-ball-size:min(68vw,292px,var(--ball-max-h,292px))]">
+    <div className="w-full flex flex-col items-center justify-start pt-3 pb-8 gap-5 [--football-ball-size:min(72vw,320px)] [@media(min-height:800px)]:gap-6 [@media(min-height:800px)]:[--football-ball-size:min(68vw,292px)]">
 
       {/* ── DATE CHIP STRIP ── */}
       <div className="w-full flex flex-col">
