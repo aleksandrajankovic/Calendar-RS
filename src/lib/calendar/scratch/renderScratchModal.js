@@ -20,7 +20,7 @@ export function renderScratchModal({
   lang,
   shareKey,
   threshold = 0.7,
-  coverSrc = "/img/f3.jpg",
+  coverSrc = "/img/440x170-Trick-or-Treat-KV.jpg",
   theme = "default",
   year,
   month,
