@@ -161,6 +161,9 @@ export function initScratch() {
     hint?.remove();
     hint1?.remove();
 
+    // analitika (calendarInteractions) — broji se samo pravo grebanje, ne ponovno otvaranje
+    window.dispatchEvent(new CustomEvent("mb-scratch-revealed"));
+
     if (theme === "football") {
       // Halloween: bundeve (češće) + bombone, lizalice, duhovi, slepi miševi
       const shape = (text) => confetti.shapeFromText({ text, scalar: 1.6 });

@@ -1,5 +1,5 @@
 // src/components/CalendarPageView.js
-import { getImageProps } from "next/image";
+import Image, { getImageProps } from "next/image";
 import CalendarGrid from "@/components/calendar/CalendarGrid";
 import CalendarEnhancer from "@/components/calendar/CalendarEnhancer";
 import MonthPagination from "@/components/calendar/MonthPagination";
@@ -25,6 +25,8 @@ export default function CalendarPageView({
   dayFrom,
   dayTo,
   theme,
+  showLogo,
+  logoUrl,
   isMonthInactive,
   prevMonth,
   nextMonth,
@@ -61,6 +63,34 @@ export default function CalendarPageView({
       <link rel="preload" as="image" imageSrcSet={bgMobileProps.srcSet} imageSizes="100vw" media="(max-width: 767px)" fetchPriority="high" />
 
       <div className="min-h-[100dvh] flex flex-col overflow-hidden">
+        {/* TOP HEADER BAR — samo kad je logo uključen u adminu */}
+        {showLogo && (
+          <header
+            className={
+              theme === "football"
+                ? "absolute inset-x-0 top-0 z-20 flex items-center justify-center px-4 py-6 md:py-7"
+                : "w-full bg-[linear-gradient(90deg,#A6080E_0%,#D11101_100%)] px-4 md:px-16 py-2 flex items-center justify-between shrink-0"
+            }
+          >
+            <a
+              href="https://meridianbet.rs"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Meridianbet Calendar main site"
+            >
+              <Image
+                src={logoUrl}
+                alt="Meridianbet"
+                width={0}
+                height={0}
+                priority
+                sizes={theme === "football" ? "(min-width: 768px) 180px, 145px" : "(min-width: 768px) 115px, 90px"}
+                className={theme === "football" ? "h-8 md:h-10 w-auto" : "h-5 md:h-[25px] w-auto"}
+              />
+            </a>
+          </header>
+        )}
+
         <main
           className={`relative z-0 w-full flex-1 overflow-hidden md:overflow-auto flex justify-center ${mainJustify}`}
         >

@@ -2,11 +2,12 @@
 import { initScratch } from "./scratch/initScratch";
 import { renderModalHTML } from "@/lib/calendar/promoModalHtml";
 import { monthHref } from "@/lib/calendar/calendarUrls";
+import { track, disableTracking } from "@/lib/calendar/track";
 
 // -----------------------------
 // INIT FUNKCIJA
 // -----------------------------
-export function initCalendarInteractions(rootSelector = "#calendar-root", { openDay } = {}) {
+export function initCalendarInteractions(rootSelector = "#calendar-root", { openDay, adminPreview = false } = {}) {
   const root = document.querySelector(rootSelector);
   if (!root) return;
 
@@ -25,8 +26,23 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
 
   if (!modal || !content) return;
 
+  // Analitika: admin pregled se ne broji
+  if (adminPreview) disableTracking();
+  track("view", { year: payload.year, month: payload.month });
+
+  function trackDay(type, entry) {
+    track(type, {
+      year: entry.year,
+      month: entry.month,
+      day: entry.day,
+      promoType: entry.type,
+      title: entry.title,
+    });
+  }
+
   let isOpen = false;
   let previousUrl = null;
+  let currentEntry = null;
 
   // ---- Modal style helpers ----
 
@@ -85,6 +101,8 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
 
   function openModal(entry, { overlayFadeDuration = 0, dialogDelay = 0 } = {}) {
     content.innerHTML = renderModalHTML(entry, lang, theme);
+    currentEntry = entry;
+    trackDay("day_open", entry);
     if (entry?.year != null && entry?.month != null && entry?.day) {
       window.dispatchEvent(new CustomEvent("mb-day-viewed", {
         detail: { year: entry.year, month: entry.month, day: entry.day },
@@ -173,6 +191,16 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
     animatePressClick(btn, entry);
   });
 
+  // Klik na dugme promocije (data-track="cta") — analitika
+  content.addEventListener("click", (e) => {
+    if (currentEntry && e.target.closest('[data-track="cta"]')) trackDay("cta", currentEntry);
+  });
+
+  // Grebalica javlja kad je ogrebana (initScratch)
+  window.addEventListener("mb-scratch-revealed", () => {
+    if (currentEntry) trackDay("scratch", currentEntry);
+  });
+
   // X dugme
   closeBtn?.addEventListener("click", (e) => {
     e.preventDefault();
@@ -209,6 +237,8 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
     if (entry && entry.hasPromo) {
       if (!modal.classList.contains("hidden")) {
         isOpen = true;
+        currentEntry = entry;
+        trackDay("day_open", entry);
         document.body.style.overflow = "hidden";
         previousUrl = monthHref(payload.year, payload.month);
         const canvas = document.getElementById("scratch-canvas");

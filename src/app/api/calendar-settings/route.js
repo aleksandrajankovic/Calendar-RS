@@ -23,6 +23,7 @@ export async function GET(req) {
     calendarPosition: row?.calendarPosition || "left",
     calendarTitle:    row?.calendarTitle    || { sr: "PRAZNIČNE MISIJE", en: "HOLIDAY MISSIONS" },
     logoUrl:          row?.logoUrl          || "/img/meridianbet-ng.png",
+    showLogo:         row?.showLogo         ?? false,
     theme:            row?.theme            || "default",
     seoMeta:          row?.seoMeta          || DEFAULT_SEO_META,
     countdownTargetIso: row?.countdownTargetIso || "",
@@ -50,6 +51,9 @@ export async function PUT(req) {
 
   if ("logoUrl" in body)
     patch.logoUrl = (body.logoUrl || "").trim() || null;
+
+  if ("showLogo" in body)
+    patch.showLogo = body.showLogo === true;
 
   if ("calendarTitle" in body) {
     const t = body.calendarTitle;
@@ -126,6 +130,7 @@ export async function PUT(req) {
     calendarPosition: row.calendarPosition || "left",
     calendarTitle:    row.calendarTitle    || { sr: "PRAZNIČNE MISIJE", en: "HOLIDAY MISSIONS" },
     logoUrl:          row.logoUrl          || "/img/meridianbet-ng.png",
+    showLogo:         row.showLogo,
     theme:            row.theme            || "default",
     seoMeta:          row.seoMeta          || DEFAULT_SEO_META,
     countdownTargetIso: row.countdownTargetIso || "",

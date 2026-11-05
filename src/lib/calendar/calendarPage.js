@@ -245,6 +245,10 @@ export async function loadCalendarPageData({ year, month, isAdmin, lang = "sr" }
   // tema kalendara — per-month override > global default
   const theme = monthBg.theme || calendarSettings?.theme || "default";
 
+  // logo u traci na vrhu — prikazuje se samo kad je uključen u adminu
+  const showLogo = !!calendarSettings?.showLogo;
+  const logoUrl = calendarSettings?.logoUrl || "/img/meridianbet-ng.png";
+
   // Skup deaktivovanih meseci za paginaciju
   const inactiveSet = new Set(
     Object.entries(monthBgs)
@@ -276,6 +280,8 @@ export async function loadCalendarPageData({ year, month, isAdmin, lang = "sr" }
     dayFrom,
     dayTo,
     theme,
+    showLogo,
+    logoUrl,
     isMonthInactive,
     prevMonth,
     nextMonth,

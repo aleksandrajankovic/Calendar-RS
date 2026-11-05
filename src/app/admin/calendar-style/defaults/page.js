@@ -17,6 +17,7 @@ export default function DefaultSettingsPage() {
   const [calendarPosition, setCalendarPosition] = useState("left");
   const [titleSr, setTitleSr]                   = useState("PRAZNIČNE MISIJE");
   const [logoUrl, setLogoUrl]                   = useState("/img/meridianbet-ng.png");
+  const [showLogo, setShowLogo]                 = useState(false);
   const [theme, setTheme]                       = useState("default");
   const [seoTitleSr, setSeoTitleSr]             = useState("");
   const [seoDescSr, setSeoDescSr]               = useState("");
@@ -36,6 +37,7 @@ export default function DefaultSettingsPage() {
         setCalendarPosition(d.calendarPosition || "left");
         setTitleSr(d.calendarTitle?.sr ?? "PRAZNIČNE MISIJE");
         setLogoUrl(d.logoUrl || "/img/meridianbet-ng.png");
+        setShowLogo(!!d.showLogo);
         setTheme(d.theme || "default");
         setSeoTitleSr(d.seoMeta?.sr?.title || "");
         setSeoDescSr(d.seoMeta?.sr?.description || "");
@@ -70,6 +72,7 @@ export default function DefaultSettingsPage() {
           calendarPosition,
           calendarTitle: { sr: titleSr },
           logoUrl,
+          showLogo,
           theme,
           seoMeta: { sr: { title: seoTitleSr, description: seoDescSr } },
           countdownTargetIso,
@@ -83,6 +86,7 @@ export default function DefaultSettingsPage() {
       setCalendarPosition(d.calendarPosition || "left");
       setTitleSr(d.calendarTitle?.sr ?? "PRAZNIČNE MISIJE");
       setLogoUrl(d.logoUrl || "/img/meridianbet-ng.png");
+      setShowLogo(!!d.showLogo);
       setTheme(d.theme || "default");
       setSeoTitleSr(d.seoMeta?.sr?.title || "");
       setSeoDescSr(d.seoMeta?.sr?.description || "");
@@ -114,8 +118,17 @@ export default function DefaultSettingsPage() {
           <AdminTableCard title="Logo">
             <div className="p-4 space-y-4">
               <p className="text-sm text-neutral-500">
-                Logo displayed in the top-left header bar.
+                Logo displayed in the header bar at the top of the calendar.
               </p>
+              <label className="inline-flex items-center gap-2 text-sm text-neutral-800 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4"
+                  checked={showLogo}
+                  onChange={(e) => setShowLogo(e.target.checked)}
+                />
+                Show logo
+              </label>
               <div className="flex flex-wrap items-center gap-3">
                 <input
                   className="flex-1 min-w-0 border border-[#D0D0D0] rounded px-2.5 py-1.5 text-sm"
