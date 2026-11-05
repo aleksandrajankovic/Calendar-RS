@@ -144,7 +144,6 @@ function renderSlot(entry, lang) {
     promoHtml: renderNormalModal(entry, lang),
     dateLabel,
     buttonLabel: sr ? "OTKRIJ PROMOCIJU" : "REVEAL PROMOTION",
-    note: sr ? "Promocija dana je unapred određena." : "Today's promotion is already decided.",
   });
 }
 

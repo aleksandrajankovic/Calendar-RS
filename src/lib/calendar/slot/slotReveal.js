@@ -37,7 +37,7 @@ export function renderSlotModal({ image, icon, pool, promoHtml, dateLabel, butto
           </div>
         </div>
         <button type="button" class="slot-button">${buttonLabel}</button>
-        <p class="slot-note">${note}</p>
+        ${note ? `<p class="slot-note">${note}</p>` : ""}
       </div>
       <div class="slot-promo" hidden data-date="${dateLabel}">${promoHtml}</div>
       <script type="application/json" class="slot-data">${data}</script>
