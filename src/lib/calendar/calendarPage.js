@@ -4,6 +4,7 @@ import prisma from "@/lib/db";
 import { unstable_cache } from "next/cache";
 import { redirect } from "next/navigation";
 import { monthHref } from "@/lib/calendar/calendarUrls";
+import { resolveConfetti } from "@/lib/calendar/confetti";
 
 export * from "@/lib/calendar/calendarUrls";
 
@@ -249,6 +250,13 @@ export async function loadCalendarPageData({ year, month, isAdmin, lang = "sr" }
   // tema kalendara — per-month override > global default
   const theme = monthBg.theme || calendarSettings?.theme || "default";
 
+  // konfete posle grebanja — per-month override > global > po temi
+  const confetti = resolveConfetti({
+    monthConfetti: monthBg.confetti,
+    globalConfetti: calendarSettings?.confetti,
+    theme,
+  });
+
   // logo u traci na vrhu — prikazuje se samo kad je uključen u adminu
   const showLogo = !!calendarSettings?.showLogo;
   const logoUrl = calendarSettings?.logoUrl || "/img/meridianbet-ng.png";
@@ -284,6 +292,7 @@ export async function loadCalendarPageData({ year, month, isAdmin, lang = "sr" }
     dayFrom,
     dayTo,
     theme,
+    confetti,
     showLogo,
     logoUrl,
     isMonthInactive,

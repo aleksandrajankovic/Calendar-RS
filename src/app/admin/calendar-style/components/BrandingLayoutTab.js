@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import AdminTableCard from "../../components/AdminTableCard";
 import { MONTH_NAMES, POSITION_OPTIONS, THEME_OPTIONS } from "./constants";
+import MonthOverridePicker from "./MonthOverridePicker";
 
 function ImagePlaceholderIcon() {
   return (
@@ -69,7 +70,6 @@ export default function BrandingLayoutTab({
   selMonth, setSelMonth,
   openGallery,
 }) {
-  const now = new Date();
   const currentKey = `${selYear}-${selMonth}`;
   const currentBg = monthBackgrounds[currentKey] || {};
   const monthLabel = `${MONTH_NAMES[selMonth]} ${selYear}`;
@@ -96,47 +96,20 @@ export default function BrandingLayoutTab({
     () => Object.keys(monthBackgrounds).filter((k) => {
       const v = monthBackgrounds[k];
       return v?.desktop || v?.mobile || v?.position || v?.titleSr || v?.inactive || v?.theme
-        || v?.topOffset || v?.topOffsetMobile || v?.dayFrom || v?.dayTo;
+        || v?.topOffset || v?.topOffsetMobile || v?.dayFrom || v?.dayTo || v?.confetti;
     }),
     [monthBackgrounds]
   );
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-4">
-        <p className="text-sm font-medium text-neutral-800 mb-2">Month overrides apply to:</p>
-        <div className="flex flex-wrap items-center gap-3">
-          <select
-            className="border border-[#D0D0D0] rounded px-2.5 py-1.5 text-sm"
-            value={selMonth}
-            onChange={(e) => setSelMonth(Number(e.target.value))}
-          >
-            {MONTH_NAMES.map((name, i) => (
-              <option key={i} value={i}>{name}</option>
-            ))}
-          </select>
-          <input
-            type="number"
-            className="w-24 border border-[#D0D0D0] rounded px-2.5 py-1.5 text-sm"
-            value={selYear}
-            min={2024}
-            max={now.getFullYear() + 2}
-            onChange={(e) => setSelYear(Number(e.target.value))}
-          />
-          {monthBackgrounds[currentKey] && (
-            <button
-              type="button"
-              onClick={() => clearKey(currentKey)}
-              className="text-xs text-red-500 hover:text-red-700 underline"
-            >
-              Clear all overrides for {monthLabel}
-            </button>
-          )}
-        </div>
-        <p className="text-xs text-neutral-500 mt-2">
-          Every &quot;Override for {monthLabel}&quot; section below (Title, Theme, Position, Visible days & spacing, Background) and the deactivate switch apply to this month. Change the month here, it updates everywhere at once.
-        </p>
-      </div>
+      <MonthOverridePicker
+        selYear={selYear} setSelYear={setSelYear}
+        selMonth={selMonth} setSelMonth={setSelMonth}
+        hasOverrides={!!monthBackgrounds[currentKey]}
+        onClear={() => clearKey(currentKey)}
+        sections="Title, Theme, Position, Visible days & spacing, Background"
+      />
 
       <AdminTableCard title="Deactivate Month">
         <div className="p-4 flex items-center justify-between">
@@ -519,6 +492,7 @@ export default function BrandingLayoutTab({
                   bg.topOffsetMobile && `space above (mobile): ${bg.topOffsetMobile}%`,
                   bg.desktop && "desktop bg",
                   bg.mobile && "mobile bg",
+                  bg.confetti && `confetti: ${bg.confetti.style === "custom" ? bg.confetti.emoji : bg.confetti.style}`,
                 ].filter(Boolean).join(", ");
                 return (
                   <li key={k} className="flex items-center gap-3 text-xs text-neutral-700">

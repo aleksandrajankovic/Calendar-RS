@@ -1,6 +1,38 @@
 // src/lib/scratch/initScratch.js
 import confetti from "canvas-confetti";
 import { markDayOpened } from "@/lib/calendar/calendarProgress";
+import { confettiEmoji } from "@/lib/calendar/confetti";
+
+// Konfete posle grebanja po stilu iz admina: emoji "kiša" (fudbal, Halloween, Božić, custom),
+// klasične papirne konfete, ili ništa (off)
+function launchConfetti(style) {
+  if (style?.style === "off") return;
+  const emoji = confettiEmoji(style);
+
+  if (emoji.length) {
+    const shapes = emoji.map((text) => confetti.shapeFromText({ text, scalar: 1.6 }));
+    const base = { scalar: 1.6, flat: true, ticks: 400, gravity: 3.5, decay: 0.9, shapes, disableForReducedMotion: true };
+    for (let i = 0; i < 10; i++) {
+      setTimeout(() => {
+        confetti({
+          ...base,
+          particleCount: 8 + Math.floor(Math.random() * 8),
+          spread: 50 + Math.random() * 50,
+          startVelocity: 35 + Math.random() * 25,
+          origin: { x: 0.25 + Math.random() * 0.5, y: 0.2 + Math.random() * 0.2 },
+        });
+      }, i * 80 + Math.random() * 40);
+    }
+    return;
+  }
+
+  const colors = ["#ff0000", "#ffd700", "#17bb00", "#0066ff", "#ff69b4", "#ffffff"];
+  const opts = { ticks: 300, colors, disableForReducedMotion: true };
+  confetti({ ...opts, particleCount: 80, spread: 70, startVelocity: 38, origin: { x: 0.35, y: 0.35 } });
+  setTimeout(() => {
+    confetti({ ...opts, particleCount: 60, spread: 80, startVelocity: 32, origin: { x: 0.65, y: 0.35 } });
+  }, 150);
+}
 
 // Visina zadnje strane flip kartice (tekst je obično duži od slike) — meri se na skrivenoj kopiji
 function measureNaturalHeight(el, widthPx) {
@@ -62,7 +94,7 @@ function getAnonUserId() {
   }
 }
 
-export function initScratch() {
+export function initScratch({ confetti: confettiStyle = null } = {}) {
   const canvas = document.getElementById("scratch-canvas");
   if (!canvas) return;
 
@@ -218,30 +250,7 @@ export function initScratch() {
     // analitika (calendarInteractions) — broji se samo pravo grebanje, ne ponovno otvaranje
     window.dispatchEvent(new CustomEvent("mb-scratch-revealed"));
 
-    if (theme === "football") {
-      // Halloween: bundeve (češće) + bombone, lizalice, duhovi, slepi miševi
-      const shape = (text) => confetti.shapeFromText({ text, scalar: 1.6 });
-      const pumpkin = shape("🎃");
-      const shapes = [pumpkin, pumpkin, pumpkin, shape("🍬"), shape("🍭"), shape("👻"), shape("🦇")];
-      const base = { scalar: 1.6, flat: true, ticks: 400, gravity: 3.5, decay: 0.9, shapes };
-      for (let i = 0; i < 10; i++) {
-        setTimeout(() => {
-          confetti({
-            ...base,
-            particleCount: 8 + Math.floor(Math.random() * 8),
-            spread: 50 + Math.random() * 50,
-            startVelocity: 35 + Math.random() * 25,
-            origin: { x: 0.25 + Math.random() * 0.5, y: 0.2 + Math.random() * 0.2 },
-          });
-        }, i * 80 + Math.random() * 40);
-      }
-    } else {
-      const colors = ["#ff0000", "#ffd700", "#17bb00", "#0066ff", "#ff69b4", "#ffffff"];
-      confetti({ particleCount: 80, spread: 70, startVelocity: 38, ticks: 300, origin: { x: 0.35, y: 0.35 }, colors });
-      setTimeout(() => {
-        confetti({ particleCount: 60, spread: 80, startVelocity: 32, ticks: 300, origin: { x: 0.65, y: 0.35 }, colors });
-      }, 150);
-    }
+    launchConfetti(confettiStyle || { style: theme === "football" ? "football" : "classic" });
 
     showReveal();
     fullyClearCanvas();

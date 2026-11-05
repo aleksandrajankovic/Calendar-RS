@@ -268,7 +268,8 @@ function addDateChip(promo) {
   else content.prepend(chip);
 }
 
-export function initSlot({ alreadyOpened = false, onStopped = () => {}, onRevealed = () => {} } = {}) {
+// confetti: false — bez zlatnih konfeta (u adminu izabrano "Off")
+export function initSlot({ alreadyOpened = false, confetti = true, onStopped = () => {}, onRevealed = () => {} } = {}) {
   const root = document.getElementById("slot-reveal");
   if (!root) return () => {};
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -304,7 +305,7 @@ export function initSlot({ alreadyOpened = false, onStopped = () => {}, onReveal
     root.classList.remove("slot-spinning");
     root.classList.add("slot-stopped");
     onStopped();
-    if (!reduced) stopConfetti = launchConfetti(root);
+    if (!reduced && confetti) stopConfetti = launchConfetti(root);
     timer = setTimeout(() => showPromo(root, onRevealed, reduced), reduced ? 0 : HIGHLIGHT_MS);
   }
   button.addEventListener("click", spin);

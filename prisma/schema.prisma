@@ -25,6 +25,7 @@ model CalendarSettings {
   calendarTitle      Json?
   logoUrl            String?
   showLogo           Boolean  @default(false)
+  confetti           Json? // konfete posle grebanja: { style, emoji? } — vidi lib/calendar/confetti.js
   theme              String?
   seoMeta            Json?
   countdownTargetIso String?

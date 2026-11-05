@@ -25,6 +25,7 @@ export default function CalendarPageView({
   dayFrom,
   dayTo,
   theme,
+  confetti,
   showLogo,
   logoUrl,
   isMonthInactive,
@@ -185,6 +186,7 @@ export default function CalendarPageView({
                 openDay={openDay}
                 dayFrom={dayFrom}
                 dayTo={dayTo}
+                confetti={confetti}
               />
             </div>
 

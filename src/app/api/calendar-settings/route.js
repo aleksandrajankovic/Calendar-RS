@@ -4,6 +4,7 @@ export const runtime = "nodejs";
 import { revalidateTag } from "next/cache";
 import prisma from "@/lib/db";
 import { getAdminFromRequest } from "@/lib/auth";
+import { sanitizeConfetti } from "@/lib/calendar/confetti";
 
 const VALID_POS = ["left", "center", "right"];
 const VALID_THEMES = ["default", "default-horizontal", "football"];
@@ -28,6 +29,7 @@ export async function GET(req) {
     seoMeta:          row?.seoMeta          || DEFAULT_SEO_META,
     countdownTargetIso: row?.countdownTargetIso || "",
     countdownLabel:     row?.countdownLabel     || "",
+    confetti:           row?.confetti           || null,
   });
 }
 
@@ -54,6 +56,9 @@ export async function PUT(req) {
 
   if ("showLogo" in body)
     patch.showLogo = body.showLogo === true;
+
+  if ("confetti" in body)
+    patch.confetti = sanitizeConfetti(body.confetti);
 
   if ("calendarTitle" in body) {
     const t = body.calendarTitle;
@@ -107,8 +112,9 @@ export async function PUT(req) {
           const day = (v) => { const n = Math.round(Number(v)); return n >= 1 && n <= 31 ? n : null; };
           const dayFrom = day(val.dayFrom);
           const dayTo   = day(val.dayTo);
-          if (desktop || mobile || position || titleSr || inactive || theme || topOffset || topOffsetMobile || dayFrom || dayTo)
-            out[key] = { desktop, mobile, position, titleSr, inactive, theme, topOffset, topOffsetMobile, dayFrom, dayTo };
+          const confetti = sanitizeConfetti(val.confetti);
+          if (desktop || mobile || position || titleSr || inactive || theme || topOffset || topOffsetMobile || dayFrom || dayTo || confetti)
+            out[key] = { desktop, mobile, position, titleSr, inactive, theme, topOffset, topOffsetMobile, dayFrom, dayTo, confetti };
         }
       }
       cleaned = Object.keys(out).length ? out : null;
@@ -135,5 +141,6 @@ export async function PUT(req) {
     seoMeta:          row.seoMeta          || DEFAULT_SEO_META,
     countdownTargetIso: row.countdownTargetIso || "",
     countdownLabel:     row.countdownLabel     || "",
+    confetti:           row.confetti           || null,
   });
 }

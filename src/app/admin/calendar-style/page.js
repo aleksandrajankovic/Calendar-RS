@@ -10,9 +10,11 @@ import TabNav from "./components/TabNav";
 import BrandingLayoutTab from "./components/BrandingLayoutTab";
 import SeoTab from "./components/SeoTab";
 import EngagementTab from "./components/EngagementTab";
+import EffectsTab from "./components/EffectsTab";
 
 const TABS = [
   { key: "branding", label: "Branding & Layout" },
+  { key: "effects", label: "Effects" },
   { key: "seo", label: "SEO / Meta" },
   { key: "engagement", label: "Engagement" },
 ];
@@ -32,6 +34,7 @@ export default function CalendarStylePage() {
   const [seoDescSr, setSeoDescSr]               = useState("");
   const [countdownTargetIso, setCountdownTargetIso] = useState("");
   const [countdownLabel, setCountdownLabel]         = useState("");
+  const [confetti, setConfetti]                     = useState(null);
 
   const [monthBackgrounds, setMonthBackgrounds] = useState({});
   const [selYear, setSelYear]   = useState(now.getFullYear());
@@ -62,6 +65,7 @@ export default function CalendarStylePage() {
     setSeoDescSr(d.seoMeta?.sr?.description || "");
     setCountdownTargetIso(d.countdownTargetIso || "");
     setCountdownLabel(d.countdownLabel || "");
+    setConfetti(d.confetti || null);
     setMonthBackgrounds(d.monthBackgrounds || {});
   }
 
@@ -99,6 +103,7 @@ export default function CalendarStylePage() {
           seoMeta: { sr: { title: seoTitleSr, description: seoDescSr } },
           countdownTargetIso,
           countdownLabel,
+          confetti,
           monthBackgrounds,
         }),
       });
@@ -140,6 +145,15 @@ export default function CalendarStylePage() {
               selYear={selYear} setSelYear={setSelYear}
               selMonth={selMonth} setSelMonth={setSelMonth}
               openGallery={openGallery}
+            />
+          )}
+
+          {activeTab === "effects" && (
+            <EffectsTab
+              confetti={confetti} setConfetti={setConfetti}
+              monthBackgrounds={monthBackgrounds} setMonthBackgrounds={setMonthBackgrounds}
+              selYear={selYear} setSelYear={setSelYear}
+              selMonth={selMonth} setSelMonth={setSelMonth}
             />
           )}
 

@@ -60,6 +60,7 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
     } catch {}
     disposeSlot = initSlot({
       alreadyOpened,
+      confetti: payload.confetti?.style !== "off",
       onStopped: () => {
         try {
           localStorage.setItem(slotKey(entry), "1");
@@ -163,7 +164,7 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
       requestAnimationFrame(() =>
         requestAnimationFrame(() => {
           const canvas = document.getElementById("scratch-canvas");
-          if (canvas) initScratch();
+          if (canvas) initScratch({ confetti: payload.confetti });
           else if (document.getElementById("flip-card-inner")) attachFlipListener();
           startSlot(entry);
         })
@@ -272,7 +273,7 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
         document.body.style.overflow = "hidden";
         previousUrl = monthHref(payload.year, payload.month);
         const canvas = document.getElementById("scratch-canvas");
-        if (canvas) initScratch();
+        if (canvas) initScratch({ confetti: payload.confetti });
         else if (document.getElementById("flip-card-inner")) attachFlipListener();
         startSlot(entry);
       } else {

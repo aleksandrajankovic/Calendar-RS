@@ -24,6 +24,7 @@ export default function CalendarGrid({
   openDay = null,
   dayFrom = null,
   dayTo = null,
+  confetti = null,
 }) {
   const { cells, daysPayload, dayFrom: from, dayTo: to } = buildCalendarData({
     year,
@@ -229,6 +230,7 @@ export default function CalendarGrid({
             month,
             lang,
             theme,
+            confetti,
           }),
         }}
       />
