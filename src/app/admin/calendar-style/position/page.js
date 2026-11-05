@@ -1,4 +1,6 @@
 import { redirect } from "next/navigation";
-export default function PositionRedirect() {
-  redirect("/admin/calendar-style/defaults");
+
+// Spojeno u jednu stranicu sa tabovima (Calendar Styling)
+export default function Redirect() {
+  redirect("/admin/calendar-style");
 }

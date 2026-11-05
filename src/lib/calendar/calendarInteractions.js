@@ -1,5 +1,7 @@
 // src/lib/calendarInteractions.js
-import { initScratch } from "./scratch/initScratch";
+import { attachFlipListener, initScratch } from "./scratch/initScratch";
+import { initSlot } from "./slot/slotReveal";
+import { markDayOpened } from "@/lib/calendar/calendarProgress";
 import { renderModalHTML } from "@/lib/calendar/promoModalHtml";
 import { monthHref } from "@/lib/calendar/calendarUrls";
 import { track, disableTracking } from "@/lib/calendar/track";
@@ -43,6 +45,30 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
   let isOpen = false;
   let previousUrl = null;
   let currentEntry = null;
+  let disposeSlot = () => {};
+
+  // Slot: jednom zavrteo = pri sledećem otvaranju odmah promocija (kao ogrebana grebalica)
+  function slotKey(entry) {
+    return `slot:${entry.shareUrl || `${entry.year}-${entry.month}-${entry.day}`}`;
+  }
+
+  function startSlot(entry) {
+    if (!document.getElementById("slot-reveal")) return;
+    let alreadyOpened = false;
+    try {
+      alreadyOpened = localStorage.getItem(slotKey(entry)) === "1";
+    } catch {}
+    disposeSlot = initSlot({
+      alreadyOpened,
+      onStopped: () => {
+        try {
+          localStorage.setItem(slotKey(entry), "1");
+        } catch {}
+        markDayOpened(entry.year, entry.month, entry.day);
+        trackDay("slot", entry);
+      },
+    });
+  }
 
   // ---- Modal style helpers ----
 
@@ -138,6 +164,8 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
         requestAnimationFrame(() => {
           const canvas = document.getElementById("scratch-canvas");
           if (canvas) initScratch();
+          else if (document.getElementById("flip-card-inner")) attachFlipListener();
+          startSlot(entry);
         })
       );
     }, dialogDelay);
@@ -145,6 +173,8 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
 
   function closeModal({ fromPopstate = false } = {}) {
     isOpen = false;
+    disposeSlot();
+    disposeSlot = () => {};
     document.body.style.overflow = "";
     resetModalStyles();
 
@@ -243,6 +273,8 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
         previousUrl = monthHref(payload.year, payload.month);
         const canvas = document.getElementById("scratch-canvas");
         if (canvas) initScratch();
+        else if (document.getElementById("flip-card-inner")) attachFlipListener();
+        startSlot(entry);
       } else {
         openModal(entry, { overlayFadeDuration: 200 });
       }

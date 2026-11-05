@@ -46,6 +46,8 @@ model SpecialPromotion {
   rich          Json?
   richHtml      String?
   scratch       Boolean  @default(false)
+  slot          Boolean  @default(false) // otkrivanje slot mašinom (isključuje scratch)
+  flipCard      Boolean  @default(false) // kartica sa slikom koja se okreće na detalje (sama ili posle grebanja)
   knockoutPhase String?
 
   translations Json?
@@ -66,6 +68,8 @@ model WeeklyPlan {
   richHtml    String?
   buttonColor String   @default("green")
   scratch     Boolean  @default(false)
+  slot        Boolean  @default(false) // otkrivanje slot mašinom (isključuje scratch)
+  flipCard    Boolean  @default(false) // kartica sa slikom koja se okreće na detalje (sama ili posle grebanja)
 
   translations Json?
   category     PromoCategory @default(ALL)

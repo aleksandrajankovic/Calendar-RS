@@ -139,7 +139,7 @@ export default function CalendarPageView({
                   <div className="inline-flex items-center gap-1.5 rounded bg-red-700/40 text-red-200 border border-red-500/40 px-3 py-1 text-sm">
                     <span>⚠ Mesec deaktiviran — nije vidljiv korisnicima</span>
                     <a
-                      href="/admin/calendar-style/monthly"
+                      href="/admin/calendar-style"
                       className="underline hover:text-white transition-colors"
                     >
                       Izmeni

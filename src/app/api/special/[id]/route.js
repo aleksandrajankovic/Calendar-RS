@@ -19,7 +19,7 @@ export async function PUT(req, { params }) {
 
   const body = await req.json().catch(() => ({}));
   const {
-    year, month, day, icon, link, buttonColor, active, scratch,
+    year, month, day, icon, link, buttonColor, active, scratch, slot, flipCard,
     title, button, rich, richHtml,
     translations: rawTranslations, defaultLang, category, knockoutPhase,
   } = body;
@@ -49,7 +49,10 @@ export async function PUT(req, { params }) {
     richHtml: sanitizeRichHtml(mainT.richHtml ?? richHtml ?? null),
     icon: icon ?? "",
     active: !!active,
-    scratch: !!scratch,
+    // slot i grebalica se isključuju — slot ima prednost
+    scratch: !!scratch && !slot,
+    slot: !!slot,
+    flipCard: !!flipCard && !slot,
     buttonColor: buttonColor || "green",
     translations: sanitizeTranslations(translations),
     category: category || "ALL",
@@ -78,7 +81,8 @@ export async function PATCH(req, { params }) {
 
   const patch = {
     ...(typeof body.active === "boolean" ? { active: body.active } : {}),
-    ...(typeof body.scratch === "boolean" ? { scratch: body.scratch } : {}),
+    ...(typeof body.scratch === "boolean" ? { scratch: body.scratch, ...(body.scratch ? { slot: false } : {}) } : {}),
+    ...(typeof body.slot === "boolean" ? { slot: body.slot, ...(body.slot ? { scratch: false } : {}) } : {}),
   };
 
   if (Object.keys(patch).length === 0) {

@@ -45,7 +45,7 @@ export async function POST(req) {
 
   const body = await req.json().catch(() => ({}));
   const {
-    year, month, day, icon, link, buttonColor, active, scratch,
+    year, month, day, icon, link, buttonColor, active, scratch, slot, flipCard,
     title, button, rich, richHtml,
     translations: rawTranslations, defaultLang, category, knockoutPhase,
   } = body;
@@ -74,7 +74,10 @@ export async function POST(req) {
       richHtml: sanitizeRichHtml(mainT.richHtml ?? richHtml ?? null),
       icon: icon ?? "",
       active: typeof active === "boolean" ? active : true,
-      scratch: !!scratch,
+      // slot i grebalica se isključuju — slot ima prednost
+      scratch: !!scratch && !slot,
+      slot: !!slot,
+      flipCard: !!flipCard && !slot,
       buttonColor: buttonColor || "green",
       translations: sanitizeTranslations(translations),
       category: category || "ALL",

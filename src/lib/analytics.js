@@ -33,7 +33,7 @@ const COUNTS = `
   COUNT(*) FILTER (WHERE type = 'view')     AS views,
   COUNT(DISTINCT visitor) FILTER (WHERE type = 'view') AS visitors,
   COUNT(*) FILTER (WHERE type = 'day_open') AS opens,
-  COUNT(*) FILTER (WHERE type = 'scratch')  AS scratches,
+  COUNT(*) FILTER (WHERE type IN ('scratch', 'slot'))  AS scratches,
   COUNT(*) FILTER (WHERE type = 'cta')      AS ctas`;
 
 export async function getAnalytics({ from, to }) {
@@ -51,10 +51,10 @@ export async function getAnalytics({ from, to }) {
       `SELECT year, month, day, MAX(title) AS title, MAX("promoType") AS "promoType",
          COUNT(*) FILTER (WHERE type = 'day_open') AS opens,
          COUNT(DISTINCT visitor) FILTER (WHERE type = 'day_open') AS "openVisitors",
-         COUNT(*) FILTER (WHERE type = 'scratch')  AS scratches,
+         COUNT(*) FILTER (WHERE type IN ('scratch', 'slot'))  AS scratches,
          COUNT(*) FILTER (WHERE type = 'cta')      AS ctas
        FROM "CalendarEvent"
-       WHERE ${where} AND type IN ('day_open', 'scratch', 'cta') AND day IS NOT NULL
+       WHERE ${where} AND type IN ('day_open', 'scratch', 'slot', 'cta') AND day IS NOT NULL
        GROUP BY year, month, day ORDER BY year, month, day`,
       from, to
     ),

@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 import crypto from "node:crypto";
 import prisma from "@/lib/db";
 
-const TYPES = new Set(["view", "day_open", "scratch", "cta"]);
+const TYPES = new Set(["view", "day_open", "scratch", "slot", "cta"]);
 const BOT_RE = /bot|crawl|spider|slurp|preview|lighthouse|headless|curl|wget/i;
 
 // Najviše 120 događaja u minuti po IP adresi (in-memory, kao lib/rateLimit.js)

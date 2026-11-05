@@ -48,7 +48,7 @@ export default function AnalyticsPage() {
         { label: "Views", value: t.views },
         { label: "Visitors", value: t.visitors, hint: "unique per day" },
         { label: "Days opened", value: t.opens },
-        { label: "Scratched", value: t.scratches },
+        { label: "Revealed", value: t.scratches, hint: "scratch card or slot" },
         { label: "Button clicks", value: t.ctas, hint: `${pct(t.ctas, t.opens)} of opened` },
       ]
     : [];
@@ -118,7 +118,7 @@ export default function AnalyticsPage() {
               { label: "Promotion", width: "1fr" },
               { label: "Opened", width: "90px", className: "text-right" },
               { label: "Unique", width: "90px", className: "text-right" },
-              { label: "Scratched", width: "90px", className: "text-right" },
+              { label: "Revealed", width: "90px", className: "text-right" },
               { label: "Clicks", width: "90px", className: "text-right" },
               { label: "Click rate", width: "90px", className: "text-right" },
             ]}
@@ -153,7 +153,7 @@ export default function AnalyticsPage() {
               { label: "Views", width: "1fr", className: "text-right" },
               { label: "Visitors", width: "1fr", className: "text-right" },
               { label: "Opened", width: "1fr", className: "text-right" },
-              { label: "Scratched", width: "1fr", className: "text-right" },
+              { label: "Revealed", width: "1fr", className: "text-right" },
               { label: "Clicks", width: "1fr", className: "text-right" },
             ]}
           >

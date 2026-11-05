@@ -1,6 +1,10 @@
 // src/lib/calendarGridHelpers.js
 import { buildPromoUrlISO, slugify } from "@/lib/calendar/slug";
 
+function firstImage(richHtml) {
+  return richHtml?.match(/<img[^>]*src=["']([^"']+)["']/i)?.[1] || "";
+}
+
 function asArray(x) {
   if (Array.isArray(x)) return x;
   if (x && typeof x === "object") return Object.values(x);
@@ -97,7 +101,10 @@ export function buildCalendarData({
     const isLocked = adminPreview ? false : isFutureForUx;
 
     const category = promo?.category || "ALL";
-    const scratch = !!promo?.scratch;
+    // slot ima prednost nad grebalicom (API ih ionako ne dozvoljava zajedno)
+    const slot = !!promo?.slot;
+    const scratch = !!promo?.scratch && !slot;
+    const flipCard = !!promo?.flipCard && !slot;
     const knockoutPhase = promo?.knockoutPhase || null;
 
     // cell za grid (desktop) — samo dani iz opsega; payload (modal, deljeni linkovi) ostaje ceo mesec
@@ -136,6 +143,8 @@ export function buildCalendarData({
       buttonColor,
       category,
       scratch,
+      slot,
+      flipCard,
       knockoutPhase,
 
       hasPromo: Boolean(promo),
@@ -154,10 +163,20 @@ export function buildCalendarData({
             category,
             icon,
             scratch,
+            slot,
+            flipCard,
             knockoutPhase,
           }
         : null,
     });
+  }
+
+  // Slot vrti slike ostalih promocija meseca (prva slika iz opisa), pa na kraju staje na svoju
+  const promoImages = [...new Set(daysPayload.map((d) => firstImage(d.richHtml)).filter(Boolean))];
+  for (const d of daysPayload) {
+    if (!d.slot) continue;
+    const own = firstImage(d.richHtml);
+    d.slotPool = promoImages.filter((src) => src !== own).slice(0, 12);
   }
 
 

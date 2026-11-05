@@ -1,7 +1,8 @@
 // src/lib/promoModalHtml.js
 // Čisto renderovanje HTML-a za promo modal — bez DOM zavisnosti, pa radi
 // identično i na serveru (SSR sadržaj za otvoreni dan) i na klijentu (klik).
-import { renderScratchModal } from "./scratch/renderScratchModal";
+import { extractFirstImg, flipHintText, renderFlipFaces, renderScratchModal } from "./scratch/renderScratchModal";
+import { firstImage, renderSlotModal } from "./slot/slotReveal";
 import { getExclusiveBadgeLabel } from "@/lib/calendar/promoCategoryStyles";
 
 function renderNormalModal(entry, lang = "sr") {
@@ -117,6 +118,36 @@ function renderNormalModal(entry, lang = "sr") {
   `;
 }
 
+const MONTHS_SR = [
+  "januar", "februar", "mart", "april", "maj", "jun",
+  "jul", "avgust", "septembar", "oktobar", "novembar", "decembar",
+];
+const MONTHS_EN = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+// Slot mašina: tri valjka vrte slike ostalih promocija meseca (entry.slotPool) i staju
+// na sliku ove promocije, koja se zatim pretvara u običan prikaz promocije.
+function renderSlot(entry, lang) {
+  const richHtml = entry.richHtml || entry.promo?.richHtml || "";
+  const image = firstImage(richHtml);
+  const sr = lang === "sr";
+  const dateLabel = sr
+    ? `${entry.day}. ${MONTHS_SR[entry.month] || ""}`
+    : `${MONTHS_EN[entry.month] || ""} ${entry.day}`;
+
+  return renderSlotModal({
+    image,
+    icon: entry.icon || entry.promo?.icon || "",
+    pool: entry.slotPool?.length ? entry.slotPool : [image || entry.icon].filter(Boolean),
+    promoHtml: renderNormalModal(entry, lang),
+    dateLabel,
+    buttonLabel: sr ? "OTKRIJ PROMOCIJU" : "REVEAL PROMOTION",
+    note: sr ? "Promocija dana je unapred određena." : "Today's promotion is already decided.",
+  });
+}
+
 export function renderModalHTML(entry, lang = "sr", theme = "default") {
   if (!entry) {
     return lang === "sr"
@@ -135,7 +166,10 @@ export function renderModalHTML(entry, lang = "sr", theme = "default") {
   const defaultButtonLabel =
     button || (lang === "sr" ? "Registruj se" : "Register");
 
+  if (entry?.slot || promo?.slot) return renderSlot(entry, lang);
+
   const isScratch = !!(entry?.scratch || promo?.scratch);
+  const isFlip = !!(entry?.flipCard || promo?.flipCard);
 
   if (isScratch) {
     const shareKey =
@@ -156,8 +190,39 @@ export function renderModalHTML(entry, lang = "sr", theme = "default") {
       month: entry?.month,
       day: entry?.day,
       category: entry?.category,
+      flipCard: isFlip,
     });
   }
 
+  if (isFlip) {
+    return renderFlipModal({ title, richHtml, link, button: defaultButtonLabel, buttonColor, lang, category: entry?.category });
+  }
+
   return renderNormalModal(entry, lang);
+}
+
+// Samostalna flip kartica (bez grebanja): odmah slika, dodir je okreće na detalje
+function renderFlipModal({ title, richHtml, link, button, buttonColor, lang, category }) {
+  const { imgSrc, restHtml } = extractFirstImg(richHtml);
+  const categoryLabel = getExclusiveBadgeLabel(category, lang);
+  const canOpen = link && link !== "#";
+  const ctaHtml = canOpen
+    ? `<div class="pt-5 flex justify-center">
+        <a href="${link}" data-track="cta" target="_blank" rel="noreferrer"
+           class="w-4/5 max-w-[360px] px-4 py-3 rounded-[10px] text-sm text-center font-semibold
+                  ${buttonColor === "yellow" ? "bg-[#FACC01] text-black" : "bg-[#17BB00] text-white"}
+                  hover:brightness-110 transition">${button}</a>
+      </div>`
+    : "";
+
+  return `
+  <div class="w-full max-w-[420px] mx-auto rounded-3xl overflow-hidden">
+    <div class="flip-card-wrapper relative" style="aspect-ratio:360/430; perspective:1000px">
+      ${renderFlipFaces({ imgSrc, title, categoryLabel, restHtml, ctaHtml, lang })}
+    </div>
+    <div id="flip-hint" class="mt-3 text-center text-xs text-white/70 uppercase tracking-[0.1em]">
+      ${flipHintText(lang)}
+    </div>
+  </div>
+  `;
 }

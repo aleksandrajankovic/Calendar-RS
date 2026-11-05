@@ -2,6 +2,51 @@
 import confetti from "canvas-confetti";
 import { markDayOpened } from "@/lib/calendar/calendarProgress";
 
+// Visina zadnje strane flip kartice (tekst je obično duži od slike) — meri se na skrivenoj kopiji
+function measureNaturalHeight(el, widthPx) {
+  const clone = el.cloneNode(true);
+  clone.style.position = "fixed";
+  clone.style.visibility = "hidden";
+  clone.style.pointerEvents = "none";
+  clone.style.inset = "auto";
+  clone.style.top = "-9999px";
+  clone.style.left = "-9999px";
+  clone.style.height = "auto";
+  clone.style.width = `${widthPx}px`;
+  document.body.appendChild(clone);
+  const h = clone.scrollHeight;
+  document.body.removeChild(clone);
+  return h;
+}
+
+// Dodir okreće flip karticu (slika ⇄ detalji); okvir prati visinu strane koja se vidi
+export function attachFlipListener() {
+  const inner = document.getElementById("flip-card-inner");
+  if (!inner || inner.dataset.flipBound) return;
+  inner.dataset.flipBound = "1";
+
+  const hint = document.getElementById("flip-hint");
+  const wrapper = inner.closest(".flip-card-wrapper");
+  const backFace = inner.querySelector(".flip-card-back");
+  const frontAspectRatio = wrapper?.style.aspectRatio || "360 / 430";
+
+  inner.onclick = (e) => {
+    if (e.target.closest("a, button")) return;
+    const flipped = inner.classList.toggle("is-flipped");
+    if (hint) hint.style.opacity = flipped ? "0" : "1";
+
+    if (!wrapper) return;
+    if (flipped && backFace) {
+      const width = wrapper.getBoundingClientRect().width;
+      wrapper.style.aspectRatio = "unset";
+      wrapper.style.height = `${measureNaturalHeight(backFace, width)}px`;
+    } else {
+      wrapper.style.height = "";
+      wrapper.style.aspectRatio = frontAspectRatio;
+    }
+  };
+}
+
 function getAnonUserId() {
   try {
     let id = localStorage.getItem("anon_user_id");
@@ -29,6 +74,8 @@ export function initScratch() {
   const coverUrl = canvas.dataset.cover;
   const promoKey = canvas.dataset.key || "default";
   const theme = canvas.dataset.theme || "default";
+  const isFlip = canvas.dataset.flip === "1";
+  const bgImg = document.getElementById("scratch-bg-img");
 
   const userId = getAnonUserId();
   const storageKey = `scratch:${userId}:${promoKey}`;
@@ -51,6 +98,13 @@ export function initScratch() {
       "translate-y-0",
       "pointer-events-auto"
     );
+
+    if (isFlip) {
+      attachFlipListener();
+      const flipHint = document.getElementById("flip-hint");
+      if (flipHint) flipHint.style.opacity = "1";
+      setTimeout(() => bgImg?.remove(), 520);
+    }
   }
 
   function hideScratchInstant() {

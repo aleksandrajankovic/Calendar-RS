@@ -10,6 +10,7 @@ import { Bebas_Neue, Rowdies, Russo_One } from "next/font/google";
 export const rowdies = Rowdies({
   subsets: ["latin"],
   weight: "700",
+  variable: "--font-rowdies", // slot mašina (slotReveal.css) ga koristi preko CSS promenljive
 });
 
 export const russoOne = Russo_One({

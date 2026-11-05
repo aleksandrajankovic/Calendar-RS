@@ -7,14 +7,7 @@ const items = [
   { href: "/admin/users", label: "Users" },
   { href: "/admin/specials", label: "Special Promotions" },
   { href: "/admin/weekly-plan", label: "Weekly Plan (by Month)" },
-  {
-    href: "/admin/calendar-style",
-    label: "Calendar Styling",
-    children: [
-      { href: "/admin/calendar-style/defaults", label: "Default Settings" },
-      { href: "/admin/calendar-style/monthly",  label: "Settings by Month" },
-    ],
-  },
+  { href: "/admin/calendar-style", label: "Calendar Styling" },
 ];
 
 // Za sada samo za super admina (API to isto proverava)

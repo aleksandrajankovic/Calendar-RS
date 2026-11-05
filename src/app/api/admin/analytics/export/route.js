@@ -48,7 +48,7 @@ export async function GET(req) {
       const data = await getAnalytics(range);
       if (kind === "promos") {
         csv = toCsv(
-          ["Dan kalendara", "Promocija", "Tip", "Otvaranja", "Jedinstvenih otvaranja", "Ogrebano", "Klik na dugme"],
+          ["Dan kalendara", "Promocija", "Tip", "Otvaranja", "Jedinstvenih otvaranja", "Otkriveno (grebalica/slot)", "Klik na dugme"],
           data.byPromo.map((r) => [
             `${r.year}-${pad(r.month + 1)}-${pad(r.day)}`,
             r.title,
@@ -61,7 +61,7 @@ export async function GET(req) {
         );
       } else {
         csv = toCsv(
-          ["Datum", "Prikazi", "Posetioci", "Otvaranja dana", "Ogrebano", "Klik na dugme"],
+          ["Datum", "Prikazi", "Posetioci", "Otvaranja dana", "Otkriveno (grebalica/slot)", "Klik na dugme"],
           data.byDate.map((r) => [r.date, r.views, r.visitors, r.opens, r.scratches, r.ctas])
         );
       }

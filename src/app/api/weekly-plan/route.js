@@ -67,7 +67,7 @@ export async function PUT(req) {
   }
 
   const {
-    icon, link, buttonColor, active, scratch,
+    icon, link, buttonColor, active, scratch, slot, flipCard,
     title, button, rich, richHtml,
     translations: rawTranslations, defaultLang, category,
   } = body;
@@ -85,7 +85,10 @@ export async function PUT(req) {
     link: sanitizeLink(mainT.link ?? link ?? ""),
     icon: icon ?? null,
     active: Boolean(active ?? true),
-    scratch: !!scratch,
+    // slot i grebalica se isključuju — slot ima prednost
+    scratch: !!scratch && !slot,
+    slot: !!slot,
+    flipCard: !!flipCard && !slot,
     buttonColor: buttonColor || "green",
     translations: sanitizeTranslations(translations),
     category: category || "ALL",

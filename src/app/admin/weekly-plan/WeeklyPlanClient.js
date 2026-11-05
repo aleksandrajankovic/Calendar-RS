@@ -1,23 +1,17 @@
-// app/admin/weekly-plan/page.jsx
+// app/admin/weekly-plan/WeeklyPlanClient.js — dizajn kao na promo-platform BO
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { useWeeklyPlan } from "./useWeeklyPlan";
 import WeeklyEditor from "../weekly/components/WeeklyEditor";
 import AdminTableCard from "../components/AdminTableCard";
 import { StatusToggleButton, IconButton } from "../components/AdminTableButtons";
-import { confirmDeleteToast } from "../components/ConfirmDeleteToast";
-
-const LABELS = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
+import { confirmDialog } from "../components/ui/ConfirmDialog";
+import { WEEKDAY_LABELS } from "../components/PromoEditorFields";
+import { PreviewCalendarButton } from "../components/MonthNavigator";
+import Button from "../components/ui/Button";
 
 export default function WeeklyPlanAdmin() {
   const sp = useSearchParams();
@@ -26,16 +20,9 @@ export default function WeeklyPlanAdmin() {
 
   const y0 = Number.parseInt(sp.get("y") ?? "", 10);
   const m0 = Number.parseInt(sp.get("m") ?? "", 10);
+  const year = Number.isInteger(y0) ? y0 : now.getFullYear();
+  const month = Number.isInteger(m0) && m0 >= 0 && m0 <= 11 ? m0 : now.getMonth();
 
-  const [year, setYear] = useState(
-    Number.isInteger(y0) ? y0 : now.getFullYear()
-  );
-
-  const [month, setMonth] = useState(
-    Number.isInteger(m0) && m0 >= 0 && m0 <= 11 ? m0 : now.getMonth()
-  );
-
-  // helper: sinhronizuj URL sa year/month
   function setYM(nextY, nextM) {
     const params = new URLSearchParams(sp.toString());
     params.set("y", String(nextY));
@@ -43,21 +30,34 @@ export default function WeeklyPlanAdmin() {
     router.replace(`?${params.toString()}`);
   }
 
-  // Ako korisnik ručno promeni URL ili dođe sa linka, sinhronizuj state
-  useEffect(() => {
-    const yy = Number.parseInt(sp.get("y") ?? "", 10);
-    const mm = Number.parseInt(sp.get("m") ?? "", 10);
+  const { rows, loading, error, upsert, remove, bulkToggle, copyFromPrevious } = useWeeklyPlan(year, month);
+  const [copying, setCopying] = useState(false);
+  const prevMonthName = new Date(year, month - 1, 1).toLocaleString("en", { month: "long", year: "numeric" });
+  const monthName = new Date(year, month, 1).toLocaleString("en", { month: "long", year: "numeric" });
 
-    if (Number.isInteger(yy) && yy !== year) setYear(yy);
-    if (Number.isInteger(mm) && mm >= 0 && mm <= 11 && mm !== month) setMonth(mm);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sp]);
-
-  const { rows, loading, error, upsert, remove, bulkToggle } = useWeeklyPlan(year, month);
+  async function handleCopy() {
+    const existing = rows.length;
+    const note = existing ? ` The ${existing} day(s) already filled in ${monthName} stay unchanged.` : "";
+    const ok = await confirmDialog({
+      title: `Copy ${prevMonthName} into ${monthName}?`,
+      message: `Copies are added as inactive drafts — review them and activate when ready.${note}`,
+      confirmLabel: "Copy",
+    });
+    if (!ok) return;
+    setCopying(true);
+    try {
+      const count = await copyFromPrevious();
+      toast.success(count ? `Copied ${count} day(s) as inactive drafts.` : "Nothing to copy — all days are already filled.");
+    } catch (e) {
+      toast.error(e.message || "Copy failed.");
+    } finally {
+      setCopying(false);
+    }
+  }
   const [bulkLoading, setBulkLoading] = useState(false);
-  const [editing, setEditing] = useState(null); // weekday 0..6
+  const [editing, setEditing] = useState(null);
 
-  const initial = useMemo(() => {
+  const initial = (() => {
     if (editing == null) return null;
     const existing = rows.find((r) => r.weekday === editing);
     return (
@@ -76,7 +76,7 @@ export default function WeeklyPlanAdmin() {
         category: "ALL",
       }
     );
-  }, [editing, rows, year, month]);
+  })();
 
   async function handleBulkToggle(active) {
     setBulkLoading(true);
@@ -93,12 +93,17 @@ export default function WeeklyPlanAdmin() {
       setEditing(wd);
       return;
     }
-    await upsert({
-      ...existing,
-      year,
-      month,
-      active: !existing.active,
-    });
+    try {
+      await upsert({
+        ...existing,
+        year,
+        month,
+        active: !existing.active,
+      });
+      toast.success(existing.active ? "Promotion deactivated." : "Promotion activated.");
+    } catch (e) {
+      toast.error(`Error: ${e.message || "Saving failed."}`);
+    }
   }
 
   const rowGrid =
@@ -110,25 +115,37 @@ export default function WeeklyPlanAdmin() {
 
   return (
     <>
-      {/* Naslov + opis */}
-      <div className="mb-2">
-        <h1 className="text-xl font-semibold">Backoffice - Monthly Promotions</h1>
-        <p className="text-sm text-neutral-500">
-          Review and edit weekly promotions for the selected month{" "}
-        </p>
+      <div className="mb-2 flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-semibold">Backoffice - Monthly Promotions</h1>
+          <p className="text-sm text-neutral-500">
+            Review and edit weekly promotions for the selected month{" "}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {!loading && rows.length < 7 && (
+            <Button
+              variant="secondary"
+              onClick={handleCopy}
+              disabled={copying}
+              title={`Copy ${prevMonthName} into ${monthName} as inactive drafts`}
+            >
+              {copying ? "Copying…" : `Copy from ${prevMonthName}`}
+            </Button>
+          )}
+          <PreviewCalendarButton year={year} month={month} />
+        </div>
       </div>
 
       <AdminTableCard
         title="Weekly Promotions"
         headerRight={
           <div className="flex items-center gap-2">
-            {/* Year */}
             <select
               className="border border-neutral-300 rounded px-2 py-1 text-sm text-black bg-white"
               value={year}
               onChange={(e) => {
                 const nextY = Number(e.target.value);
-                setYear(nextY);
                 setYM(nextY, month);
               }}
               aria-label="Select year"
@@ -140,13 +157,11 @@ export default function WeeklyPlanAdmin() {
               ))}
             </select>
 
-            {/* Month */}
             <select
               className="border border-neutral-300 rounded px-2 py-1 text-sm text-black bg-white"
               value={month}
               onChange={(e) => {
                 const nextM = Number(e.target.value);
-                setMonth(nextM);
                 setYM(year, nextM);
               }}
               aria-label="Select month"
@@ -160,22 +175,12 @@ export default function WeeklyPlanAdmin() {
 
             {rows.length > 0 && (
               <>
-                <button
-                  type="button"
-                  disabled={bulkLoading}
-                  onClick={() => handleBulkToggle(true)}
-                  className="px-3 py-1 text-xs rounded border border-green-600 text-green-700 bg-white hover:bg-green-50 disabled:opacity-50"
-                >
-                  Activate All ({rows.length})
-                </button>
-                <button
-                  type="button"
-                  disabled={bulkLoading}
-                  onClick={() => handleBulkToggle(false)}
-                  className="px-3 py-1 text-xs rounded border border-neutral-400 text-neutral-600 bg-white hover:bg-neutral-50 disabled:opacity-50"
-                >
-                  Deactivate All ({rows.length})
-                </button>
+                <Button size="sm" variant="secondary" disabled={bulkLoading} onClick={() => handleBulkToggle(true)}>
+                  Activate all ({rows.length})
+                </Button>
+                <Button size="sm" variant="secondary" disabled={bulkLoading} onClick={() => handleBulkToggle(false)}>
+                  Deactivate all ({rows.length})
+                </Button>
               </>
             )}
           </div>
@@ -208,15 +213,12 @@ export default function WeeklyPlanAdmin() {
                     wd % 2 === 0 ? "bg-white" : "bg-[#F5F5F5]"
                   }`}
                 >
-                  {/* Day */}
-                  <div className="text-sm text-[#646464]">{LABELS[wd]}</div>
+                  <div className="text-sm text-[#646464]">{WEEKDAY_LABELS[wd]}</div>
 
-                  {/* Name */}
                   <div className="font-semibold text-sm text-[var(--black-white-90)]">
                     {r?.title || "—"}
                   </div>
 
-                  {/* Link */}
                   <div className="text-sm text-[var(--black-white-90)] truncate">
                     {r?.link ? (
                       <a
@@ -232,7 +234,6 @@ export default function WeeklyPlanAdmin() {
                     )}
                   </div>
 
-                  {/* Status */}
                   <div
                     className={`text-sm ${
                       r?.active ? "text-green-600" : "text-neutral-500"
@@ -241,7 +242,6 @@ export default function WeeklyPlanAdmin() {
                     {r ? (r.active ? "Active" : "Inactive") : "—"}
                   </div>
 
-                  {/* Toggle */}
                   <div>
                     <StatusToggleButton
                       active={!!r?.active}
@@ -249,7 +249,6 @@ export default function WeeklyPlanAdmin() {
                     />
                   </div>
 
-                  {/* Actions */}
                   <div className="flex items-center justify-end gap-2">
                     <IconButton
                       variant={r ? "edit" : "add"}
@@ -259,11 +258,15 @@ export default function WeeklyPlanAdmin() {
                     {r && (
                       <IconButton
                         variant="delete"
-                        onClick={() =>
-                          confirmDeleteToast(r.title || LABELS[wd], () =>
-                            remove(wd)
-                          )
-                        }
+                        onClick={async () => {
+                          const ok = await confirmDialog({
+                            title: "Delete this weekly promotion?",
+                            message: `${WEEKDAY_LABELS[wd]}: ${r.title || "untitled"}`,
+                            confirmLabel: "Delete",
+                            tone: "danger",
+                          });
+                          if (ok) remove(wd);
+                        }}
                         title="Delete"
                       />
                     )}

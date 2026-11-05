@@ -7,6 +7,8 @@ import CalendarMobileVertical from "./CalendarMobileVertical";
 import CalendarDayBall from "./CalendarDayBall";
 import CalendarGhostBall from "./CalendarGhostBall";
 import CalendarMobileFootball from "./CalendarMobileFootball";
+import { rowdies } from "@/app/fonts";
+import "@/lib/calendar/slot/slotReveal.css";
 
 export default function CalendarGrid({
   year,
@@ -164,7 +166,7 @@ export default function CalendarGrid({
       <div
         id="promo-modal"
         role="presentation"
-        className={`fixed inset-0 z-40 ${openHtml ? "" : "hidden"} bg-black/70 px-4`}
+        className={`fixed inset-0 z-40 ${openHtml ? "" : "hidden"} bg-black/70 px-4 ${rowdies.variable}`}
       >
         <div className="w-full h-full flex items-center justify-center pointer-events-none">
         <div
