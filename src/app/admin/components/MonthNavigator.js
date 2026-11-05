@@ -20,7 +20,12 @@ export function PreviewCalendarButton({ year, month, className = "" }) {
   );
 }
 
+// Meseci bez promocija se ne prikazuju (da traka ne bude pretrpana) — osim izabranog i tekućeg,
+// da uvek ima gde da se doda nova. Za drugi prazan mesec datum se bira u samoj formi.
 export default function MonthNavigator({ year, month, counts = {}, onChange }) {
+  const now = new Date();
+  const visible = (m) => counts[m] || m === month || (year === now.getFullYear() && m === now.getMonth());
+
   return (
     <div className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-neutral-200 bg-white px-3 py-2 shadow-sm">
       <div className="flex items-center gap-1">
@@ -45,6 +50,7 @@ export default function MonthNavigator({ year, month, counts = {}, onChange }) {
 
       <div className="flex flex-1 flex-wrap gap-1">
         {SHORT_MONTHS.map((label, m) => {
+          if (!visible(m)) return null;
           const count = counts[m] || 0;
           const selected = m === month;
           return (
