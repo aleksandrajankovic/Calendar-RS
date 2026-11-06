@@ -4,6 +4,7 @@
 import { extractFirstImg, flipHintText, renderFlipFaces, renderScratchModal } from "./scratch/renderScratchModal";
 import { firstImage, renderSlotModal } from "./slot/slotReveal";
 import { getExclusiveBadgeLabel } from "@/lib/calendar/promoCategoryStyles";
+import { esc } from "./escapeHtml";
 
 function renderNormalModal(entry, lang = "sr") {
   if (!entry) {
@@ -14,8 +15,9 @@ function renderNormalModal(entry, lang = "sr") {
 
   const { promo } = entry;
 
-  const title = entry.title || (promo && promo.title) || "";
-  const button = entry.button || (promo && promo.button) || "";
+  // obični tekstovi iz admina se escape-uju (vidi escapeHtml.js); richHtml je sanitizovan HTML
+  const title = esc(entry.title || (promo && promo.title) || "");
+  const button = esc(entry.button || (promo && promo.button) || "");
   const buttonColor =
     entry.buttonColor || (promo && promo.buttonColor) || "green";
   const link = entry.link || (promo && promo.link) || "";
@@ -43,7 +45,7 @@ function renderNormalModal(entry, lang = "sr") {
 
   const categoryLabel = getExclusiveBadgeLabel(entry?.category, lang);
 
-  const openUrl = link && String(link);
+  const openUrl = link && esc(link);
   const canOpen = openUrl && openUrl !== "#";
   const isYellow = buttonColor === "yellow";
   const defaultButtonLabel =
@@ -201,7 +203,10 @@ export function renderModalHTML(entry, lang = "sr", theme = "default") {
 }
 
 // Samostalna flip kartica (bez grebanja): odmah slika, dodir je okreće na detalje
-function renderFlipModal({ title, richHtml, link, button, buttonColor, lang, category }) {
+function renderFlipModal({ title: rawTitle, richHtml, link: rawLink, button: rawButton, buttonColor, lang, category }) {
+  const title = esc(rawTitle);
+  const link = esc(rawLink);
+  const button = esc(rawButton);
   const { imgSrc, restHtml } = extractFirstImg(richHtml);
   const categoryLabel = getExclusiveBadgeLabel(category, lang);
   const canOpen = link && link !== "#";

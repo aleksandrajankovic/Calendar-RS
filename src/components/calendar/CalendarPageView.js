@@ -1,11 +1,13 @@
 // src/components/CalendarPageView.js
 import Image, { getImageProps } from "next/image";
+import Link from "next/link";
 import CalendarGrid from "@/components/calendar/CalendarGrid";
 import CalendarEnhancer from "@/components/calendar/CalendarEnhancer";
 import MonthPagination from "@/components/calendar/MonthPagination";
 import SnowOverlay from "@/components/calendar/SnowOverlay";
 import AdminLogoutButton from "@/components/calendar/AdminLogoutButton";
 import CountdownTimer from "@/components/calendar/CountdownTimer";
+import CalendarClosed from "@/components/calendar/CalendarClosed";
 import { bebasNeue, exo2Black } from "@/app/fonts";
 
 export default function CalendarPageView({
@@ -29,6 +31,8 @@ export default function CalendarPageView({
   showLogo,
   logoUrl,
   isMonthInactive,
+  isClosed,
+  closedInfo,
   prevMonth,
   nextMonth,
   openDay,
@@ -104,6 +108,13 @@ export default function CalendarPageView({
 
           <SnowOverlay />
 
+          {isClosed && !isAdmin ? (
+            // Kalendar zatvoren (Calendar Styling → Calendar status): bez dana, klikova i popup-a
+            <CalendarClosed
+              {...closedInfo}
+              countdownTargetIso={countdownTargetIso} countdownLabel={countdownLabel}
+            />
+          ) : (
           <div
             className={`relative z-10 w-full max-w-6xl px-4 sm:px-6 md:px-10 lg:px-16 pt-4 pb-4 md:pt-6 md:pb-10 ${innerMargin}`}
           >
@@ -136,6 +147,14 @@ export default function CalendarPageView({
                   </a>
                   <AdminLogoutButton />
                 </div>
+                {isClosed && (
+                  <div className="inline-flex items-center gap-1.5 rounded bg-red-700/40 text-red-200 border border-red-500/40 px-3 py-1 text-sm">
+                    <span>⚠ Kalendar zatvoren — posetioci vide samo poruku</span>
+                    <Link href="/admin/calendar-style" className="underline hover:text-white transition-colors">
+                      Izmeni
+                    </Link>
+                  </div>
+                )}
                 {isMonthInactive && (
                   <div className="inline-flex items-center gap-1.5 rounded bg-red-700/40 text-red-200 border border-red-500/40 px-3 py-1 text-sm">
                     <span>⚠ Mesec deaktiviran — nije vidljiv korisnicima</span>
@@ -204,6 +223,7 @@ export default function CalendarPageView({
               />
             </div>
           </div>
+          )}
         </main>
       </div>
     </>

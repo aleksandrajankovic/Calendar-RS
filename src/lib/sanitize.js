@@ -82,6 +82,8 @@ export function sanitizeSvg(svgText) {
   out = out.replace(/<foreignObject[\s\S]*?<\/foreignObject\s*>/gi, "");
   out = out.replace(/\son[a-z]+\s*=\s*"[^"]*"/gi, "");
   out = out.replace(/\son[a-z]+\s*=\s*'[^']*'/gi, "");
+  out = out.replace(/\son[a-z]+\s*=\s*[^\s>"']+/gi, ""); // bez navodnika: onload=alert(1)
+  out = out.replace(/<(set|animate)\b[^>]*attributeName\s*=\s*["']?(?:xlink:)?href[^>]*>/gi, ""); // menja href u javascript:
   out = out.replace(/((?:xlink:)?href|src)\s*=\s*"\s*(?:javascript|data):[^"]*"/gi, "");
   out = out.replace(/((?:xlink:)?href|src)\s*=\s*'\s*(?:javascript|data):[^']*'/gi, "");
 

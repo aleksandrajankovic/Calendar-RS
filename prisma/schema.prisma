@@ -26,6 +26,7 @@ model CalendarSettings {
   logoUrl            String?
   showLogo           Boolean  @default(false)
   confetti           Json? // konfete posle grebanja: { style, emoji? } — vidi lib/calendar/confetti.js
+  closed             Json? // kalendar zatvoren za posetioce: { enabled, message } — posetilac vidi samo poruku
   theme              String?
   seoMeta            Json?
   countdownTargetIso String?

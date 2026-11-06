@@ -270,6 +270,17 @@ export async function loadCalendarPageData({ year, month, isAdmin, lang = "sr" }
 
   const isMonthInactive = !!monthBg.inactive;
 
+  // Ceo kalendar zatvoren (npr. kampanja završena): posetilac vidi samo pozadinu i poruku,
+  // admin i dalje vidi kalendar (uz oznaku u admin traci)
+  const c = calendarSettings?.closed || {};
+  const isClosed = !!c.enabled;
+  const closedInfo = {
+    title: c.message || "Kampanja je završena",
+    // dugme podrazumevano vodi na stranicu sa svim promocijama
+    buttonLabel: c.buttonLabel || "Pogledaj sve promocije",
+    buttonLink: c.buttonLink || "https://meridianbet.rs/promo/sr",
+  };
+
   // Odbrojavanje — podešeno u admin panelu; fallback zadržava dosadašnje ponašanje dok se ne podesi
   const countdownTargetIso = calendarSettings?.countdownTargetIso || "2026-06-11T00:00:00";
   const countdownLabel = calendarSettings?.countdownLabel || "Kalendar se otvara za";
@@ -296,6 +307,8 @@ export async function loadCalendarPageData({ year, month, isAdmin, lang = "sr" }
     showLogo,
     logoUrl,
     isMonthInactive,
+    isClosed,
+    closedInfo,
     prevMonth,
     nextMonth,
     countdownTargetIso,

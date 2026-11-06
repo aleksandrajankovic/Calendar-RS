@@ -42,7 +42,8 @@ export async function GET(_req, { params }) {
       "Content-Type": type,
       // Imena su hash-ovana po sadržaju (api/upload) — isto ime je uvek isti fajl
       "Cache-Control": "public, max-age=31536000, immutable",
-      ...(type === "image/svg+xml" && { "Content-Security-Policy": "script-src 'none'" }),
+      // isto kao u next.config.mjs za /uploads — SVG otvoren direktno ne izvršava skripte
+      "Content-Security-Policy": "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; sandbox",
     },
   });
 }

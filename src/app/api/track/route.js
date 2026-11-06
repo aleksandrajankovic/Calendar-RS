@@ -6,6 +6,7 @@ export const runtime = "nodejs";
 
 import crypto from "node:crypto";
 import prisma from "@/lib/db";
+import { getClientIp } from "@/lib/clientIp";
 
 const TYPES = new Set(["view", "day_open", "scratch", "slot", "cta"]);
 const BOT_RE = /bot|crawl|spider|slurp|preview|lighthouse|headless|curl|wget/i;
@@ -47,7 +48,7 @@ export async function POST(req) {
     const ua = req.headers.get("user-agent") || "";
     if (!ua || BOT_RE.test(ua)) return noContent();
 
-    const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() || "unknown";
+    const ip = getClientIp(req);
     if (overLimit(ip)) return noContent();
 
     const raw = await req.text();

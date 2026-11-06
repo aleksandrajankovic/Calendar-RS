@@ -52,8 +52,11 @@ function pick(list, avoid) {
   return source[Math.floor(Math.random() * source.length)];
 }
 
+// src dolazi iz admina (slika iz opisa ili ikonica) — escape, jer ide u innerHTML
+const escAttr = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+
 function cellHtml(src, slice) {
-  return `<div class="slot-cell"><img src="${src}" alt="" draggable="false" style="--slice:${slice}" /></div>`;
+  return `<div class="slot-cell"><img src="${escAttr(src)}" alt="" draggable="false" style="--slice:${slice}" /></div>`;
 }
 
 function buildStrip(strip, target, pool, length, slice) {

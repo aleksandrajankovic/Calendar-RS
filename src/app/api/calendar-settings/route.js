@@ -5,6 +5,7 @@ import { revalidateTag } from "next/cache";
 import prisma from "@/lib/db";
 import { getAdminFromRequest } from "@/lib/auth";
 import { sanitizeConfetti } from "@/lib/calendar/confetti";
+import { sanitizeLink } from "@/lib/validate";
 
 const VALID_POS = ["left", "center", "right"];
 const VALID_THEMES = ["default", "default-horizontal", "football"];
@@ -30,6 +31,7 @@ export async function GET(req) {
     countdownTargetIso: row?.countdownTargetIso || "",
     countdownLabel:     row?.countdownLabel     || "",
     confetti:           row?.confetti           || null,
+    closed:             row?.closed             || { enabled: false },
   });
 }
 
@@ -59,6 +61,19 @@ export async function PUT(req) {
 
   if ("confetti" in body)
     patch.confetti = sanitizeConfetti(body.confetti);
+
+  // Kalendar zatvoren za posetioce: naslov, tekst, opciono dugme (obični tekstovi — React ih
+  // escape-uje pri prikazu; link prolazi istu proveru kao linkovi promocija)
+  if ("closed" in body) {
+    const c = body.closed || {};
+    const text = (v, max) => (typeof v === "string" ? v.trim().slice(0, max) : "");
+    patch.closed = {
+      enabled: c.enabled === true,
+      message: text(c.message, 120),
+      buttonLabel: text(c.buttonLabel, 60),
+      buttonLink: sanitizeLink(text(c.buttonLink, 500)),
+    };
+  }
 
   if ("calendarTitle" in body) {
     const t = body.calendarTitle;
@@ -142,5 +157,6 @@ export async function PUT(req) {
     countdownTargetIso: row.countdownTargetIso || "",
     countdownLabel:     row.countdownLabel     || "",
     confetti:           row.confetti           || null,
+    closed:             row.closed             || { enabled: false },
   });
 }

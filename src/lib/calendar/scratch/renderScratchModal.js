@@ -1,5 +1,6 @@
 // src/lib/scratch/renderScratchModal.js
 import { getExclusiveBadgeLabel } from "@/lib/calendar/promoCategoryStyles";
+import { esc } from "../escapeHtml";
 
 export const flipHintText = (lang) => (lang === "sr" ? "Dodirni za detalje" : "Tap for details");
 
@@ -38,10 +39,10 @@ export function extractFirstImg(richHtml = "") {
 }
 
 export function renderScratchModal({
-  title,
+  title: rawTitle,
   richHtml,
-  link,
-  button,
+  link: rawLink,
+  button: rawButton,
   buttonColor,
   lang,
   shareKey,
@@ -54,6 +55,10 @@ export function renderScratchModal({
   category,
   flipCard = false,
 }) {
+  // obični tekstovi iz admina se escape-uju (vidi escapeHtml.js); richHtml je sanitizovan HTML
+  const title = esc(rawTitle);
+  const link = esc(rawLink);
+  const button = esc(rawButton);
   const { imgSrc, restHtml } = extractFirstImg(richHtml);
 
   const categoryLabel = getExclusiveBadgeLabel(category, lang);
@@ -65,7 +70,7 @@ export function renderScratchModal({
   const hintText1 =
     lang === "sr" ? "Ogrebi i otkrij današnju specijalnu promociju" : "Scratch to reveal today's offer";
 
-  const safeKey = String(shareKey || "default");
+  const safeKey = esc(shareKey || "default");
 
   const canvasEl = `
         <canvas

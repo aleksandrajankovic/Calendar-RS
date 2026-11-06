@@ -44,3 +44,6 @@ next-env.d.ts
 public/uploads/
 
 /src/generated/prisma
+
+# lokalne SQLite baze (stara dev baza je sadržala admin naloge)
+*.db

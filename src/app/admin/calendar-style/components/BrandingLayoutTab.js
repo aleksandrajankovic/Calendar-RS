@@ -60,6 +60,7 @@ function PositionIcon({ value }) {
 export default function BrandingLayoutTab({
   logoUrl, setLogoUrl,
   showLogo, setShowLogo,
+  closed, setClosed,
   titleSr, setTitleSr,
   theme, setTheme,
   calendarPosition, setCalendarPosition,
@@ -103,6 +104,52 @@ export default function BrandingLayoutTab({
 
   return (
     <div className="space-y-6">
+      <AdminTableCard title="Calendar Status">
+        <div className="p-4 space-y-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-medium text-neutral-800">Close the calendar for visitors</p>
+              <p className="text-xs text-neutral-500 mt-0.5">
+                E.g. after the campaign ends. Visitors see only the background, a title and a button — no days, no
+                clicks. Admin preview still shows the calendar.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setClosed({ ...closed, enabled: !closed.enabled })}
+              className={[
+                "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200",
+                closed.enabled ? "bg-red-600" : "bg-neutral-300",
+              ].join(" ")}
+              role="switch"
+              aria-checked={!!closed.enabled}
+              aria-label="Close the calendar for visitors"
+            >
+              <span
+                className={[
+                  "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform transition duration-200",
+                  closed.enabled ? "translate-x-5" : "translate-x-0",
+                ].join(" ")}
+              />
+            </button>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <ClosedField label="Message" field="message" closed={closed} setClosed={setClosed} max={120}
+              placeholder="Kampanja je završena" />
+            <div className="hidden md:block" />
+            <ClosedField label="Button text" field="buttonLabel" closed={closed} setClosed={setClosed} max={60}
+              placeholder="Pogledaj sve promocije" />
+            <ClosedField label="Button link" field="buttonLink" closed={closed} setClosed={setClosed} max={500}
+              placeholder="https://meridianbet.rs/promo/sr" />
+          </div>
+          <p className="text-xs text-neutral-400">
+            Visitors see the campaign background with a large title and a yellow button. Empty fields use the defaults
+            (button goes to all promotions: meridianbet.rs/promo/sr). A countdown date in the future (Engagement tab) is
+            shown below the button.
+          </p>
+        </div>
+      </AdminTableCard>
+
       <MonthOverridePicker
         selYear={selYear} setSelYear={setSelYear}
         selMonth={selMonth} setSelMonth={setSelMonth}
@@ -534,5 +581,20 @@ function NumberInput({ value, onChange, min, max, placeholder }) {
       onChange={(e) => onChange(e.target.value === "" ? null : Number(e.target.value))}
       placeholder={placeholder}
     />
+  );
+}
+
+function ClosedField({ label, field, closed, setClosed, max, placeholder }) {
+  return (
+    <label className="block">
+      <span className="mb-1 inline-block text-sm text-neutral-600">{label}</span>
+      <input
+        className="w-full border border-[#D0D0D0] rounded px-2.5 py-2 text-sm"
+        value={closed[field] || ""}
+        onChange={(e) => setClosed({ ...closed, [field]: e.target.value })}
+        placeholder={placeholder}
+        maxLength={max}
+      />
+    </label>
   );
 }

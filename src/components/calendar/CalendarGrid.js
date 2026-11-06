@@ -223,6 +223,7 @@ export default function CalendarGrid({
         id="calendar-data"
         type="application/json"
         dangerouslySetInnerHTML={{
+          // "<" → \u003c: tekst iz admina sa "</script>" ne sme da zatvori tag (XSS)
           __html: JSON.stringify({
             days: daysPayload,
             adminPreview,
@@ -231,7 +232,7 @@ export default function CalendarGrid({
             lang,
             theme,
             confetti,
-          }),
+          }).replace(/</g, "\\u003c"),
         }}
       />
     </section>

@@ -35,6 +35,7 @@ export default function CalendarStylePage() {
   const [countdownTargetIso, setCountdownTargetIso] = useState("");
   const [countdownLabel, setCountdownLabel]         = useState("");
   const [confetti, setConfetti]                     = useState(null);
+  const [closed, setClosed]                         = useState({ enabled: false });
 
   const [monthBackgrounds, setMonthBackgrounds] = useState({});
   const [selYear, setSelYear]   = useState(now.getFullYear());
@@ -66,6 +67,7 @@ export default function CalendarStylePage() {
     setCountdownTargetIso(d.countdownTargetIso || "");
     setCountdownLabel(d.countdownLabel || "");
     setConfetti(d.confetti || null);
+    setClosed(d.closed || { enabled: false });
     setMonthBackgrounds(d.monthBackgrounds || {});
   }
 
@@ -104,6 +106,7 @@ export default function CalendarStylePage() {
           countdownTargetIso,
           countdownLabel,
           confetti,
+          closed,
           monthBackgrounds,
         }),
       });
@@ -136,6 +139,7 @@ export default function CalendarStylePage() {
             <BrandingLayoutTab
               logoUrl={logoUrl} setLogoUrl={setLogoUrl}
               showLogo={showLogo} setShowLogo={setShowLogo}
+              closed={closed} setClosed={setClosed}
               titleSr={titleSr} setTitleSr={setTitleSr}
               theme={theme} setTheme={setTheme}
               calendarPosition={calendarPosition} setCalendarPosition={setCalendarPosition}
