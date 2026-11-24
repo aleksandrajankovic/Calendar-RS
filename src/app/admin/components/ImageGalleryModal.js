@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import { shrinkForUpload } from "@/lib/admin/shrinkForUpload";
 
 // uploadKind="background": pozadine se čuvaju do 4K (inače najviše 1600px širine)
 export default function ImageGalleryModal({ onSelect, onClose, uploadKind = null }) {
@@ -59,8 +60,10 @@ export default function ImageGalleryModal({ onSelect, onClose, uploadKind = null
     if (!file) return;
     setUploading(true);
     try {
+      // > ~1 MB odbija server (nginx 413) — smanji u browseru pre slanja
+      const upload = await shrinkForUpload(file, { maxWidth: uploadKind === "background" ? 3840 : 1600 });
       const fd = new FormData();
-      fd.append("file", file);
+      fd.append("file", upload);
       if (uploadKind) fd.append("kind", uploadKind);
 
       const res = await fetch("/api/upload", {
@@ -70,6 +73,7 @@ export default function ImageGalleryModal({ onSelect, onClose, uploadKind = null
       });
 
       if (!res.ok) {
+        if (res.status === 413) throw new Error("too-large");
         throw new Error(await res.text().catch(() => "Upload error"));
       }
 
@@ -82,7 +86,7 @@ export default function ImageGalleryModal({ onSelect, onClose, uploadKind = null
       toast.success("Image uploaded.");
     } catch (err) {
       console.error(err);
-      toast.error("Upload failed.");
+      toast.error(err?.message === "too-large" ? "Image is too large (max ~1 MB). Export it as JPG/WebP and try again." : "Upload failed.");
     } finally {
       setUploading(false);
       // reset input da bi sledeći put opet radio change event
