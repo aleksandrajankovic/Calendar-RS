@@ -67,11 +67,15 @@ export async function PUT(req) {
   if ("closed" in body) {
     const c = body.closed || {};
     const text = (v, max) => (typeof v === "string" ? v.trim().slice(0, max) : "");
+    // zasebna pozadina za zatvoren kalendar — samo putanja na našem sajtu (npr. /uploads/...)
+    const path = (v) => { const p = text(v, 500); return /^\/(?!\/)[\w\-./%]+$/.test(p) ? p : ""; };
     patch.closed = {
       enabled: c.enabled === true,
       message: text(c.message, 120),
       buttonLabel: text(c.buttonLabel, 60),
       buttonLink: sanitizeLink(text(c.buttonLink, 500)),
+      bgDesktop: path(c.bgDesktop),
+      bgMobile: path(c.bgMobile),
     };
   }
 

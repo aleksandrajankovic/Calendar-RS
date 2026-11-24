@@ -283,6 +283,9 @@ export async function loadCalendarPageData({ year, month, isAdmin, lang = "sr" }
     // dugme podrazumevano vodi na stranicu sa svim promocijama
     buttonLabel: c.buttonLabel || "Pogledaj sve promocije",
     buttonLink: c.buttonLink || "https://meridianbet.rs/promo/sr",
+    // zasebna pozadina za zatvoren kalendar (inače ostaje pozadina kampanje)
+    bgDesktop: c.bgDesktop || null,
+    bgMobile: c.bgMobile || c.bgDesktop || null,
   };
 
   // Odbrojavanje — podešeno u admin panelu; fallback zadržava dosadašnje ponašanje dok se ne podesi

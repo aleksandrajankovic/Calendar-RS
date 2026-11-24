@@ -56,9 +56,14 @@ export default function CalendarPageView({
 
   // Pozadina kao <picture> sa responzivnim verzijama (next/image optimizer) umesto
   // CSS background-image, koji uvek skida original — na telefonu je ovo LCP slika.
+  // zatvoren kalendar: posetilac vidi zasebnu pozadinu, ako je postavljena (admin i dalje vidi kampanju)
+  const showClosed = isClosed && !isAdmin;
+  const bgDesktop = (showClosed && closedInfo?.bgDesktop) || bgImageUrl;
+  const bgMobile = (showClosed && closedInfo?.bgMobile) || bgImageUrlMobile;
+
   const bgCommon = { alt: "", fill: true, sizes: "100vw", fetchPriority: "high", loading: "eager" };
-  const { props: { srcSet: bgDesktopSrcSet } } = getImageProps({ ...bgCommon, src: bgImageUrl });
-  const { props: bgMobileProps } = getImageProps({ ...bgCommon, src: bgImageUrlMobile });
+  const { props: { srcSet: bgDesktopSrcSet } } = getImageProps({ ...bgCommon, src: bgDesktop });
+  const { props: bgMobileProps } = getImageProps({ ...bgCommon, src: bgMobile });
 
   const TitleTag = calendarTitle ? "h1" : "div";
 
@@ -106,7 +111,7 @@ export default function CalendarPageView({
             <source media="(min-width: 768px)" srcSet={bgDesktopSrcSet} sizes="100vw" />
             {/* novogodišnja tema: slika se kači za vrh — višak se seče dole, a ne naslov sa vizuala */}
             {/* eslint-disable-next-line jsx-a11y/alt-text */}
-            <img {...bgMobileProps} className={`pointer-events-none object-cover object-center -z-10 calendar-mobile-bg${theme === "newyear" ? " object-top" : ""}`} />
+            <img {...bgMobileProps} className={`pointer-events-none object-cover object-center -z-10 calendar-mobile-bg${theme === "newyear" && !showClosed ? " object-top" : ""}`} />
           </picture>
 
           <SnowOverlay />
@@ -114,7 +119,9 @@ export default function CalendarPageView({
           {isClosed && !isAdmin ? (
             // Kalendar zatvoren (Calendar Styling → Calendar status): bez dana, klikova i popup-a
             <CalendarClosed
-              {...closedInfo}
+              title={closedInfo.title}
+              buttonLabel={closedInfo.buttonLabel}
+              buttonLink={closedInfo.buttonLink}
               countdownTargetIso={countdownTargetIso} countdownLabel={countdownLabel}
             />
           ) : (

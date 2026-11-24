@@ -142,6 +142,50 @@ export default function BrandingLayoutTab({
             <ClosedField label="Button link" field="buttonLink" closed={closed} setClosed={setClosed} max={500}
               placeholder="https://meridianbet.rs/promo/sr" />
           </div>
+          <div className="pt-4 border-t border-neutral-100">
+            <p className="text-sm font-medium text-neutral-800 mb-1">Background when closed</p>
+            <p className="text-xs text-neutral-400 mb-3">
+              Optional. Shown to visitors instead of the campaign background while the calendar is closed. Leave empty
+              to keep the campaign background. If only desktop is set, it is used on mobile too.
+            </p>
+            <div className="grid sm:grid-cols-2 gap-4">
+              {[
+                ["bgDesktop", "closedDesktop", "Desktop (3840×2160)", "h-[160px] aspect-video"],
+                ["bgMobile", "closedMobile", "Mobile (1170×2600)", "w-28 aspect-9/16"],
+              ].map(([field, target, label, box]) => (
+                <div key={field}>
+                  <label className="block text-sm text-neutral-800 mb-1">{label}</label>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <input
+                      className="flex-1 min-w-0 border border-[#D0D0D0] rounded px-2.5 py-1.5 text-sm"
+                      value={closed[field] || ""}
+                      onChange={(e) => setClosed({ ...closed, [field]: e.target.value })}
+                      placeholder="Campaign background"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => openGallery(target)}
+                      className="shrink-0 inline-flex items-center justify-center px-3 py-2 rounded bg-[#1F2933] text-white text-xs hover:brightness-110 whitespace-nowrap"
+                    >
+                      Gallery
+                    </button>
+                    {closed[field] && (
+                      <button
+                        type="button"
+                        onClick={() => setClosed({ ...closed, [field]: "" })}
+                        className="shrink-0 text-xs text-neutral-500 underline hover:text-neutral-800"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  <div className={`mt-2 border border-neutral-200 rounded-lg overflow-hidden bg-neutral-100 ${box}`}>
+                    <BgPreview key={closed[field] || "none"} src={closed[field] || ""} alt="" emptyLabel="Campaign background" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
           <p className="text-xs text-neutral-400">
             Visitors see the campaign background with a large title and a yellow button. Empty fields use the defaults
             (button goes to all promotions: meridianbet.rs/promo/sr). A countdown date in the future (Engagement tab) is

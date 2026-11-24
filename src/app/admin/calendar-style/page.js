@@ -80,6 +80,8 @@ export default function CalendarStylePage() {
     if (galleryTarget === "desktop") setBgUrl(url);
     else if (galleryTarget === "mobile") setBgUrlMobile(url);
     else if (galleryTarget === "logo") setLogoUrl(url);
+    else if (galleryTarget === "closedDesktop") setClosed((prev) => ({ ...prev, bgDesktop: url }));
+    else if (galleryTarget === "closedMobile") setClosed((prev) => ({ ...prev, bgMobile: url }));
     else if (galleryTarget === "monthDesktop" || galleryTarget === "monthMobile") {
       const key = `${selYear}-${selMonth}`;
       const field = galleryTarget === "monthDesktop" ? "desktop" : "mobile";
