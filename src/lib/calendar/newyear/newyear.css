@@ -133,6 +133,38 @@
 .ny-hero.is-empty .ny-hero__tag { color: #fff; background: rgba(255, 255, 255, .14); }
 .ny-hero.is-opened .ny-hero__cta { color: #fff; background: rgba(255, 255, 255, .14); box-shadow: inset 0 0 0 1px rgba(245, 196, 81, .55); }
 
+/* ---------- prevlačenje kartice (telefon) ---------- */
+.ny-hero-wrap { position: relative; touch-action: pan-y; }
+.ny-hero:disabled { pointer-events: none; } /* dodir na zaključanoj kartici ide omotaču (prevlačenje) */
+.ny-hero.enter-right { animation: ny-from-right .3s ease-out; }
+.ny-hero.enter-left { animation: ny-from-left .3s ease-out; }
+@keyframes ny-from-right { from { opacity: 0; transform: translateX(40%) rotate(2deg); } }
+@keyframes ny-from-left { from { opacity: 0; transform: translateX(-40%) rotate(-2deg); } }
+.ny-swipe-arrow {
+  position: absolute;
+  top: 42%;
+  z-index: 2;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 20px;
+  line-height: 1;
+  color: #fff;
+  background: rgba(10, 4, 30, .35);
+  border: 1px solid rgba(255, 255, 255, .22);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  transform: translateY(-50%);
+  -webkit-tap-highlight-color: transparent;
+}
+.ny-swipe-arrow.is-prev { left: 8px; }
+.ny-swipe-arrow.is-next { right: 8px; }
+.ny-swipe-arrow:disabled { opacity: 0; pointer-events: none; }
+.ny.is-tight .ny-swipe-arrow { display: none; }
+@media (min-width: 768px) { .ny-swipe-arrow { display: none; } }
+
 /* ---------- traka sa danima ---------- */
 .ny-strip-head {
   margin: 22px 4px 10px;

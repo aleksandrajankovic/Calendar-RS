@@ -116,6 +116,85 @@ function usePlaceOnVisual(ref, titleEnd) {
   }, [ref, endDesktop, endMobile]);
 }
 
+// Telefon: prevlačenje prstom preko kartice dana menja dan (ulevo = sledeći, udesno = prethodni).
+// Kartica prati prst; vertikalni skrol stranice radi normalno (touch-action: pan-y). Posle prevlačenja
+// klik se poništava, da se poklon ne otvori slučajno.
+function useSwipe(ref, onSwipe) {
+  const onSwipeRef = useRef(onSwipe);
+  useEffect(() => {
+    onSwipeRef.current = onSwipe;
+  });
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let sx = 0, sy = 0, dx = 0, tracking = false, horizontal = null, moved = false;
+    const hero = () => el.querySelector(".ny-hero");
+    const reset = (h) => {
+      if (!h) return;
+      h.style.transition = "transform .2s ease, opacity .2s ease";
+      h.style.transform = "";
+      h.style.opacity = "";
+    };
+
+    const start = (e) => {
+      const t = e.touches[0];
+      sx = t.clientX;
+      sy = t.clientY;
+      dx = 0;
+      tracking = true;
+      horizontal = null;
+      moved = false;
+    };
+    const move = (e) => {
+      if (!tracking) return;
+      const t = e.touches[0];
+      const x = t.clientX - sx;
+      const y = t.clientY - sy;
+      if (horizontal === null && Math.hypot(x, y) > 8) horizontal = Math.abs(x) > Math.abs(y);
+      if (!horizontal) return;
+      dx = x;
+      moved = true;
+      const h = hero();
+      if (h) {
+        h.style.transition = "none";
+        h.style.transform = `translateX(${x * 0.55}px) rotate(${x * 0.012}deg)`;
+        h.style.opacity = String(1 - Math.min(Math.abs(x) / 700, 0.35));
+      }
+    };
+    const end = () => {
+      if (!tracking) return;
+      tracking = false;
+      const changed = horizontal && Math.abs(dx) > 50 && onSwipeRef.current(dx < 0 ? 1 : -1);
+      if (!changed) reset(hero());
+      if (moved) {
+        el.dataset.swiped = "1";
+        setTimeout(() => delete el.dataset.swiped, 400);
+      }
+    };
+    // klik posle prevlačenja ne otvara poklon (capture: pre logike kalendara na #calendar-root)
+    const click = (e) => {
+      if (el.dataset.swiped) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+    };
+
+    el.addEventListener("touchstart", start, { passive: true });
+    el.addEventListener("touchmove", move, { passive: true });
+    el.addEventListener("touchend", end);
+    el.addEventListener("touchcancel", end);
+    el.addEventListener("click", click, true);
+    return () => {
+      el.removeEventListener("touchstart", start);
+      el.removeEventListener("touchmove", move);
+      el.removeEventListener("touchend", end);
+      el.removeEventListener("touchcancel", end);
+      el.removeEventListener("click", click, true);
+    };
+  }, [ref]);
+}
+
 function stateOf(d, opened) {
   if (d.isLocked) return "locked"; // budući dan — sa promocijom ili bez, ne otkriva se unapred
   if (!d.hasPromo) return d.isFuture ? "locked" : "empty"; // prošao dan bez promocije
@@ -156,7 +235,20 @@ export default function CalendarNewYear({ days, year, month, titleEnd = null }) 
 
   const stripRef = useRef(null);
   const rootRef = useRef(null);
+  const heroWrapRef = useRef(null);
+  const [enterFrom, setEnterFrom] = useState(null); // sa koje strane ulazi nova kartica (prevlačenje)
   usePlaceOnVisual(rootRef, titleEnd);
+
+  // susedni dan (dir: 1 = sledeći, -1 = prethodni); vraća false na kraju trake
+  const goTo = (dir) => {
+    const i = gifts.findIndex((d) => d.day === selected);
+    const next = gifts[i + dir];
+    if (!next) return false;
+    setEnterFrom(dir > 0 ? "right" : "left");
+    setSelected(next.day);
+    return true;
+  };
+  useSwipe(heroWrapRef, goTo);
 
   // Izabrani dan u traci uvek u vidnom polju (i na početku, kad je danas negde na sredini meseca)
   useEffect(() => {
@@ -184,14 +276,15 @@ export default function CalendarNewYear({ days, year, month, titleEnd = null }) 
 
   return (
     <div ref={rootRef} className={`ny ${rowdies.variable}`}>
-      {/* Kartica izabranog dana — ceo dugme otvara poklon (osim zaključanog) */}
+      {/* Kartica izabranog dana — ceo dugme otvara poklon (osim zaključanog); na telefonu se prevlači */}
+      <div className="ny-hero-wrap" ref={heroWrapRef}>
       <button
         key={sel.day}
         type="button"
         data-day-button={sel.hasPromo ? "" : undefined}
         data-day={sel.day}
         disabled={selState === "locked" || selState === "empty"}
-        className={`ny-hero is-${selState}`}
+        className={`ny-hero is-${selState}${enterFrom ? ` enter-${enterFrom}` : ""}`}
         aria-label={`${dateLabel(sel)} — ${selState === "locked" ? "uskoro" : selState === "empty" ? "nema poklona" : CTA[selState].toLowerCase()}`}
       >
         <span className="ny-hero__glow" aria-hidden="true" />
@@ -220,7 +313,7 @@ export default function CalendarNewYear({ days, year, month, titleEnd = null }) 
             {selState === "locked"
               ? "Strpljenja…"
               : selState === "empty"
-                ? "Danas nema poklona"
+                ? sel.isToday ? "Danas nema poklona" : "Ovog dana nema poklona"
                 : selState === "opened"
                   ? "Poklon je otvoren"
                   : "Tvoj poklon čeka!"}
@@ -240,6 +333,10 @@ export default function CalendarNewYear({ days, year, month, titleEnd = null }) 
           {selState === "locked" ? `OTVARA SE ${sel.day}.${month + 1}.` : selState === "empty" ? "NEMA POKLONA" : CTA[selState]}
         </span>
       </button>
+        {/* telefon: strelice kao znak da se kartica prevlači */}
+        <button type="button" className="ny-swipe-arrow is-prev" aria-label="Prethodni dan" onClick={() => goTo(-1)} disabled={gifts[0]?.day === sel.day}>‹</button>
+        <button type="button" className="ny-swipe-arrow is-next" aria-label="Sledeći dan" onClick={() => goTo(1)} disabled={gifts.at(-1)?.day === sel.day}>›</button>
+      </div>
 
       {/* Traka sa danima kampanje */}
       <div className="ny-strip-head">TVOJI POKLONI</div>
@@ -255,7 +352,10 @@ export default function CalendarNewYear({ days, year, month, titleEnd = null }) 
                 type="button"
                 data-chip={d.day}
                 className={`ny-chip is-${st}${d.day === sel.day ? " is-selected" : ""}`}
-                onClick={() => setSelected(d.day)}
+                onClick={() => {
+                  setEnterFrom(null);
+                  setSelected(d.day);
+                }}
                 aria-pressed={d.day === sel.day}
                 aria-label={`${dateLabel(d)}${st === "locked" ? " — uskoro" : st === "empty" ? " — nema poklona" : ""}`}
               >
