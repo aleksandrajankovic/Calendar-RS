@@ -333,9 +333,6 @@ export default function CalendarNewYear({ days, year, month, titleEnd = null }) 
           {selState === "locked" ? `OTVARA SE ${sel.day}.${month + 1}.` : selState === "empty" ? "NEMA POKLONA" : CTA[selState]}
         </span>
       </button>
-        {/* telefon: strelice kao znak da se kartica prevlači */}
-        <button type="button" className="ny-swipe-arrow is-prev" aria-label="Prethodni dan" onClick={() => goTo(-1)} disabled={gifts[0]?.day === sel.day}>‹</button>
-        <button type="button" className="ny-swipe-arrow is-next" aria-label="Sledeći dan" onClick={() => goTo(1)} disabled={gifts.at(-1)?.day === sel.day}>›</button>
       </div>
 
       {/* Traka sa danima kampanje */}

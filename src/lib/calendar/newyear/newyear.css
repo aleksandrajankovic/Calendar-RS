@@ -140,30 +140,6 @@
 .ny-hero.enter-left { animation: ny-from-left .3s ease-out; }
 @keyframes ny-from-right { from { opacity: 0; transform: translateX(40%) rotate(2deg); } }
 @keyframes ny-from-left { from { opacity: 0; transform: translateX(-40%) rotate(-2deg); } }
-.ny-swipe-arrow {
-  position: absolute;
-  top: 42%;
-  z-index: 2;
-  width: 32px;
-  height: 32px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  font-size: 20px;
-  line-height: 1;
-  color: #fff;
-  background: rgba(10, 4, 30, .35);
-  border: 1px solid rgba(255, 255, 255, .22);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  transform: translateY(-50%);
-  -webkit-tap-highlight-color: transparent;
-}
-.ny-swipe-arrow.is-prev { left: 8px; }
-.ny-swipe-arrow.is-next { right: 8px; }
-.ny-swipe-arrow:disabled { opacity: 0; pointer-events: none; }
-.ny.is-tight .ny-swipe-arrow { display: none; }
-@media (min-width: 768px) { .ny-swipe-arrow { display: none; } }
 
 /* ---------- traka sa danima ---------- */
 .ny-strip-head {
