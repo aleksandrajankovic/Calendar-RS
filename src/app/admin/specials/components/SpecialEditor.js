@@ -76,6 +76,7 @@ export default function SpecialEditor({ initial, onCancel, onSaved }) {
       scratch: !!initial?.scratch,
       slot: !!initial?.slot,
       flipCard: !!initial?.flipCard,
+      scratchText: initial?.scratchText ?? "",
       buttonColor: initial?.buttonColor ?? "green",
 
       translations: baseTranslations,
@@ -158,6 +159,7 @@ export default function SpecialEditor({ initial, onCancel, onSaved }) {
         scratch: !!form.scratch,
         slot: !!form.slot,
         flipCard: !!form.flipCard,
+        scratchText: form.scratchText ?? "",
         buttonColor: form.buttonColor || "green",
 
         translations,

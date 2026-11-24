@@ -17,6 +17,7 @@ export default function PromoIcon({ src, className, alt = "promo icon", sizes = 
       loading={priority ? "eager" : "lazy"}
       fetchPriority={priority ? "high" : undefined}
       className={className}
+      data-promo-icon // giftOpen.js: ova slika se "otvara" kao poklon
     />
   );
 }

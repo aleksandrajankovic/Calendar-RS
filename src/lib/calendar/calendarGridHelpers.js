@@ -105,6 +105,7 @@ export function buildCalendarData({
     const slot = !!promo?.slot;
     const scratch = !!promo?.scratch && !slot;
     const flipCard = !!promo?.flipCard && !slot;
+    const scratchText = scratch ? promo?.scratchText || null : null;
     const knockoutPhase = promo?.knockoutPhase || null;
 
     // cell za grid (desktop) — samo dani iz opsega; payload (modal, deljeni linkovi) ostaje ceo mesec
@@ -145,10 +146,12 @@ export function buildCalendarData({
       scratch,
       slot,
       flipCard,
+      scratchText,
       knockoutPhase,
 
       hasPromo: Boolean(promo),
       isToday,
+      isFuture, // i u admin pregledu (isFutureForUx je tamo uvek false)
       isFutureForUx,
       isLocked,
       icon,

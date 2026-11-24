@@ -187,7 +187,7 @@ export default function CalendarStylePage() {
       )}
 
       {showGallery && (
-        <ImageGalleryModal onSelect={handleGallerySelect} onClose={() => setShowGallery(false)} />
+        <ImageGalleryModal uploadKind="background" onSelect={handleGallerySelect} onClose={() => setShowGallery(false)} />
       )}
     </>
   );

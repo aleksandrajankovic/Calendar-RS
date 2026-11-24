@@ -38,6 +38,7 @@ export function useWeeklyPlan(year, month) {
         scratch: !!payload.scratch,
         slot: !!payload.slot,
         flipCard: !!payload.flipCard,
+        scratchText: payload.scratchText ?? "",
         icon: payload.icon ?? "",
         buttonColor: payload.buttonColor ?? "green",
 

@@ -51,6 +51,7 @@ function normWeeklyRows(rows = [], lang) {
         scratch: !!r.scratch,
         slot: !!r.slot,
         flipCard: !!r.flipCard,
+        scratchText: r.scratchText || null,
       };
     }
   }
@@ -75,6 +76,7 @@ function normalizeSpecials(rows = [], lang) {
       scratch: !!r.scratch,
       slot: !!r.slot,
       flipCard: !!r.flipCard,
+      scratchText: r.scratchText || null,
       knockoutPhase: r.knockoutPhase || null,
     };
   });
@@ -236,6 +238,8 @@ export async function loadCalendarPageData({ year, month, isAdmin, lang = "sr" }
   // dodatni razmak iznad kalendara (desktop, vh) — da kalendar ne prekriva naslov na pozadini
   const topOffset = monthBg.topOffset || 0;
   const topOffsetMobile = monthBg.topOffsetMobile || 0;
+  // novogodišnja tema: kraj naslova na vizualu, udeo visine slike (0 = bez naslova → kalendar centriran)
+  const visualTitleEnd = { desktop: (monthBg.titleEnd || 0) / 100, mobile: (monthBg.titleEndMobile || 0) / 100 };
 
   // skraćen mesec — prikazuju se samo dani od-do (npr. kampanja 15–31)
   const dayFrom = monthBg.dayFrom || null;
@@ -300,6 +304,7 @@ export async function loadCalendarPageData({ year, month, isAdmin, lang = "sr" }
     calendarTitle,
     topOffset,
     topOffsetMobile,
+    visualTitleEnd,
     dayFrom,
     dayTo,
     theme,

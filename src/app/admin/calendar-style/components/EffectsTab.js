@@ -81,7 +81,8 @@ export default function EffectsTab({
       <AdminTableCard title="Confetti">
         <div className="p-4 space-y-4">
           <p className="text-sm text-neutral-500">
-            Shown after a scratch card is scratched. The slot reveal keeps its own gold confetti unless this is set to
+            Shown after a scratch card is scratched. Choose &quot;Gold foil (slot reveal)&quot; for the same gold
+            effect as the slot reveal. The slot reveal always keeps its own gold confetti unless this is set to
             &quot;Off&quot;.
           </p>
           <ConfettiPicker value={confetti} onChange={setConfetti} />

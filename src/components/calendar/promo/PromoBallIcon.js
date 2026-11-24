@@ -25,6 +25,7 @@ export default function PromoBallIcon({
       loading={lazy ? "lazy" : "eager"}
       fetchPriority={lazy ? undefined : "high"}
       className={`w-full h-full object-contain p-[11%]${spin ? " knockout-ball-spin" : ""}`}
+      data-promo-icon // giftOpen.js: ova slika se "otvara" kao poklon
     />
   );
 }

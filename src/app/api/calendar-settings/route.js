@@ -8,7 +8,7 @@ import { sanitizeConfetti } from "@/lib/calendar/confetti";
 import { sanitizeLink } from "@/lib/validate";
 
 const VALID_POS = ["left", "center", "right"];
-const VALID_THEMES = ["default", "default-horizontal", "football"];
+const VALID_THEMES = ["default", "default-horizontal", "football", "newyear"];
 const DEFAULT_SEO_META = {
   sr: { title: "Kalendar Promocija | Meridianbet", description: "Otkrijte dnevne promocije i iskoristite ekskluzivne nagrade uz Meridianbet Kalendar Promocija." },
 };
@@ -123,13 +123,17 @@ export async function PUT(req) {
           const topOffset = off > 0 ? Math.min(off, 40) : null;
           const offM     = Math.round(Number(val.topOffsetMobile));
           const topOffsetMobile = offM > 0 ? Math.min(offM, 40) : null;
+          // novogodišnja tema: gde se naslov na vizualu završava, % visine slike (0 = vizual bez naslova)
+          const pct = (v) => { const n = Math.round(Number(v)); return n > 0 ? Math.min(n, 80) : null; };
+          const titleEnd = pct(val.titleEnd);
+          const titleEndMobile = pct(val.titleEndMobile);
           // skraćen mesec: prikazuju se samo dani od-do (1–31)
           const day = (v) => { const n = Math.round(Number(v)); return n >= 1 && n <= 31 ? n : null; };
           const dayFrom = day(val.dayFrom);
           const dayTo   = day(val.dayTo);
           const confetti = sanitizeConfetti(val.confetti);
-          if (desktop || mobile || position || titleSr || inactive || theme || topOffset || topOffsetMobile || dayFrom || dayTo || confetti)
-            out[key] = { desktop, mobile, position, titleSr, inactive, theme, topOffset, topOffsetMobile, dayFrom, dayTo, confetti };
+          if (desktop || mobile || position || titleSr || inactive || theme || topOffset || topOffsetMobile || titleEnd || titleEndMobile || dayFrom || dayTo || confetti)
+            out[key] = { desktop, mobile, position, titleSr, inactive, theme, topOffset, topOffsetMobile, titleEnd, titleEndMobile, dayFrom, dayTo, confetti };
         }
       }
       cleaned = Object.keys(out).length ? out : null;

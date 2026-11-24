@@ -70,6 +70,7 @@ export default function SpecialsAdminPage() {
       scratch: r.scratch,
       slot: r.slot,
       flipCard: r.flipCard,
+      scratchText: r.scratchText,
       category: r.category,
       knockoutPhase: r.knockoutPhase,
       translations: r.translations,

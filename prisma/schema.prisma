@@ -50,6 +50,7 @@ model SpecialPromotion {
   scratch       Boolean  @default(false)
   slot          Boolean  @default(false) // otkrivanje slot mašinom (isključuje scratch)
   flipCard      Boolean  @default(false) // kartica sa slikom koja se okreće na detalje (sama ili posle grebanja)
+  scratchText   String? // natpis na srećki pre grebanja (novogodišnja tema)
   knockoutPhase String?
 
   translations Json?
@@ -72,6 +73,7 @@ model WeeklyPlan {
   scratch     Boolean  @default(false)
   slot        Boolean  @default(false) // otkrivanje slot mašinom (isključuje scratch)
   flipCard    Boolean  @default(false) // kartica sa slikom koja se okreće na detalje (sama ili posle grebanja)
+  scratchText String? // natpis na srećki pre grebanja (novogodišnja tema)
 
   translations Json?
   category     PromoCategory @default(ALL)

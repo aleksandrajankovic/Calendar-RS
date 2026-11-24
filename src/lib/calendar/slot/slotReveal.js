@@ -144,11 +144,12 @@ function drawSpark(ctx, p, elapsed) {
   ctx.restore();
 }
 
-function launchConfetti(root) {
+// Zlatne konfete (folija + iskre) sa obe strane okvira `dialog`. Koristi ih slot, a i grebalica
+// kad je u adminu izabran stil "Gold foil (slot reveal)". Vraća funkciju za prekid.
+export function launchGoldConfetti(dialog) {
   const canvas = document.createElement("canvas");
   canvas.className = "slot-confetti";
   canvas.setAttribute("aria-hidden", "true");
-  const dialog = root.offsetParent || root;
   (dialog.parentElement || document.body).prepend(canvas);
   const ctx = canvas.getContext("2d");
   const ratio = Math.min(devicePixelRatio || 1, 2);
@@ -308,7 +309,7 @@ export function initSlot({ alreadyOpened = false, confetti = true, onStopped = (
     root.classList.remove("slot-spinning");
     root.classList.add("slot-stopped");
     onStopped();
-    if (!reduced && confetti) stopConfetti = launchConfetti(root);
+    if (!reduced && confetti) stopConfetti = launchGoldConfetti(root.offsetParent || root);
     timer = setTimeout(() => showPromo(root, onRevealed, reduced), reduced ? 0 : HIGHLIGHT_MS);
   }
   button.addEventListener("click", spin);

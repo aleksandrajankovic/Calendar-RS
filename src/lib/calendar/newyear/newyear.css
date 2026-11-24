@@ -1,0 +1,451 @@
+/* Novogodišnja tema („Današnji poklon“): kartica dana, traka sa danima, pop-up i srećka.
+   Sve klase imaju prefiks ny-, pa ne utiču na ostale teme. */
+
+.ny {
+  --ny-gold: linear-gradient(105deg, #7d5f24 0%, #b8924a 18%, #fff1c2 42%, #d9b060 62%, #86662a 100%);
+  --ny-ink: #140b2e;
+  width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+  color: #fff;
+}
+.ny-empty { text-align: center; color: #fff; opacity: .8; padding: 40px 0; }
+
+/* ---------- kartica dana ---------- */
+.ny-hero {
+  position: relative;
+  display: grid;
+  grid-template-areas: "tag date" "gift gift" "text text" "cta cta";
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  width: 100%;
+  padding: 16px;
+  border-radius: 28px;
+  overflow: hidden;
+  text-align: left;
+  color: #fff;
+  background: linear-gradient(160deg, rgba(255, 255, 255, .15), rgba(255, 255, 255, .04));
+  border: 1px solid rgba(255, 255, 255, .2);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 20px 50px rgba(10, 0, 30, .55), inset 0 1px 0 rgba(255, 255, 255, .2);
+  cursor: pointer;
+  animation: ny-in .35s ease-out;
+  -webkit-tap-highlight-color: transparent;
+}
+.ny-hero:disabled { cursor: default; }
+.ny-hero:focus-visible { outline: 2px solid #f5c451; outline-offset: 3px; }
+@keyframes ny-in { from { opacity: 0; transform: translateY(8px) scale(.98); } }
+
+.ny-hero__glow {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 320px;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, rgba(255, 214, 120, .55), rgba(255, 170, 60, .12) 60%, transparent);
+  pointer-events: none;
+}
+.ny-hero.is-locked .ny-hero__glow,
+.ny-hero.is-empty .ny-hero__glow { opacity: .25; }
+.ny-hero__ghost { opacity: .3; filter: grayscale(.7) !important; }
+.ny-hero.is-opened .ny-hero__glow { opacity: .6; }
+
+.ny-hero__tag {
+  grid-area: tag;
+  position: relative;
+  justify-self: start;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font: 800 11px/1 system-ui, sans-serif;
+  letter-spacing: .14em;
+  color: var(--ny-ink);
+  background: linear-gradient(105deg, #7d5f24, #b8924a 20%, #ecd9a6 45%, #c6a15b 65%, #86662a);
+}
+.ny-hero.is-locked .ny-hero__tag,
+.ny-hero.is-missed .ny-hero__tag { color: #fff; background: rgba(255, 255, 255, .14); }
+
+.ny-hero__date {
+  grid-area: date;
+  position: relative;
+  text-align: right;
+  font-size: 34px;
+  line-height: 1;
+}
+.ny-hero__date small {
+  display: block;
+  margin-top: 4px;
+  font: 600 11px system-ui, sans-serif;
+  letter-spacing: .14em;
+  opacity: .6;
+}
+
+.ny-hero__gift {
+  grid-area: gift;
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 190px;
+  margin: 4px 0 10px;
+}
+.ny-hero__gift img {
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 24px rgba(0, 0, 0, .45));
+  transform: rotate(-3deg);
+  user-select: none;
+}
+.ny-hero.is-today .ny-hero__gift img,
+.ny-hero.is-preview .ny-hero__gift img,
+.ny-hero.is-missed .ny-hero__gift img { animation: ny-bob 2.2s ease-in-out infinite; }
+.ny-hero.is-locked .ny-hero__gift img { filter: grayscale(.5) brightness(.55) drop-shadow(0 18px 24px rgba(0, 0, 0, .45)); }
+.ny-hero__lock { position: absolute; width: 44px; color: #e9e4ff; filter: drop-shadow(0 3px 8px rgba(0, 0, 0, .7)); }
+@keyframes ny-bob {
+  0%, 100% { transform: rotate(-3deg) translateY(0); }
+  50% { transform: rotate(-3deg) translateY(-8px); }
+}
+
+.ny-hero__text { grid-area: text; position: relative; display: flex; flex-direction: column; gap: 4px; text-align: center; }
+.ny-hero__title { font-size: 22px; line-height: 1.1; }
+.ny-hero__sub { font-size: 13px; opacity: .72; }
+
+.ny-hero__cta {
+  grid-area: cta;
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 54px;
+  margin-top: 14px;
+  border-radius: 16px;
+  font: 800 15px system-ui, sans-serif;
+  letter-spacing: .08em;
+  color: var(--ny-ink);
+  background: var(--ny-gold);
+  box-shadow: 0 10px 24px rgba(255, 190, 80, .35), inset 0 1px 0 rgba(255, 255, 255, .6);
+  transition: filter .15s, transform .15s;
+}
+.ny-hero:not(:disabled):hover .ny-hero__cta { filter: brightness(1.08); }
+.ny-hero:not(:disabled):active .ny-hero__cta { transform: scale(.98); }
+.ny-hero.is-locked .ny-hero__cta,
+.ny-hero.is-empty .ny-hero__cta { color: rgba(255, 255, 255, .7); background: rgba(255, 255, 255, .1); box-shadow: none; }
+.ny-hero.is-empty .ny-hero__tag { color: #fff; background: rgba(255, 255, 255, .14); }
+.ny-hero.is-opened .ny-hero__cta { color: #fff; background: rgba(255, 255, 255, .14); box-shadow: inset 0 0 0 1px rgba(245, 196, 81, .55); }
+
+/* ---------- traka sa danima ---------- */
+.ny-strip-head {
+  margin: 22px 4px 10px;
+  font: 700 12px system-ui, sans-serif;
+  letter-spacing: .14em;
+  opacity: .65;
+}
+.ny-strip-wrap { display: flex; align-items: center; gap: 10px; }
+.ny-arrow {
+  display: none;
+  flex: 0 0 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+  background: rgba(255, 255, 255, .1);
+  border: 1px solid rgba(255, 255, 255, .16);
+  cursor: pointer;
+}
+.ny-arrow:hover { background: rgba(255, 255, 255, .18); }
+.ny-strip {
+  flex: 1;
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  padding: 4px 2px 8px;
+  /* traka ide do ivice ekrana na telefonu */
+  margin: 0 -16px;
+  padding-inline: 16px;
+}
+.ny-strip::-webkit-scrollbar { display: none; }
+
+.ny-chip {
+  position: relative;
+  flex: 0 0 68px;
+  height: 92px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 8px;
+  border-radius: 18px;
+  color: #fff;
+  background: rgba(255, 255, 255, .07);
+  border: 1px solid rgba(255, 255, 255, .13);
+  scroll-snap-align: center;
+  cursor: pointer;
+  transition: transform .15s, background .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.ny-chip:active { transform: scale(.95); }
+.ny-chip:first-child { margin-left: auto; }
+.ny-chip:last-child { margin-right: auto; }
+.ny-chip img {
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+  transform: translateX(-50%);
+}
+.ny-chip b { font-size: 16px; line-height: 1.1; }
+.ny-chip small { font: 600 9px system-ui, sans-serif; letter-spacing: .12em; opacity: .6; }
+.ny-chip__lock { position: absolute; top: 18px; left: 50%; width: 22px; transform: translateX(-50%); color: rgba(255, 255, 255, .8); }
+.ny-chip.is-locked { opacity: .5; }
+.ny-chip.is-empty { opacity: .4; }
+.ny-chip__dot { position: absolute; top: 26px; left: 50%; width: 10px; height: 10px; border-radius: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, .45); }
+.ny-chip.is-missed img { filter: grayscale(.6) brightness(.7); }
+.ny-chip.is-opened { background: rgba(245, 196, 81, .08); }
+.ny-chip.is-opened::after {
+  content: "✓";
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  font: 900 10px/16px system-ui, sans-serif;
+  text-align: center;
+  color: var(--ny-ink);
+  background: #f5c451;
+}
+.ny-chip.is-selected {
+  opacity: 1;
+  border-color: rgba(245, 196, 81, .9);
+  background: rgba(245, 196, 81, .16);
+  box-shadow: 0 0 0 1px rgba(245, 196, 81, .5), 0 0 18px rgba(245, 196, 81, .35);
+}
+
+/* ---------- desktop: kartica položena, traka sa strelicama ---------- */
+@media (min-width: 768px) {
+  .ny-hero {
+    /* oznaka i tekst vertikalno centrirani između poklona i dugmeta */
+    grid-template-areas: "gift . cta" "gift tag cta" "gift text cta" "gift . cta";
+    grid-template-columns: 230px 1fr auto;
+    grid-template-rows: 1fr auto auto 1fr;
+    column-gap: 28px;
+    row-gap: 10px;
+    align-items: center;
+    padding: 18px 36px 18px 18px;
+    min-height: 220px;
+  }
+  .ny-hero__glow { left: 140px; top: 50%; width: 340px; }
+  .ny-hero__date { display: none; }
+  .ny-hero__tag { align-self: end; }
+  .ny-hero__cta { align-self: center; }
+  .ny-hero__gift { height: 190px; margin: 0; }
+  .ny-hero__gift img { width: 190px; height: 190px; }
+  .ny-hero__text { align-self: start; text-align: left; }
+  .ny-hero__title { font-size: 32px; }
+  .ny-hero__sub { font-size: 15px; }
+  .ny-hero__cta { margin: 0; height: 60px; padding: 0 34px; font-size: 16px; white-space: nowrap; }
+  .ny-arrow { display: grid; place-items: center; }
+  .ny-strip { margin: 0; padding-inline: 2px; }
+  .ny-chip { flex: 1 0 96px; max-width: 120px; height: 108px; }
+  .ny-chip img { width: 56px; height: 56px; }
+  .ny-chip b { font-size: 18px; }
+}
+
+/* ---------- kompaktno kad kalendar ne staje na ekran ----------
+   Klase is-compact / is-tight uključuje CalendarNewYear (usePlaceOnVisual) prema stvarnom prostoru
+   ispod naslova na vizualu — ne prema fiksnoj veličini ekrana. */
+@media (min-width: 768px) {
+  .ny.is-compact .ny-hero {
+    grid-template-columns: 150px 1fr auto;
+    min-height: 0;
+    padding: 10px 28px 10px 10px;
+    border-radius: 24px;
+  }
+  .ny.is-compact .ny-hero__glow { left: 85px; width: 230px; }
+  .ny.is-compact .ny-hero__gift { height: 128px; }
+  .ny.is-compact .ny-hero__gift img { width: 124px; height: 124px; }
+  .ny.is-compact .ny-hero__title { font-size: 26px; }
+  .ny.is-compact .ny-hero__sub { font-size: 13px; }
+  .ny.is-compact .ny-hero__cta { height: 50px; padding: 0 26px; font-size: 14px; }
+  .ny.is-compact .ny-strip-head { margin: 12px 4px 6px; }
+  .ny.is-compact .ny-chip { height: 82px; }
+  .ny.is-compact .ny-chip img { width: 42px; height: 42px; top: 6px; }
+  .ny.is-compact .ny-chip b { font-size: 15px; }
+  .ny.is-compact .ny-arrow { flex-basis: 34px; height: 34px; }
+
+  .ny.is-tight .ny-hero { grid-template-columns: 110px 1fr auto; padding: 6px 22px 6px 6px; }
+  .ny.is-tight .ny-hero__glow { left: 62px; width: 170px; }
+  .ny.is-tight .ny-hero__gift { height: 96px; }
+  .ny.is-tight .ny-hero__gift img { width: 92px; height: 92px; }
+  .ny.is-tight .ny-hero__title { font-size: 22px; }
+  .ny.is-tight .ny-hero__sub { display: none; }
+  .ny.is-tight .ny-hero__cta { height: 44px; }
+  .ny.is-tight .ny-strip-head { display: none; }
+  .ny.is-tight .ny-strip-wrap { margin-top: 10px; }
+  .ny.is-tight .ny-chip { height: 72px; }
+  .ny.is-tight .ny-chip img { width: 36px; height: 36px; top: 5px; }
+}
+
+@media (max-width: 767px) {
+  .ny.is-compact .ny-hero { padding: 12px 14px; }
+  .ny.is-compact .ny-hero__date { font-size: 26px; }
+  .ny.is-compact .ny-hero__date small { font-size: 10px; }
+  .ny.is-compact .ny-hero__gift { height: 112px; margin: -14px 0 4px; }
+  .ny.is-compact .ny-hero__gift img { width: 108px; height: 108px; }
+  .ny.is-compact .ny-hero__title { font-size: 19px; }
+  .ny.is-compact .ny-hero__sub { font-size: 12px; }
+  .ny.is-compact .ny-hero__cta { height: 46px; margin-top: 10px; font-size: 14px; }
+  .ny.is-compact .ny-strip-head { margin: 12px 4px 6px; }
+  .ny.is-compact .ny-chip { height: 80px; flex-basis: 62px; }
+  .ny.is-compact .ny-chip img { width: 38px; height: 38px; }
+
+  /* najmanje mesta: datum i oznaka u jednom redu sa poklonom, bez sporednog teksta */
+  .ny.is-tight .ny-hero {
+    grid-template-areas: "gift tag" "gift date" "gift text" "cta cta";
+    grid-template-columns: 112px 1fr;
+    column-gap: 12px;
+    align-items: center;
+    padding: 12px;
+  }
+  .ny.is-tight .ny-hero__glow { left: 68px; width: 200px; }
+  .ny.is-tight .ny-hero__gift { height: 104px; margin: 0; }
+  .ny.is-tight .ny-hero__gift img { width: 104px; height: 104px; }
+  .ny.is-tight .ny-hero__date { text-align: left; font-size: 24px; }
+  .ny.is-tight .ny-hero__date small { display: inline; margin-left: 6px; }
+  .ny.is-tight .ny-hero__text { text-align: left; }
+  .ny.is-tight .ny-hero__title { font-size: 17px; }
+  .ny.is-tight .ny-hero__sub { display: none; }
+  .ny.is-tight .ny-hero__cta { height: 44px; margin-top: 10px; }
+  .ny.is-tight .ny-strip-head { margin: 10px 4px 6px; }
+  .ny.is-tight .ny-chip { height: 76px; }
+  .ny.is-tight .ny-chip img { width: 36px; height: 36px; top: 5px; }
+}
+
+/* ---------- pop-up ---------- */
+#promo-modal.ny-modal { background: rgba(8, 3, 22, .64); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+#promo-dialog.ny-dialog {
+  color: #fff;
+  background: linear-gradient(170deg, #2b1160 0%, #170735 60%, #12052b 100%);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, .7), inset 0 1px 0 rgba(255, 255, 255, .15);
+  border-radius: 30px;
+}
+#promo-dialog.ny-dialog #promo-close {
+  z-index: 3;
+  width: 36px;
+  height: 36px;
+  color: rgba(255, 255, 255, .8);
+  background: rgba(255, 255, 255, .1);
+}
+@media (min-width: 768px) {
+  #promo-dialog.ny-dialog { padding: 28px; }
+  #promo-dialog.ny-dialog:has(.ny-scratch) { max-width: 880px; }
+}
+/* telefon: panel odozdo */
+@media (max-width: 767px) {
+  #promo-modal.ny-modal { padding: 0; }
+  #promo-modal.ny-modal > div { align-items: flex-end; }
+  #promo-dialog.ny-dialog {
+    max-width: none;
+    max-height: 90dvh;
+    border-radius: 30px 30px 0 0;
+    padding: 14px 20px calc(24px + env(safe-area-inset-bottom));
+  }
+  #promo-dialog.ny-dialog::before {
+    content: "";
+    display: block;
+    flex: none;
+    width: 44px;
+    height: 5px;
+    margin: 0 auto 4px;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, .3);
+  }
+  #promo-dialog.ny-dialog #promo-close { top: 18px; right: 16px; }
+}
+
+/* ---------- srećka u pop-upu ---------- */
+.ny-scratch {
+  display: grid;
+  grid-template-areas: "head" "card" "info";
+  gap: 16px;
+}
+.ny-scratch__head { grid-area: head; display: flex; align-items: center; gap: 12px; padding-right: 44px; }
+.ny-scratch__head img { width: 54px; height: 54px; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .4)); }
+.ny-scratch__title { font: 700 20px/1.1 var(--font-rowdies), system-ui, sans-serif; }
+.ny-scratch__date { margin-top: 4px; font: 700 10px system-ui, sans-serif; letter-spacing: .16em; color: #f5c451; }
+
+.ny-card {
+  grid-area: card;
+  position: relative;
+  aspect-ratio: 16 / 10;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #241046;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, .45);
+  line-height: 0;
+}
+.ny-card > img.ny-card__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* bez metle (globals.css #scratch-canvas) — ovde greba samo bombona (.ny-tool) */
+#scratch-canvas[data-theme="newyear"] { cursor: none; }
+.ny-card__noimg { position: absolute; inset: 0; display: grid; place-items: center; font: 600 14px system-ui; color: rgba(255, 255, 255, .6); }
+/* bombona kojom se greba — prati prst/miš (initScratch) */
+.ny-tool {
+  position: absolute;
+  z-index: 20;
+  left: 0;
+  top: 0;
+  width: 48px;
+  height: 90px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .15s;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .45));
+  will-change: transform;
+}
+.ny-tool.is-on { opacity: 1; }
+
+.ny-scratch__info { grid-area: info; display: flex; flex-direction: column; }
+.ny-hint { text-align: center; font: 600 12px system-ui, sans-serif; opacity: .65; }
+.ny-reveal h2 { font: 700 22px/1.15 var(--font-rowdies), system-ui, sans-serif; }
+.ny-reveal .ny-cat { margin-top: 6px; font: 800 10px system-ui, sans-serif; letter-spacing: .16em; color: #f5c451; }
+.ny-reveal .ny-rest { margin-top: 10px; font-size: 14px; line-height: 1.5; color: rgba(255, 255, 255, .86); }
+.ny-reveal .ny-rest p { margin-bottom: 8px; }
+.ny-reveal .ny-rest p:last-child { margin-bottom: 0; }
+.ny-reveal .ny-rest strong { font-weight: 600; }
+.ny-reveal .ny-rest ul { list-style: disc; padding-left: 20px; }
+.ny-cta {
+  display: grid;
+  place-items: center;
+  height: 54px;
+  margin-top: 16px;
+  border-radius: 16px;
+  font: 800 14px system-ui, sans-serif;
+  letter-spacing: .08em;
+  color: #140b2e;
+  background: linear-gradient(105deg, #7d5f24 0%, #b8924a 18%, #fff1c2 42%, #d9b060 62%, #86662a 100%);
+  box-shadow: 0 10px 24px rgba(255, 190, 80, .35), inset 0 1px 0 rgba(255, 255, 255, .6);
+  transition: filter .15s;
+}
+.ny-cta:hover { filter: brightness(1.08); }
+
+@media (min-width: 768px) {
+  .ny-scratch {
+    grid-template-areas: "card head" "card info";
+    grid-template-columns: 440px 1fr;
+    grid-template-rows: auto 1fr;
+    column-gap: 28px;
+    row-gap: 18px;
+  }
+  .ny-scratch__title { font-size: 26px; }
+  .ny-card { align-self: start; }
+  .ny-hint { text-align: left; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ny-hero, .ny-hero__gift img { animation: none !important; }
+}

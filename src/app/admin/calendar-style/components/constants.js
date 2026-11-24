@@ -13,4 +13,5 @@ export const THEME_OPTIONS = [
   { value: "default", label: "Default (vertical)" },
   { value: "default-horizontal", label: "Default (horizontal)" },
   { value: "football", label: "⚽ Football" },
+  { value: "newyear", label: "🎄 New Year (gift of the day)" },
 ];

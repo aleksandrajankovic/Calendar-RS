@@ -11,6 +11,7 @@
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
     "@prisma/client": "^6.18.0",
+    "@rive-app/canvas": "^2.51.0",
     "@tiptap/extension-code-block": "^3.9.1",
     "@tiptap/extension-emoji": "^3.9.1",
     "@tiptap/extension-heading": "^3.9.1",

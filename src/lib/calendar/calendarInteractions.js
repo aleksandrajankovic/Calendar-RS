@@ -1,6 +1,7 @@
 // src/lib/calendarInteractions.js
 import { attachFlipListener, initScratch } from "./scratch/initScratch";
 import { initSlot } from "./slot/slotReveal";
+import { giftOpenApplies, playGiftOpen, prepareGiftOpen, showOpenedGifts } from "./giftOpen/giftOpen";
 import { markDayOpened } from "@/lib/calendar/calendarProgress";
 import { renderModalHTML } from "@/lib/calendar/promoModalHtml";
 import { monthHref } from "@/lib/calendar/calendarUrls";
@@ -12,6 +13,10 @@ import { track, disableTracking } from "@/lib/calendar/track";
 export function initCalendarInteractions(rootSelector = "#calendar-root", { openDay, adminPreview = false } = {}) {
   const root = document.querySelector(rootSelector);
   if (!root) return;
+  // Samo jednom po stranici: u dev režimu React (StrictMode) pokreće efekat dvaput, pa bi
+  // svaki klik otvarao pop-up dvaput, a zatvaranje vraćalo adresu promocije umesto meseca
+  if (root.dataset.interactionsReady) return;
+  root.dataset.interactionsReady = "1";
 
   const dataEl = root.querySelector("#calendar-data");
   if (!dataEl) return;
@@ -43,6 +48,9 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
   }
 
   let isOpen = false;
+  let giftBusy = false; // poklon se upravo otvara — ignoriši nove klikove
+  prepareGiftOpen(days);
+  showOpenedGifts(root, days);
   let previousUrl = null;
   let currentEntry = null;
   let disposeSlot = () => {};
@@ -88,15 +96,17 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
       "opacity-0", "translate-y-4", "scale-95"
     );
 
+    // novogodišnja tema na telefonu: panel klizi odozdo umesto da se uveća na sredini
+    const sheet = modal.classList.contains("ny-modal") && matchMedia("(max-width: 767px)").matches;
     dialog.style.opacity = "0";
-    dialog.style.transform = "scale(0.85)";
+    dialog.style.transform = sheet ? "translateY(60%)" : "scale(0.85)";
     dialog.style.transition =
       "opacity 300ms cubic-bezier(0.34,1.56,0.64,1), transform 300ms cubic-bezier(0.34,1.56,0.64,1)";
 
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         dialog.style.opacity = "1";
-        dialog.style.transform = "scale(1)";
+        dialog.style.transform = sheet ? "translateY(0)" : "scale(1)";
         setTimeout(() => {
           dialog.style.transition = "";
           dialog.style.opacity = "";
@@ -217,7 +227,21 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
 
     const day = Number(btn.getAttribute("data-day"));
     const entry = days.find((d) => d.day === day);
-    if (!entry || !entry.hasPromo) return;
+    if (!entry || !entry.hasPromo || giftBusy) return;
+
+    // grebalica: poklon (ikonica) se prvo otvori, pa iskoči pop-up
+    if (giftOpenApplies(entry)) {
+      const started = playGiftOpen(btn, {
+        onReveal: () => {
+          giftBusy = false;
+          openModal(entry, { overlayFadeDuration: 200 });
+        },
+      });
+      if (started) {
+        giftBusy = true;
+        return;
+      }
+    }
 
     animatePressClick(btn, entry);
   });

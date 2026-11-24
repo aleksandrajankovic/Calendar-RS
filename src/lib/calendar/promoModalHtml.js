@@ -1,7 +1,7 @@
 // src/lib/promoModalHtml.js
 // Čisto renderovanje HTML-a za promo modal — bez DOM zavisnosti, pa radi
 // identično i na serveru (SSR sadržaj za otvoreni dan) i na klijentu (klik).
-import { extractFirstImg, flipHintText, renderFlipFaces, renderScratchModal } from "./scratch/renderScratchModal";
+import { extractFirstImg, flipHintText, renderFlipFaces, renderScratchModal, renderScratchNewYear } from "./scratch/renderScratchModal";
 import { firstImage, renderSlotModal } from "./slot/slotReveal";
 import { getExclusiveBadgeLabel } from "@/lib/calendar/promoCategoryStyles";
 import { esc } from "./escapeHtml";
@@ -176,6 +176,22 @@ export function renderModalHTML(entry, lang = "sr", theme = "default") {
     const shareKey =
       entry?.shareUrl ||
       `${entry?.year}-${entry?.month}-${entry?.day}-${type || "promo"}`;
+
+    if (theme === "newyear") {
+      return renderScratchNewYear({
+        title,
+        richHtml,
+        link,
+        button: defaultButtonLabel,
+        lang,
+        shareKey,
+        year: entry?.year,
+        month: entry?.month,
+        day: entry?.day,
+        category: entry?.category,
+        scratchText: entry?.scratchText || promo?.scratchText,
+      });
+    }
 
     return renderScratchModal({
       title,

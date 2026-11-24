@@ -3,8 +3,9 @@
 // Bez DOM zavisnosti, pa ga koriste i API (provera unosa) i kalendar (izbor stila).
 
 export const CONFETTI_STYLES = [
-  { value: "theme", label: "By theme", hint: "Football theme: balls, other themes: classic" },
+  { value: "theme", label: "By theme", hint: "Football theme: balls, New Year theme: Christmas, other themes: classic" },
   { value: "classic", label: "Classic", hint: "Colorful paper confetti" },
+  { value: "gold", label: "✨ Gold foil (slot reveal)", hint: "Shimmering gold foil and sparkles bursting from both sides — the same effect as the slot reveal" },
   { value: "football", label: "⚽ Football", emoji: ["⚽", "🟡"] },
   { value: "halloween", label: "🎃 Halloween", emoji: ["🎃", "🍬", "🍭", "👻", "🦇"] },
   { value: "christmas", label: "🎄 Christmas", emoji: ["❄️", "🎁", "⭐", "🎄", "🔔"] },
@@ -38,7 +39,7 @@ export function sanitizeConfetti(raw) {
 export function resolveConfetti({ monthConfetti, globalConfetti, theme }) {
   const chosen = sanitizeConfetti(monthConfetti) || sanitizeConfetti(globalConfetti) || { style: "theme" };
   if (chosen.style !== "theme") return chosen;
-  return { style: theme === "football" ? "football" : "classic" };
+  return { style: theme === "football" ? "football" : theme === "newyear" ? "christmas" : "classic" };
 }
 
 // Lista emoji-ja za stil (prvi se ponavlja, pa se pojavljuje najčešće); [] = klasične papirne konfete

@@ -196,3 +196,86 @@ export function renderScratchModal({
   </div>
   `;
 }
+
+// Novogodišnja tema: zlatna srećka sa natpisom (odluka dana) preko slike zadatka.
+// Telefon: naslov, srećka, detalji jedno ispod drugog; desktop: srećka levo, sve ostalo desno (newyear.css).
+const NY_MONTHS = ["januar", "februar", "mart", "april", "maj", "jun", "jul", "avgust", "septembar", "oktobar", "novembar", "decembar"];
+
+export function renderScratchNewYear({
+  title: rawTitle,
+  richHtml,
+  link: rawLink,
+  button: rawButton,
+  lang,
+  shareKey,
+  year,
+  month,
+  day,
+  category,
+  scratchText,
+}) {
+  const title = esc(rawTitle);
+  const link = esc(rawLink);
+  const button = esc(rawButton);
+  const { imgSrc, restHtml } = extractFirstImg(richHtml);
+  const categoryLabel = getExclusiveBadgeLabel(category, lang);
+  const canOpen = link && link !== "#";
+  const sr = lang === "sr";
+
+  const hasText = !!(scratchText && String(scratchText).trim());
+  const cardText = hasText ? String(scratchText).trim() : sr ? "OGREBI ME!" : "SCRATCH ME!";
+  const kicker = hasText ? (sr ? "MOJA NOVOGODIŠNJA ODLUKA" : "MY NEW YEAR'S RESOLUTION") : sr ? "IZNENAĐENJE DANA" : "SURPRISE OF THE DAY";
+  const sub = hasText ? (sr ? "OGREBI I OTKRIJ ZADATAK" : "SCRATCH TO REVEAL THE TASK") : sr ? "OGREBI I OTKRIJ PROMOCIJU" : "SCRATCH TO REVEAL";
+  const headTitle = hasText ? (sr ? "Odluka dana" : "Resolution of the day") : sr ? "Iznenađenje dana" : "Surprise of the day";
+  const dateLabel = day && month != null ? `${day}. ${(NY_MONTHS[month] || "").toUpperCase()}` : "";
+
+  return `
+  <div class="ny-scratch">
+    <div class="ny-scratch__head">
+      <img src="/rive/poklon-otvoren.webp" alt="" />
+      <div>
+        <div class="ny-scratch__title">${headTitle}</div>
+        ${dateLabel ? `<div class="ny-scratch__date">${dateLabel}</div>` : ""}
+      </div>
+    </div>
+
+    <div class="ny-card">
+      ${
+        imgSrc
+          ? `<img class="ny-card__img" src="${imgSrc}" alt="" />`
+          : `<div class="ny-card__noimg">${sr ? "Nema slike" : "No image"}</div>`
+      }
+      <canvas
+        id="scratch-canvas"
+        data-key="${esc(shareKey || "default")}"
+        data-cover-style="gold"
+        data-cover-text="${esc(cardText)}"
+        data-cover-kicker="${esc(kicker)}"
+        data-cover-sub="${esc(sub)}"
+        data-threshold="0.35"
+        data-brush="64"
+        data-theme="newyear"
+        data-year="${year ?? ""}"
+        data-month="${month ?? ""}"
+        data-day="${day ?? ""}"
+        class="absolute -inset-px z-10 block touch-none select-none"
+        style="width:calc(100% + 2px); height:calc(100% + 2px); background:linear-gradient(115deg,#8a6420,#d8ad55 22%,#fff0c0 40%,#e2b85e 58%,#9b7124 80%,#d9ae58)"
+      ></canvas>
+      <img class="ny-tool" src="/img/grebalica.png" alt="" aria-hidden="true" />
+    </div>
+
+    <div class="ny-scratch__info">
+      <div id="scratch-hint" class="ny-hint">${sr ? "Prevuci prstom preko zlatne srećke" : "Swipe over the gold card"}</div>
+
+      <div
+        id="scratch-reveal"
+        class="ny-reveal overflow-hidden max-h-0 opacity-0 translate-y-2 pointer-events-none transition-all duration-500 ease-out"
+      >
+        <h2>${title}</h2>
+        ${categoryLabel ? `<div class="ny-cat">${categoryLabel}</div>` : ""}
+        ${restHtml ? `<div class="ny-rest">${restHtml}</div>` : ""}
+        ${canOpen ? `<a href="${link}" data-track="cta" target="_blank" rel="noreferrer" class="ny-cta">${button}</a>` : ""}
+      </div>
+    </div>
+  </div>`;
+}

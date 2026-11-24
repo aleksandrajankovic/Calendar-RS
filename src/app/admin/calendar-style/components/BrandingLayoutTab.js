@@ -97,7 +97,7 @@ export default function BrandingLayoutTab({
     () => Object.keys(monthBackgrounds).filter((k) => {
       const v = monthBackgrounds[k];
       return v?.desktop || v?.mobile || v?.position || v?.titleSr || v?.inactive || v?.theme
-        || v?.topOffset || v?.topOffsetMobile || v?.dayFrom || v?.dayTo || v?.confetti;
+        || v?.topOffset || v?.topOffsetMobile || v?.titleEnd || v?.titleEndMobile || v?.dayFrom || v?.dayTo || v?.confetti;
     }),
     [monthBackgrounds]
   );
@@ -391,6 +391,25 @@ export default function BrandingLayoutTab({
             </div>
           </div>
 
+          {currentBg.theme === "newyear" && (
+            <div className="pt-4 border-t border-neutral-100">
+              <p className="text-sm font-medium text-neutral-800 mb-1">Title on the background ends at</p>
+              <p className="text-xs text-neutral-400 mb-2">
+                New Year theme. If the background image has its own title, enter where the title (with subtitle) ends,
+                as % of the image height — the calendar is placed right below it on every screen. Leave 0 if the image
+                has no title: the calendar is centered. Replaces &quot;Space above calendar&quot; for this theme.
+              </p>
+              <div className="flex items-center gap-2 text-sm text-neutral-500">
+                <span>Desktop</span>
+                <NumberInput min={0} max={80} placeholder="0" value={currentBg.titleEnd} onChange={(v) => setField("titleEnd", v)} />
+                <span>%</span>
+                <span className="ml-3">Mobile</span>
+                <NumberInput min={0} max={80} placeholder="0" value={currentBg.titleEndMobile} onChange={(v) => setField("titleEndMobile", v)} />
+                <span>%</span>
+              </div>
+            </div>
+          )}
+
           <div className="pt-4 border-t border-neutral-100">
             <p className="text-sm font-medium text-neutral-800 mb-1">Space above calendar</p>
             <p className="text-xs text-neutral-400 mb-2">
@@ -531,12 +550,14 @@ export default function BrandingLayoutTab({
                 const tags = [
                   bg.inactive && "⚠ deactivated",
                   bg.theme === "football" && "⚽ football",
+                  bg.theme === "newyear" && "🎄 new year",
                   bg.theme === "default-horizontal" && "↔ horizontal",
                   bg.titleSr && "title",
                   bg.position && `position: ${bg.position}`,
                   (bg.dayFrom || bg.dayTo) && `days: ${bg.dayFrom || 1}–${bg.dayTo || 31}`,
                   bg.topOffset && `space above: ${bg.topOffset}%`,
                   bg.topOffsetMobile && `space above (mobile): ${bg.topOffsetMobile}%`,
+                  (bg.titleEnd || bg.titleEndMobile) && `title ends: ${bg.titleEnd || 0}% / ${bg.titleEndMobile || 0}% (mobile)`,
                   bg.desktop && "desktop bg",
                   bg.mobile && "mobile bg",
                   bg.confetti && `confetti: ${bg.confetti.style === "custom" ? bg.confetti.emoji : bg.confetti.style}`,

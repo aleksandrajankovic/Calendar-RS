@@ -10,6 +10,9 @@ import { sanitizeSvg } from "@/lib/sanitize";
 
 const MAX_BYTES = 5 * 1024 * 1024; // 5MB
 const MAX_WIDTH = 1600;
+// Pozadine (Calendar Styling): do 4K, da budu oštre i na Retina ekranima (MacBook Pro, Studio Display).
+// Kalendar ih ionako servira preko next/image u veličini za ekran, pa telefon ne skida 4K original.
+const BACKGROUND_MAX_WIDTH = 3840;
 const QUALITY = 85;
 const RASTER_MIME = ["image/jpeg", "image/png", "image/webp"];
 const ALLOWED_MIME = [...RASTER_MIME, "image/svg+xml"];
@@ -24,6 +27,7 @@ export async function POST(req) {
     return new Response("No file", { status: 400 });
   }
 
+  const isBackground = form.get("kind") === "background";
   const mime = file.type || "";
   if (!ALLOWED_MIME.includes(mime)) {
     return new Response("Unsupported file type", { status: 415 });
@@ -56,7 +60,12 @@ export async function POST(req) {
   const fileNameWebp = `${baseName}-${hash}.webp`;
   const outPath = path.join(uploadsDir, fileNameWebp);
   await sharp(inputBuf)
-    .resize({ width: MAX_WIDTH, height: 2000, fit: "inside", withoutEnlargement: true })
+    .resize({
+      width: isBackground ? BACKGROUND_MAX_WIDTH : MAX_WIDTH,
+      height: isBackground ? 3840 : 2000,
+      fit: "inside",
+      withoutEnlargement: true,
+    })
     .webp({ quality: QUALITY })
     .toFile(outPath);
 

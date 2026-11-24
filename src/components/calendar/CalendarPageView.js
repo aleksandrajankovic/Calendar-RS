@@ -6,6 +6,7 @@ import CalendarEnhancer from "@/components/calendar/CalendarEnhancer";
 import MonthPagination from "@/components/calendar/MonthPagination";
 import SnowOverlay from "@/components/calendar/SnowOverlay";
 import AdminLogoutButton from "@/components/calendar/AdminLogoutButton";
+import AdminPanelCollapse from "@/components/calendar/AdminPanelCollapse";
 import CountdownTimer from "@/components/calendar/CountdownTimer";
 import CalendarClosed from "@/components/calendar/CalendarClosed";
 import { bebasNeue, exo2Black } from "@/app/fonts";
@@ -24,6 +25,7 @@ export default function CalendarPageView({
   calendarTitle,
   topOffset,
   topOffsetMobile,
+  visualTitleEnd,
   dayFrom,
   dayTo,
   theme,
@@ -102,8 +104,9 @@ export default function CalendarPageView({
           {/* BACKGROUND — desktop/mobile verzija preko <source media> */}
           <picture>
             <source media="(min-width: 768px)" srcSet={bgDesktopSrcSet} sizes="100vw" />
-            {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
-            <img {...bgMobileProps} className="pointer-events-none object-cover object-center -z-10 calendar-mobile-bg" />
+            {/* novogodišnja tema: slika se kači za vrh — višak se seče dole, a ne naslov sa vizuala */}
+            {/* eslint-disable-next-line jsx-a11y/alt-text */}
+            <img {...bgMobileProps} className={`pointer-events-none object-cover object-center -z-10 calendar-mobile-bg${theme === "newyear" ? " object-top" : ""}`} />
           </picture>
 
           <SnowOverlay />
@@ -134,43 +137,54 @@ export default function CalendarPageView({
 
             <CountdownTimer targetIso={countdownTargetIso} label={countdownLabel} />
 
+            {/* Admin info: plutajući panel dole desno (ne preko vizuala); klik na "Admin" ga skuplja */}
             {isAdmin && (
-              <div className="mt-2 flex flex-wrap items-center gap-2">
-                <div className="inline-flex items-center gap-2 rounded bg-amber-500/20 text-amber-200 px-3 py-1 text-sm">
-                  <span>Admin preview</span>
-                  <a
-                    href="/admin"
-                    className="underline hover:text-white transition-colors"
-                    title="Go to dashboard"
-                  >
-                    Dashboard
-                  </a>
-                  <AdminLogoutButton />
-                </div>
-                {isClosed && (
-                  <div className="inline-flex items-center gap-1.5 rounded bg-red-700/40 text-red-200 border border-red-500/40 px-3 py-1 text-sm">
-                    <span>⚠ Kalendar zatvoren — posetioci vide samo poruku</span>
-                    <Link href="/admin/calendar-style" className="underline hover:text-white transition-colors">
-                      Izmeni
+              <details
+                id="admin-panel"
+                open
+                className="group fixed bottom-4 right-4 z-[60] w-[min(300px,calc(100vw-32px))] rounded-xl border border-white/10 bg-neutral-950/90 text-sm text-white shadow-[0_10px_30px_rgba(0,0,0,0.6)] backdrop-blur"
+              >
+                <summary className="flex cursor-pointer list-none items-center gap-2 px-3 py-2 select-none [&::-webkit-details-marker]:hidden">
+                  <span className="h-2 w-2 rounded-full bg-amber-400" aria-hidden="true" />
+                  <span className="font-semibold text-amber-200">Admin</span>
+                  {(isClosed || isMonthInactive) && (
+                    <span className="rounded bg-red-600/80 px-1.5 text-[11px] font-semibold">!</span>
+                  )}
+                  <span className="ml-auto text-white/50 transition-transform group-open:rotate-180" aria-hidden="true">
+                    ▾
+                  </span>
+                </summary>
+                <div className="space-y-2 border-t border-white/10 px-3 py-2.5">
+                  <div className="flex items-center gap-3">
+                    <Link href="/admin" className="underline hover:text-amber-200 transition-colors" title="Go to dashboard">
+                      Dashboard
                     </Link>
+                    <AdminLogoutButton />
                   </div>
-                )}
-                {isMonthInactive && (
-                  <div className="inline-flex items-center gap-1.5 rounded bg-red-700/40 text-red-200 border border-red-500/40 px-3 py-1 text-sm">
-                    <span>⚠ Mesec deaktiviran — nije vidljiv korisnicima</span>
-                    <a
-                      href="/admin/calendar-style"
-                      className="underline hover:text-white transition-colors"
-                    >
-                      Izmeni
-                    </a>
-                  </div>
-                )}
-              </div>
+                  {isClosed && (
+                    <div className="rounded-lg border border-red-500/40 bg-red-700/40 px-2.5 py-1.5 text-red-100">
+                      ⚠ Kalendar zatvoren — posetioci vide samo poruku.{" "}
+                      <Link href="/admin/calendar-style" className="underline hover:text-white transition-colors">
+                        Izmeni
+                      </Link>
+                    </div>
+                  )}
+                  {isMonthInactive && (
+                    <div className="rounded-lg border border-red-500/40 bg-red-700/40 px-2.5 py-1.5 text-red-100">
+                      ⚠ Mesec deaktiviran — nije vidljiv korisnicima.{" "}
+                      <Link href="/admin/calendar-style" className="underline hover:text-white transition-colors">
+                        Izmeni
+                      </Link>
+                    </div>
+                  )}
+                </div>
+                <AdminPanelCollapse targetId="admin-panel" />
+              </details>
             )}
 
-            {/* MOBILE PAGINATION — skriva se za football temu (paginacija je unutar CalendarMobileFootball) */}
-            {theme !== "football" && (
+            {/* MOBILE PAGINATION — skriva se za football temu (paginacija je unutar CalendarMobileFootball),
+                a u novogodišnjoj ide ispod kalendara (gore bi pala preko naslova sa vizuala) */}
+            {theme !== "football" && theme !== "newyear" && (
               <div className="mt-6 flex items-center justify-center md:hidden">
                 <MonthPagination
                   year={year}
@@ -184,8 +198,9 @@ export default function CalendarPageView({
 
             <div
               className={`${theme === "football" ? "mt-2 md:mt-1" : "mt-6"}${
-                topOffset ? " md:[padding-top:var(--cal-top-offset)]" : ""
-              }${topOffsetMobile ? " max-md:[padding-top:var(--cal-top-offset-m)]" : ""}`}
+                // novogodišnja tema: desktop pozicija je automatska (ispod naslova sa vizuala, CalendarNewYear)
+                topOffset && theme !== "newyear" ? " md:[padding-top:var(--cal-top-offset)]" : ""
+              }${topOffsetMobile && theme !== "newyear" ? " max-md:[padding-top:var(--cal-top-offset-m)]" : ""}`}
               style={{
                 ...(topOffset && { "--cal-top-offset": `${topOffset}vh` }),
                 ...(topOffsetMobile && { "--cal-top-offset-m": `${topOffsetMobile}svh` }),
@@ -206,13 +221,14 @@ export default function CalendarPageView({
                 dayFrom={dayFrom}
                 dayTo={dayTo}
                 confetti={confetti}
+                visualTitleEnd={visualTitleEnd}
               />
             </div>
 
             <CalendarEnhancer adminPreview={isAdmin} lang={lang} openDay={openDay} />
 
             {/* DESKTOP PAGINATION */}
-            <div className={`hidden md:flex items-center justify-center ${theme === "football" ? "mt-4" : ""}`}>
+            <div className={`${theme === "newyear" ? "flex" : "hidden md:flex"} items-center justify-center ${theme === "football" ? "mt-4" : ""}`}>
               <MonthPagination
                 year={year}
                 month={month}

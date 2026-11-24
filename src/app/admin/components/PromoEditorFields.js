@@ -9,6 +9,7 @@ import { monthHref } from "@/lib/calendar/calendarUrls";
 import { isValidLink } from "@/lib/validate";
 import { confirmDialog } from "./ui/ConfirmDialog";
 import Button from "./ui/Button";
+import { SCRATCH_TEXT_MAX } from "@/lib/calendar/scratchText";
 
 export const WEEKDAY_LABELS = [
   "Monday",
@@ -308,6 +309,23 @@ export function EffectToggles({ form, setField }) {
           <span className="block text-xs text-neutral-400">The player scratches the cover to reveal the promotion.</span>
         </span>
       </label>
+      {form.scratch && (
+        <label className="block pl-6 text-sm text-neutral-800">
+          Scratch card text
+          <span className="block text-xs text-neutral-400 mb-1">
+            New Year theme: written on the gold card before scratching, e.g. &quot;IGRAM NA SIGURNO&quot;. Under the
+            card is the description image (the task). Leave empty for the default text.
+          </span>
+          <input
+            type="text"
+            maxLength={SCRATCH_TEXT_MAX}
+            value={form.scratchText ?? ""}
+            onChange={(e) => setField("scratchText", e.target.value)}
+            placeholder="IGRAM NA SIGURNO"
+            className="w-full border border-[#D0D0D0] rounded px-2.5 py-1.5 text-sm"
+          />
+        </label>
+      )}
       <label className="flex items-start gap-2 text-sm text-neutral-800">
         <input
           type="checkbox"

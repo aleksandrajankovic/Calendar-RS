@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
-export default function ImageGalleryModal({ onSelect, onClose }) {
+// uploadKind="background": pozadine se čuvaju do 4K (inače najviše 1600px širine)
+export default function ImageGalleryModal({ onSelect, onClose, uploadKind = null }) {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(null); // filename koji brišemo
@@ -60,6 +61,7 @@ export default function ImageGalleryModal({ onSelect, onClose }) {
     try {
       const fd = new FormData();
       fd.append("file", file);
+      if (uploadKind) fd.append("kind", uploadKind);
 
       const res = await fetch("/api/upload", {
         method: "POST",

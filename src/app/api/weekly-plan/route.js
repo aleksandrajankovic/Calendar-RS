@@ -6,6 +6,7 @@ import prisma from "@/lib/db";
 import { getAdminFromRequest } from "@/lib/auth";
 import { sanitizeRichHtml, sanitizeTranslations } from "@/lib/sanitize";
 import { sanitizeLink } from "@/lib/validate";
+import { sanitizeScratchText } from "@/lib/calendar/scratchText";
 
 const DEFAULT_LANG = "pt";
 
@@ -71,7 +72,7 @@ export async function PUT(req) {
   }
 
   const {
-    icon, link, buttonColor, active, scratch, slot, flipCard,
+    icon, link, buttonColor, active, scratch, slot, flipCard, scratchText,
     title, button, rich, richHtml,
     translations: rawTranslations, defaultLang, category,
   } = body;
@@ -93,6 +94,7 @@ export async function PUT(req) {
     scratch: !!scratch && !slot,
     slot: !!slot,
     flipCard: !!flipCard && !slot,
+    scratchText: sanitizeScratchText(scratchText),
     buttonColor: buttonColor || "green",
     translations: sanitizeTranslations(translations),
     category: category || "ALL",

@@ -7,8 +7,11 @@ import CalendarMobileVertical from "./CalendarMobileVertical";
 import CalendarDayBall from "./CalendarDayBall";
 import CalendarGhostBall from "./CalendarGhostBall";
 import CalendarMobileFootball from "./CalendarMobileFootball";
+import CalendarNewYear from "./CalendarNewYear";
 import { rowdies } from "@/app/fonts";
 import "@/lib/calendar/slot/slotReveal.css";
+import "@/lib/calendar/giftOpen/giftOpen.css";
+import "@/lib/calendar/newyear/newyear.css";
 
 export default function CalendarGrid({
   year,
@@ -25,6 +28,7 @@ export default function CalendarGrid({
   dayFrom = null,
   dayTo = null,
   confetti = null,
+  visualTitleEnd = null,
 }) {
   const { cells, daysPayload, dayFrom: from, dayTo: to } = buildCalendarData({
     year,
@@ -39,6 +43,7 @@ export default function CalendarGrid({
   });
 
   const isFootball = theme === "football";
+  const isNewYear = theme === "newyear";
 
   // Mobilni prikazi dobijaju dane već na serveru (samo polja koja koriste),
   // da bi kartica/lopta sa slikom bila u HTML-u odmah — ne tek posle JS-a (brži LCP).
@@ -59,8 +64,23 @@ export default function CalendarGrid({
       className={`w-full ${adminPreview ? "admin-preview" : ""}`}
     >
 
+      {/* NOVOGODIŠNJA TEMA: isti raspored na telefonu i desktopu (kartica dana + traka) */}
+      {isNewYear && (
+        <div className="ny-wrap flex justify-center pb-6">
+          <CalendarNewYear
+            key={`${year}-${month}`}
+            days={daysPayload
+              .filter((d) => d.day >= from && d.day <= to)
+              .map(({ day, isToday, isFuture, hasPromo, isLocked, icon, scratch }) => ({ day, isToday, isFuture, hasPromo, isLocked, icon, scratch }))}
+            year={year}
+            month={month}
+            titleEnd={visualTitleEnd}
+          />
+        </div>
+      )}
+
       {/* DESKTOP GRID */}
-      <div
+      {!isNewYear && <div
         className={`hidden md:block rounded-4xl bg-transparent ${
           isFootball
             ? "mx-auto max-w-[1120px] py-2 lg:py-3"
@@ -130,10 +150,10 @@ export default function CalendarGrid({
             })}
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* MOBILE */}
-      <div className="md:hidden flex justify-center min-h-[calc(100vh-200px)]">
+      {!isNewYear && <div className="md:hidden flex justify-center min-h-[calc(100vh-200px)]">
         {isFootball
           ? <CalendarMobileFootball
               key={`${year}-${month}`}
@@ -161,13 +181,13 @@ export default function CalendarGrid({
                 adminPreview={adminPreview}
               />
         }
-      </div>
+      </div>}
 
       {/* MODAL */}
       <div
         id="promo-modal"
         role="presentation"
-        className={`fixed inset-0 z-40 ${openHtml ? "" : "hidden"} bg-black/70 px-4 ${rowdies.variable}`}
+        className={`fixed inset-0 z-40 ${openHtml ? "" : "hidden"} bg-black/70 px-4 ${rowdies.variable}${isNewYear ? " ny-modal" : ""}`}
       >
         <div className="w-full h-full flex items-center justify-center pointer-events-none">
         <div
@@ -175,7 +195,7 @@ export default function CalendarGrid({
           role="dialog"
           aria-modal="true"
           aria-labelledby="promo-title"
-          className="
+          className={`${isNewYear ? "ny-dialog " : ""}
             relative
             w-full max-w-[480px]
             max-h-[80vh]
@@ -186,7 +206,7 @@ export default function CalendarGrid({
             flex flex-col
             p-4 sm:p-6
             pointer-events-auto
-          "
+          `}
         >
           <span id="promo-title" className="sr-only">Detalji promocije</span>
 

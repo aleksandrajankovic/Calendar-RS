@@ -6,6 +6,7 @@ import prisma from "@/lib/db";
 import { getAdminFromRequest } from "@/lib/auth";
 import { sanitizeRichHtml, sanitizeTranslations } from "@/lib/sanitize";
 import { sanitizeLink } from "@/lib/validate";
+import { sanitizeScratchText } from "@/lib/calendar/scratchText";
 
 const DEFAULT_LANG = "pt";
 
@@ -45,7 +46,7 @@ export async function POST(req) {
 
   const body = await req.json().catch(() => ({}));
   const {
-    year, month, day, icon, link, buttonColor, active, scratch, slot, flipCard,
+    year, month, day, icon, link, buttonColor, active, scratch, slot, flipCard, scratchText,
     title, button, rich, richHtml,
     translations: rawTranslations, defaultLang, category, knockoutPhase,
   } = body;
@@ -78,6 +79,7 @@ export async function POST(req) {
       scratch: !!scratch && !slot,
       slot: !!slot,
       flipCard: !!flipCard && !slot,
+      scratchText: sanitizeScratchText(scratchText),
       buttonColor: buttonColor || "green",
       translations: sanitizeTranslations(translations),
       category: category || "ALL",
