@@ -1,3 +1,4 @@
+// SAMO NOVOGODIŠNJA TEMA (calendarInteractions: theme === "newyear") — ostale teme imaju običan klik.
 // "Poklon se otvara": klik na ikonicu dana sa grebalicom → ikonica (ista slika iz admina)
 // se protrese, poklopac odleti, blesne svetlo → iskoči grebalica.
 //

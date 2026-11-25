@@ -49,8 +49,13 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
 
   let isOpen = false;
   let giftBusy = false; // poklon se upravo otvara — ignoriši nove klikove
-  prepareGiftOpen(days);
-  showOpenedGifts(root, days);
+  // Poklon koji se otvara (Rive/CSS) i "otvoren poklon" posle grebanja — samo u novogodišnjoj temi;
+  // ostale teme (npr. Halloween bundeve) zadržavaju svoje ikonice i običan klik
+  const giftTheme = theme === "newyear";
+  if (giftTheme) {
+    prepareGiftOpen(days);
+    showOpenedGifts(root, days);
+  }
   let previousUrl = null;
   let currentEntry = null;
   let disposeSlot = () => {};
@@ -230,7 +235,7 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
     if (!entry || !entry.hasPromo || giftBusy) return;
 
     // grebalica: poklon (ikonica) se prvo otvori, pa iskoči pop-up
-    if (giftOpenApplies(entry)) {
+    if (giftTheme && giftOpenApplies(entry)) {
       const started = playGiftOpen(btn, {
         onReveal: () => {
           giftBusy = false;
