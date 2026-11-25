@@ -122,9 +122,23 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
     });
   }
 
-  function animateClose(cb) {
+  function animateClose(cb, { swiped = false } = {}) {
     if (!dialog) {
       cb?.();
+      return;
+    }
+
+    // zatvoren povlačenjem nadole: panel je već otišao dole — sakrij pa očisti stilove
+    if (swiped) {
+      modal.style.transition = "opacity 180ms ease";
+      modal.style.opacity = "0";
+      setTimeout(() => {
+        cb?.();
+        dialog.style.transform = "";
+        dialog.style.transition = "";
+        modal.style.opacity = "";
+        modal.style.transition = "";
+      }, 190);
       return;
     }
 
@@ -187,12 +201,12 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
     }, dialogDelay);
   }
 
-  function closeModal({ fromPopstate = false } = {}) {
+  function closeModal({ fromPopstate = false, swiped = false } = {}) {
     isOpen = false;
     disposeSlot();
     disposeSlot = () => {};
     document.body.style.overflow = "";
-    resetModalStyles();
+    if (!swiped) resetModalStyles();
 
     animateClose(() => {
       modal.classList.add("hidden");
@@ -201,7 +215,56 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
       if (!fromPopstate && previousUrl) {
         history.replaceState(null, "", previousUrl);
       }
-    });
+    }, { swiped });
+  }
+
+  // ---- Novogodišnja tema, telefon: povlačenje panela nadole ga zatvara ----
+  // Ne kreće sa zlatne srećke (tamo se greba), linkova i dugmadi, niti dok je sadržaj skrolovan.
+  if (dialog && modal.classList.contains("ny-modal")) {
+    const phone = matchMedia("(max-width: 767px)");
+    let startY = 0, dy = 0, startT = 0, dragging = false, decided = false;
+
+    dialog.addEventListener("touchstart", (e) => {
+      if (!isOpen || !phone.matches) return;
+      if (e.target.closest("#scratch-canvas, a, button")) return;
+      if (content.scrollTop > 0) return;
+      startY = e.touches[0].clientY;
+      startT = performance.now();
+      dy = 0;
+      dragging = true;
+      decided = false;
+    }, { passive: true });
+
+    dialog.addEventListener("touchmove", (e) => {
+      if (!dragging) return;
+      const d = e.touches[0].clientY - startY;
+      if (!decided) {
+        if (Math.abs(d) < 6) return;
+        decided = true;
+        if (d < 0) { dragging = false; return; } // prst ide gore — to je skrol sadržaja
+      }
+      dy = Math.max(0, d);
+      if (e.cancelable) e.preventDefault(); // stranica/sadržaj se ne skroluju dok se panel vuče
+      dialog.style.transition = "none";
+      dialog.style.transform = `translateY(${dy}px)`;
+    }, { passive: false });
+
+    const end = () => {
+      if (!dragging) return;
+      dragging = false;
+      const speed = dy / Math.max(1, performance.now() - startT); // px/ms
+      if (dy > 120 || (dy > 40 && speed > 0.6)) {
+        dialog.style.transition = "transform 200ms ease-in";
+        dialog.style.transform = "translateY(100%)";
+        setTimeout(() => isOpen && closeModal({ swiped: true }), 170);
+      } else if (dy > 0) {
+        dialog.style.transition = "transform 200ms ease-out";
+        dialog.style.transform = "";
+        setTimeout(() => (dialog.style.transition = ""), 220);
+      }
+    };
+    dialog.addEventListener("touchend", end);
+    dialog.addEventListener("touchcancel", end);
   }
 
   // ---- Click animation ----

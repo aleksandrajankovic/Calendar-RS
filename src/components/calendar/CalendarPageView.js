@@ -150,7 +150,7 @@ export default function CalendarPageView({
               <details
                 id="admin-panel"
                 open
-                className="group fixed bottom-4 right-4 z-[60] w-[min(300px,calc(100vw-32px))] rounded-xl border border-white/10 bg-neutral-950/90 text-sm text-white shadow-[0_10px_30px_rgba(0,0,0,0.6)] backdrop-blur"
+                className="group fixed bottom-4 right-4 z-[35] w-[min(300px,calc(100vw-32px))] rounded-xl border border-white/10 bg-neutral-950/90 text-sm text-white shadow-[0_10px_30px_rgba(0,0,0,0.6)] backdrop-blur"
               >
                 <summary className="flex cursor-pointer list-none items-center gap-2 px-3 py-2 select-none [&::-webkit-details-marker]:hidden">
                   <span className="h-2 w-2 rounded-full bg-amber-400" aria-hidden="true" />
