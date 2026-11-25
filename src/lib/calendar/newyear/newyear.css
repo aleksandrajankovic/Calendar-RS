@@ -375,6 +375,8 @@
 @media (min-width: 768px) {
   #promo-dialog.ny-dialog { padding: 28px; }
   #promo-dialog.ny-dialog:has(.ny-scratch) { max-width: 880px; }
+  /* duži tekst se skroluje desno — popup ne raste preko ove visine */
+  #promo-dialog.ny-dialog:has(.ny-scratch) { max-height: min(80vh, 640px); }
 }
 /* telefon: panel odozdo */
 @media (max-width: 767px) {
@@ -566,6 +568,14 @@
   }
   .ny-scratch__title { font-size: 26px; }
   .ny-card { align-self: start; }
+  /* posle grebanja kartica zauzme celu visinu leve kolone (kao poster): slika zadatka cela u sredini,
+     zamućena kopija popunjava ostatak — nema praznog prostora ispod banera, kakav god da je tekst */
+  .ny-scratch.is-revealed .ny-card {
+    align-self: stretch;
+    aspect-ratio: auto !important;
+    min-height: 248px;
+  }
+  .ny-scratch.is-revealed .ny-card > img.ny-card__bg { filter: blur(22px) brightness(.5) saturate(1.25); }
   .ny-hint { text-align: left; }
 }
 
