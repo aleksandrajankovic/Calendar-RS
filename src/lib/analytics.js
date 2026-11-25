@@ -11,7 +11,8 @@ function today() {
   return new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Belgrade" });
 }
 
-// ?from=YYYY-MM-DD&to=YYYY-MM-DD — podrazumevano od početka tekućeg meseca do danas
+// ?from=YYYY-MM-DD&to=YYYY-MM-DD — KADA se desilo (podrazumevano od početka tekućeg meseca do danas)
+// ?cal=YYYY-MM — KOJI kalendar (mesec kalendara); bez njega svi kalendari
 export function parseRange(searchParams) {
   const t = today();
   let from = searchParams.get("from");
@@ -19,7 +20,15 @@ export function parseRange(searchParams) {
   if (!ISO_RE.test(from || "")) from = `${t.slice(0, 7)}-01`;
   if (!ISO_RE.test(to || "")) to = t;
   if (from > to) [from, to] = [to, from];
-  return { from, to };
+  const m = /^(\d{4})-(\d{2})$/.exec(searchParams.get("cal") || "");
+  const cal = m && +m[2] >= 1 && +m[2] <= 12 ? { year: +m[1], month: +m[2] - 1 } : null;
+  return { from, to, cal };
+}
+
+// WHERE za period (+ izabrani kalendar) i parametri upita
+function filter({ from, to, cal }) {
+  const where = `${LOCAL_DATE} BETWEEN $1::date AND $2::date` + (cal ? ` AND year = $3::int AND month = $4::int` : "");
+  return { where, params: cal ? [from, to, cal.year, cal.month] : [from, to] };
 }
 
 // Postgres COUNT vraća BigInt — u običan broj, da prođe kroz JSON
@@ -36,16 +45,16 @@ const COUNTS = `
   COUNT(*) FILTER (WHERE type IN ('scratch', 'slot'))  AS scratches,
   COUNT(*) FILTER (WHERE type = 'cta')      AS ctas`;
 
-export async function getAnalytics({ from, to }) {
-  const where = `${LOCAL_DATE} BETWEEN $1::date AND $2::date`;
+export async function getAnalytics({ from, to, cal }) {
+  const { where, params } = filter({ from, to, cal });
 
-  const [totals, byDate, byPromo, byDevice] = await Promise.all([
-    prisma.$queryRawUnsafe(`SELECT ${COUNTS} FROM "CalendarEvent" WHERE ${where}`, from, to),
+  const [totals, byDate, byPromo, byDevice, calendars] = await Promise.all([
+    prisma.$queryRawUnsafe(`SELECT ${COUNTS} FROM "CalendarEvent" WHERE ${where}`, ...params),
     prisma.$queryRawUnsafe(
       `SELECT to_char(${LOCAL_DATE}, 'YYYY-MM-DD') AS date, ${COUNTS}
        FROM "CalendarEvent" WHERE ${where}
        GROUP BY 1 ORDER BY 1`,
-      from, to
+      ...params
     ),
     prisma.$queryRawUnsafe(
       `SELECT year, month, day, MAX(title) AS title, MAX("promoType") AS "promoType",
@@ -56,13 +65,18 @@ export async function getAnalytics({ from, to }) {
        FROM "CalendarEvent"
        WHERE ${where} AND type IN ('day_open', 'scratch', 'slot', 'cta') AND day IS NOT NULL
        GROUP BY year, month, day ORDER BY year, month, day`,
-      from, to
+      ...params
     ),
     prisma.$queryRawUnsafe(
       `SELECT device, embedded, COUNT(*) AS views
        FROM "CalendarEvent" WHERE ${where} AND type = 'view'
        GROUP BY device, embedded ORDER BY views DESC`,
-      from, to
+      ...params
+    ),
+    // svi meseci kalendara za koje postoje podaci (za izbor "Calendar")
+    prisma.$queryRawUnsafe(
+      `SELECT DISTINCT year, month FROM "CalendarEvent"
+       WHERE year IS NOT NULL AND month IS NOT NULL ORDER BY year DESC, month DESC`
     ),
   ]);
 
@@ -73,17 +87,19 @@ export async function getAnalytics({ from, to }) {
     byDate: num(byDate),
     byPromo: num(byPromo),
     byDevice: num(byDevice),
+    calendars: num(calendars),
   };
 }
 
-export async function getEvents({ from, to }) {
+export async function getEvents(range) {
+  const { where, params } = filter(range);
   return prisma.$queryRawUnsafe(
     `SELECT to_char(("createdAt" AT TIME ZONE 'UTC') AT TIME ZONE 'Europe/Belgrade', 'YYYY-MM-DD HH24:MI:SS') AS time,
        type, year, month, day, "promoType", title, device, embedded, visitor
      FROM "CalendarEvent"
-     WHERE ${LOCAL_DATE} BETWEEN $1::date AND $2::date
+     WHERE ${where}
      ORDER BY "createdAt"
      LIMIT 200000`,
-    from, to
+    ...params
   );
 }

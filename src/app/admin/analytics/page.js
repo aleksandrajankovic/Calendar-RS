@@ -15,40 +15,63 @@ function pct(part, whole) {
 
 const DEVICE_LABEL = { mobile: "Mobile", desktop: "Desktop" };
 
+// "2026-11" → "November 2026"
+function calLabel(cal) {
+  const [y, m] = cal.split("-").map(Number);
+  return new Date(y, m - 1, 1).toLocaleString("en", { month: "long", year: "numeric" });
+}
+
 export default function AnalyticsPage() {
+  // Calendar = KOJI kalendar (mesec kalendara, "" = svi); From–To = KADA se desilo
+  const [cal, setCal] = useState(() => todayIso().slice(0, 7));
   const [from, setFrom] = useState(() => `${todayIso().slice(0, 7)}-01`);
   const [to, setTo] = useState(todayIso);
+  const [calendars, setCalendars] = useState([]);
   // rezultat pamti za koji period je učitan — dok se ne poklopi sa izabranim, prikazuje se "Loading…"
   const [result, setResult] = useState({ key: null, data: null, error: "" });
-  const key = `${from}|${to}`;
+  const key = `${cal}|${from}|${to}`;
   const loading = result.key !== key;
   const data = result.data;
   const error = loading ? "" : result.error;
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`/api/admin/analytics?from=${from}&to=${to}`)
+    fetch(`/api/admin/analytics?from=${from}&to=${to}&cal=${cal}`)
       .then((r) => {
-        if (r.status === 403) throw new Error("Only super admins can see analytics.");
         if (!r.ok) throw new Error("Failed to load analytics.");
         return r.json();
       })
-      .then((d) => !cancelled && setResult({ key: `${from}|${to}`, data: d, error: "" }))
-      .catch((e) => !cancelled && setResult({ key: `${from}|${to}`, data: null, error: e.message }));
+      .then((d) => {
+        if (cancelled) return;
+        setResult({ key: `${cal}|${from}|${to}`, data: d, error: "" });
+        setCalendars((d.calendars || []).map((c) => `${c.year}-${pad(c.month + 1)}`));
+      })
+      .catch((e) => !cancelled && setResult({ key: `${cal}|${from}|${to}`, data: null, error: e.message }));
     return () => {
       cancelled = true;
     };
-  }, [from, to]);
+  }, [cal, from, to]);
+
+  // izbor kalendara: period se postavi od 1. tog meseca do danas (računaju se i kasniji klikovi)
+  function chooseCalendar(v) {
+    setCal(v);
+    if (!v) return;
+    const start = `${v}-01`;
+    const t = todayIso();
+    setFrom(start);
+    setTo(t >= start ? t : start);
+  }
 
   const t = data?.totals;
-  const exportHref = (kind) => `/api/admin/analytics/export?kind=${kind}&from=${from}&to=${to}`;
+  const exportHref = (kind) => `/api/admin/analytics/export?kind=${kind}&from=${from}&to=${to}&cal=${cal}`;
+  const calOptions = [...new Set([...(cal ? [cal] : []), ...calendars])].sort().reverse();
 
   const stats = t
     ? [
         { label: "Views", value: t.views },
         { label: "Visitors", value: t.visitors, hint: "unique per day" },
         { label: "Days opened", value: t.opens },
-        { label: "Revealed", value: t.scratches, hint: "scratch card or slot" },
+        { label: "Revealed", value: t.scratches, hint: `${pct(t.scratches, t.opens)} of opened · scratch or slot` },
         { label: "Button clicks", value: t.ctas, hint: `${pct(t.ctas, t.opens)} of opened` },
       ]
     : [];
@@ -59,10 +82,28 @@ export default function AnalyticsPage() {
         <div>
           <h1 className="text-xl font-semibold text-neutral-900">Analytics</h1>
           <p className="text-sm text-neutral-500">
-            Calendar views and clicks. Admin preview is not counted. Visible to super admins only.
+            Calendar views and clicks. Admin preview is not counted.
+            <br />
+            <b className="font-medium text-neutral-600">Calendar</b> = which month&apos;s calendar ·{" "}
+            <b className="font-medium text-neutral-600">From–To</b> = when it happened.
           </p>
         </div>
         <div className="flex flex-wrap items-end gap-3 text-sm">
+          <label className="flex flex-col gap-1 text-neutral-600">
+            Calendar
+            <select
+              value={cal}
+              onChange={(e) => chooseCalendar(e.target.value)}
+              className="border border-[#D0D0D0] rounded px-2.5 py-1.5 bg-white min-w-[170px]"
+            >
+              <option value="">All calendars</option>
+              {calOptions.map((c) => (
+                <option key={c} value={c}>
+                  {calLabel(c)}
+                </option>
+              ))}
+            </select>
+          </label>
           <label className="flex flex-col gap-1 text-neutral-600">
             From
             <input
@@ -119,6 +160,7 @@ export default function AnalyticsPage() {
               { label: "Opened", width: "90px", className: "text-right" },
               { label: "Unique", width: "90px", className: "text-right" },
               { label: "Revealed", width: "90px", className: "text-right" },
+              { label: "Reveal rate", width: "90px", className: "text-right" },
               { label: "Clicks", width: "90px", className: "text-right" },
               { label: "Click rate", width: "90px", className: "text-right" },
             ]}
@@ -126,7 +168,7 @@ export default function AnalyticsPage() {
             <Rows
               rows={data?.byPromo}
               loading={loading}
-              cols="110px 1fr 90px 90px 90px 90px 90px"
+              cols="110px 1fr 90px 90px 90px 90px 90px 90px"
               textCols={2}
               render={(r) => [
                 `${pad(r.day)}.${pad(r.month + 1)}.${r.year}`,
@@ -134,6 +176,7 @@ export default function AnalyticsPage() {
                 r.opens,
                 r.openVisitors,
                 r.scratches,
+                pct(r.scratches, r.opens),
                 r.ctas,
                 pct(r.ctas, r.opens),
               ]}

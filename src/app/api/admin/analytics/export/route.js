@@ -21,7 +21,6 @@ const pad = (n) => String(n).padStart(2, "0");
 export async function GET(req) {
   const session = await getAdminFromRequest(req);
   if (!session) return new Response("Unauthorized", { status: 401 });
-  if (!session.isSuper) return new Response("Forbidden", { status: 403 });
 
   try {
     const params = new URL(req.url).searchParams;
@@ -67,7 +66,8 @@ export async function GET(req) {
       }
     }
 
-    const name = `kalendar-analitika-${kind}-${range.from}_${range.to}.csv`;
+    const calPart = range.cal ? `kalendar-${range.cal.year}-${pad(range.cal.month + 1)}-` : "";
+    const name = `kalendar-analitika-${calPart}${kind}-${range.from}_${range.to}.csv`;
     return new Response(csv, {
       headers: {
         "Content-Type": "text/csv; charset=utf-8",

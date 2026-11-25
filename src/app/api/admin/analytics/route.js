@@ -1,5 +1,5 @@
 // src/app/api/admin/analytics/route.js
-// Analitika kalendara za admin pregled — za sada samo super admin.
+// Analitika kalendara za admin pregled — vidi je svaki ulogovani admin.
 export const runtime = "nodejs";
 
 import { getAdminFromRequest } from "@/lib/auth";
@@ -8,7 +8,6 @@ import { getAnalytics, parseRange } from "@/lib/analytics";
 export async function GET(req) {
   const session = await getAdminFromRequest(req);
   if (!session) return new Response("Unauthorized", { status: 401 });
-  if (!session.isSuper) return new Response("Forbidden", { status: 403 });
 
   try {
     const range = parseRange(new URL(req.url).searchParams);
