@@ -14,7 +14,9 @@ import {
   TextField,
   openCalendarPreview,
   useDirty,
+  GoldenBallToggle,
 } from "../../components/PromoEditorFields";
+import { useMonthTheme, themeFields, categoryOptions } from "../../components/useMonthTheme";
 
 // kategorije za promo
 const CATEGORIES = [
@@ -22,13 +24,13 @@ const CATEGORIES = [
   { value: "CASINO", label: "Casino" },
   { value: "MISSIONS", label: "Missions" },
   { value: "ALL", label: "All" },
-  { value: "GOLD", label: "Zlatna lopta" },
+  { value: "GOLD", label: "Golden ball" },
 ];
 
 const KNOCKOUT_OPTIONS = [
-  { value: null, label: "Nema" },
-  { value: "QUARTER_FINAL", label: "⚽ Četvrtfinale (1/4)" },
-  { value: "SEMI_FINAL", label: "⚽ Polufinale (1/2)" },
+  { value: null, label: "None" },
+  { value: "QUARTER_FINAL", label: "⚽ Quarter-final (1/4)" },
+  { value: "SEMI_FINAL", label: "⚽ Semi-final (1/2)" },
   { value: "FINAL", label: "🏆 Finale" },
 ];
 
@@ -87,6 +89,8 @@ export default function SpecialEditor({ initial, onCancel, onSaved }) {
   }, [initial]);
 
   const [form, setForm] = useState(seed);
+  // polja prema temi meseca ove promocije (novogodišnja / fudbalska / default)
+  const fields = themeFields(useMonthTheme(form.year, form.month));
   const [saving, setSaving] = useState(false);
   const activeLang = "sr";
 
@@ -261,21 +265,33 @@ export default function SpecialEditor({ initial, onCancel, onSaved }) {
 
       <Section title="Appearance">
         <IconField value={form.icon} onChange={(v) => set("icon", v)} />
-        <PillSelector label="Category" options={CATEGORIES} value={form.category} onChange={(v) => set("category", v)} />
-        <PillSelector
-          label={
-            <>
-              Knockout faza <span className="text-neutral-400 font-normal">(kombinuje se sa kategorijom)</span>
-            </>
-          }
-          options={KNOCKOUT_OPTIONS}
-          value={form.knockoutPhase || null}
-          onChange={(v) => set("knockoutPhase", v)}
-        />
+        {fields.categories && !fields.football && (
+          <PillSelector
+            label="Category"
+            options={categoryOptions(CATEGORIES)}
+            value={form.category}
+            onChange={(v) => set("category", v)}
+          />
+        )}
+        {fields.football && (
+          <>
+            <GoldenBallToggle checked={form.category === "GOLD"} onChange={(on) => set("category", on ? "GOLD" : "ALL")} />
+            <PillSelector
+              label={
+                <>
+                  Knockout phase <span className="text-neutral-400 font-normal">(can be combined with Golden ball)</span>
+                </>
+              }
+              options={KNOCKOUT_OPTIONS}
+              value={form.knockoutPhase || null}
+              onChange={(v) => set("knockoutPhase", v)}
+            />
+          </>
+        )}
       </Section>
 
       <Section title="Effects">
-        <EffectToggles form={form} setField={set} />
+        <EffectToggles form={form} setField={set} showScratchText={fields.scratchText} />
       </Section>
     </EditorShell>
   );

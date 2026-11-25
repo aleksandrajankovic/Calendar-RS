@@ -287,9 +287,22 @@ export function DescriptionField({ label, activeLang, currentT, setTranslationFi
   );
 }
 
+// Fudbalska tema: zlatna lopta je jedina kategorija koja menja izgled (zlatna lopta + oznaka u pop-upu)
+export function GoldenBallToggle({ checked, onChange }) {
+  return (
+    <label className="flex items-start gap-2 text-sm text-neutral-800">
+      <input type="checkbox" className="mt-0.5" checked={!!checked} onChange={(e) => onChange(e.target.checked)} />
+      <span>
+        Golden ball
+        <span className="block text-xs text-neutral-400">Gold ball on the calendar and an &quot;Exclusive promotion&quot; badge in the pop-up.</span>
+      </span>
+    </label>
+  );
+}
+
 // Grebalica i slot se isključuju — uključivanje jednog gasi drugi. Flip kartica radi sama ili
 // uz grebalicu (ogrebeš, pa okreneš), ali ne uz slot — slot ima svoj prelaz na promociju.
-export function EffectToggles({ form, setField }) {
+export function EffectToggles({ form, setField, showScratchText = true }) {
   function toggle(key, other, checked) {
     setField(key, checked);
     if (checked) setField(other, false);
@@ -309,7 +322,7 @@ export function EffectToggles({ form, setField }) {
           <span className="block text-xs text-neutral-400">The player scratches the cover to reveal the promotion.</span>
         </span>
       </label>
-      {form.scratch && (
+      {form.scratch && showScratchText && (
         <label className="block pl-6 text-sm text-neutral-800">
           Scratch card text
           <span className="block text-xs text-neutral-400 mb-1">

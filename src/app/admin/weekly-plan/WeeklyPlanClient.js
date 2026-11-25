@@ -283,6 +283,8 @@ export default function WeeklyPlanAdmin() {
           <WeeklyEditor
             key={editing}
             initial={initial}
+            year={year}
+            month={month}
             onCancel={() => setEditing(null)}
             onSave={async (payload) => {
               await upsert({ ...payload, year, month });
