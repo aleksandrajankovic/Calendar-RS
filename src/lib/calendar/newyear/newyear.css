@@ -402,8 +402,34 @@
 /* ---------- srećka u pop-upu ---------- */
 .ny-scratch {
   display: grid;
-  grid-template-areas: "head" "card" "info";
+  grid-template-areas: "head" "card" "info" "foot";
   gap: 16px;
+}
+.ny-scratch__foot { grid-area: foot; }
+.ny-scratch__foot .ny-cta { display: none; margin-top: 0; }
+.ny-scratch.is-revealed .ny-scratch__foot .ny-cta { display: grid; }
+.ny-scratch__foot .ny-rg { margin-top: 12px; }
+@media (max-width: 767px) {
+  /* dugme + 18+ ostaju na dnu panela dok se tekst skroluje */
+  .ny-scratch__foot {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    margin-top: -6px;
+    padding-top: 14px;
+    background: linear-gradient(to bottom, rgba(18, 5, 43, 0), #12052b 26%);
+  }
+  /* niski telefoni (iPhone SE): kompaktnije zaglavlje pop-upa — više mesta za opis */
+  @media (max-height: 640px) {
+    #promo-content .ny-scratch { gap: 12px; }
+    #promo-content .ny-scratch__head img { width: 40px; height: 40px; }
+    #promo-content .ny-scratch__title { font-size: 17px; }
+    #promo-content .ny-reveal h2 { font-size: 19px; }
+  }
+  /* bez spoljnog sjaja — u oblasti koja skroluje odsekao bi se u pravougaonik */
+  .ny-scratch__foot .ny-cta { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6); }
+  .ny-scratch__foot .ny-cta.is-green { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45); }
+
 }
 .ny-scratch__head { grid-area: head; display: flex; align-items: center; gap: 12px; padding-right: 44px; }
 .ny-scratch__head img { width: 54px; height: 54px; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .4)); }
@@ -413,14 +439,24 @@
 .ny-card {
   grid-area: card;
   position: relative;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
+  transition: aspect-ratio .35s ease;
   border-radius: 20px;
   overflow: hidden;
   background: #241046;
   box-shadow: 0 14px 30px rgba(0, 0, 0, .45);
   line-height: 0;
 }
-.ny-card > img.ny-card__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* slika zadatka se nikad ne seče (baneri su često 440×170): cela slika + zamućena kopija kao pozadina */
+.ny-card > img.ny-card__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.ny-card > img.ny-card__bg {
+  position: absolute;
+  inset: -12%;
+  width: 124%;
+  height: 124%;
+  object-fit: cover;
+  filter: blur(18px) brightness(.55) saturate(1.2);
+}
 /* bez metle (globals.css #scratch-canvas) — ovde greba samo bombona (.ny-tool) */
 #scratch-canvas[data-theme="newyear"] { cursor: none; }
 .ny-card__noimg { position: absolute; inset: 0; display: grid; place-items: center; font: 600 14px system-ui; color: rgba(255, 255, 255, .6); }
@@ -463,12 +499,19 @@
   transition: filter .15s;
 }
 .ny-cta:hover { filter: brightness(1.08); }
+/* "zeleno" dugme iz admina u novogodišnjoj temi: smaragdni prelaz sa sjajem ("žuto" = zlatno) */
+.ny-cta.is-green {
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .35);
+  background: linear-gradient(105deg, #0c5c37 0%, #17a964 20%, #5fdc9b 42%, #1db36d 62%, #0f6b40 100%);
+  box-shadow: 0 10px 24px rgba(40, 200, 120, .3), inset 0 1px 0 rgba(255, 255, 255, .45);
+}
 
 @media (min-width: 768px) {
   .ny-scratch {
-    grid-template-areas: "card head" "card info";
+    grid-template-areas: "card head" "card info" "card foot";
     grid-template-columns: 440px 1fr;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto 1fr auto;
     column-gap: 28px;
     row-gap: 18px;
   }

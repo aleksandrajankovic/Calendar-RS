@@ -183,6 +183,7 @@ export function renderModalHTML(entry, lang = "sr", theme = "default") {
         richHtml,
         link,
         button: defaultButtonLabel,
+        buttonColor,
         lang,
         shareKey,
         year: entry?.year,

@@ -308,6 +308,8 @@ export async function loadCalendarPageData({ year, month, isAdmin, lang = "sr" }
     topOffset,
     topOffsetMobile,
     visualTitleEnd,
+    // sneg za ovaj mesec iz admina (Effects): true / false / null = automatski
+    snow: typeof monthBg.snow === "boolean" ? monthBg.snow : null,
     dayFrom,
     dayTo,
     theme,

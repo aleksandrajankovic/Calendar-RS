@@ -207,6 +207,7 @@ export function renderScratchNewYear({
   richHtml,
   link: rawLink,
   button: rawButton,
+  buttonColor = "yellow",
   lang,
   shareKey,
   year,
@@ -243,7 +244,7 @@ export function renderScratchNewYear({
     <div class="ny-card">
       ${
         imgSrc
-          ? `<img class="ny-card__img" src="${imgSrc}" alt="" />`
+          ? `<img class="ny-card__bg" src="${imgSrc}" alt="" aria-hidden="true" /><img class="ny-card__img" src="${imgSrc}" alt="" />`
           : `<div class="ny-card__noimg">${sr ? "Nema slike" : "No image"}</div>`
       }
       <canvas
@@ -275,8 +276,12 @@ export function renderScratchNewYear({
         <h2>${title}</h2>
         ${categoryLabel ? `<div class="ny-cat">${categoryLabel}</div>` : ""}
         ${restHtml ? `<div class="ny-rest">${restHtml}</div>` : ""}
-        ${canOpen ? `<a href="${link}" data-track="cta" target="_blank" rel="noreferrer" class="ny-cta">${button}</a>` : ""}
       </div>
+    </div>
+
+    <!-- dugme i 18+ uvek pri dnu panela (telefon: lepljivo dok se tekst skroluje) -->
+    <div class="ny-scratch__foot">
+      ${canOpen ? `<a href="${link}" data-track="cta" target="_blank" rel="noreferrer" class="ny-cta${buttonColor === "green" ? " is-green" : ""}">${button}</a>` : ""}
       ${responsibleGamingHtml()}
     </div>
   </div>`;

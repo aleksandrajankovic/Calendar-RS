@@ -232,6 +232,21 @@ export function initScratch({ confetti: confettiStyle = null } = {}) {
       if (flipHint) flipHint.style.opacity = "1";
       setTimeout(() => bgImg?.remove(), 520);
     }
+
+    // novogodišnja srećka: dugme pri dnu se pojavljuje tek posle grebanja
+    const ny = reveal?.closest(".ny-scratch");
+    if (ny) {
+      ny.classList.add("is-revealed");
+      // kartica preuzima oblik slike zadatka kad je slika šira od 16:9 (npr. baner 440×170):
+      // bez praznih traka, a slika se i dalje ne seče — više mesta za opis
+      const img = ny.querySelector(".ny-card__img");
+      const fit = () => {
+        const r = img.naturalWidth / img.naturalHeight;
+        if (r > 16 / 9) ny.querySelector(".ny-card").style.aspectRatio = String(Math.min(r, 3.2));
+      };
+      if (img?.complete && img.naturalWidth) fit();
+      else img?.addEventListener("load", fit, { once: true });
+    }
   }
 
   function hideScratchInstant() {

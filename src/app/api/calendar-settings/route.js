@@ -131,13 +131,15 @@ export async function PUT(req) {
           const pct = (v) => { const n = Math.round(Number(v)); return n > 0 ? Math.min(n, 80) : null; };
           const titleEnd = pct(val.titleEnd);
           const titleEndMobile = pct(val.titleEndMobile);
+          // sneg: true = uključen, false = isključen, null = automatski (25.12.–15.1.)
+          const snow = val.snow === true ? true : val.snow === false ? false : null;
           // skraćen mesec: prikazuju se samo dani od-do (1–31)
           const day = (v) => { const n = Math.round(Number(v)); return n >= 1 && n <= 31 ? n : null; };
           const dayFrom = day(val.dayFrom);
           const dayTo   = day(val.dayTo);
           const confetti = sanitizeConfetti(val.confetti);
-          if (desktop || mobile || position || titleSr || inactive || theme || topOffset || topOffsetMobile || titleEnd || titleEndMobile || dayFrom || dayTo || confetti)
-            out[key] = { desktop, mobile, position, titleSr, inactive, theme, topOffset, topOffsetMobile, titleEnd, titleEndMobile, dayFrom, dayTo, confetti };
+          if (desktop || mobile || position || titleSr || inactive || theme || topOffset || topOffsetMobile || titleEnd || titleEndMobile || dayFrom || dayTo || confetti || snow !== null)
+            out[key] = { desktop, mobile, position, titleSr, inactive, theme, topOffset, topOffsetMobile, titleEnd, titleEndMobile, dayFrom, dayTo, confetti, snow };
         }
       }
       cleaned = Object.keys(out).length ? out : null;

@@ -31,6 +31,7 @@ export default function CalendarPageView({
   dayTo,
   theme,
   confetti,
+  snow = null,
   showLogo,
   logoUrl,
   isMonthInactive,
@@ -115,7 +116,7 @@ export default function CalendarPageView({
             <img {...bgMobileProps} className={`pointer-events-none object-cover object-center -z-10 calendar-mobile-bg${theme === "newyear" && !showClosed ? " object-top" : ""}`} />
           </picture>
 
-          <SnowOverlay />
+          <SnowOverlay mode={snow} />
 
           {isClosed && !isAdmin ? (
             // Kalendar zatvoren (Calendar Styling → Calendar status): bez dana, klikova i popup-a

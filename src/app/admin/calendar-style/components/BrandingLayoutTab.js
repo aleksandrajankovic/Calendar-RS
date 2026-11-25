@@ -97,7 +97,8 @@ export default function BrandingLayoutTab({
     () => Object.keys(monthBackgrounds).filter((k) => {
       const v = monthBackgrounds[k];
       return v?.desktop || v?.mobile || v?.position || v?.titleSr || v?.inactive || v?.theme
-        || v?.topOffset || v?.topOffsetMobile || v?.titleEnd || v?.titleEndMobile || v?.dayFrom || v?.dayTo || v?.confetti;
+        || v?.topOffset || v?.topOffsetMobile || v?.titleEnd || v?.titleEndMobile || v?.dayFrom || v?.dayTo || v?.confetti
+        || typeof v?.snow === "boolean";
     }),
     [monthBackgrounds]
   );
@@ -605,6 +606,7 @@ export default function BrandingLayoutTab({
                   bg.desktop && "desktop bg",
                   bg.mobile && "mobile bg",
                   bg.confetti && `confetti: ${bg.confetti.style === "custom" ? bg.confetti.emoji : bg.confetti.style}`,
+                  typeof bg.snow === "boolean" && `snow: ${bg.snow ? "on" : "off"}`,
                 ].filter(Boolean).join(", ");
                 return (
                   <li key={k} className="flex items-center gap-3 text-xs text-neutral-700">

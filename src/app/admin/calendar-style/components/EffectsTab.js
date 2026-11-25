@@ -70,13 +70,69 @@ export default function EffectsTab({
     setMonthBackgrounds((prev) => ({ ...prev, [currentKey]: { ...prev[currentKey], confetti: value } }));
   }
 
+  // sneg za izabrani mesec: true / false / null = automatski (25 Dec – 15 Jan)
+  const monthSnow = monthBackgrounds[currentKey]?.snow;
+  const snowSet = typeof monthSnow === "boolean";
+  const autoSnowOn = selMonth === 11 || selMonth === 0; // u automatskom režimu pada samo krajem decembra / početkom januara
+  const snowOn = snowSet ? monthSnow : false;
+  function setMonthSnow(value) {
+    setMonthBackgrounds((prev) => ({ ...prev, [currentKey]: { ...prev[currentKey], snow: value } }));
+  }
+
   return (
     <div className="space-y-6">
       <MonthOverridePicker
         selYear={selYear} setSelYear={setSelYear}
         selMonth={selMonth} setSelMonth={setSelMonth}
-        sections="Confetti"
+        sections="Confetti, Snow"
       />
+
+      <AdminTableCard title="Snow">
+        <div className="p-4 space-y-3">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-medium text-neutral-800">Falling snow in {monthLabel}</p>
+              <p className="text-xs text-neutral-500 mt-0.5">
+                {snowSet
+                  ? snowOn
+                    ? "On for the whole month (visitors see it on this month's calendar)."
+                    : "Off for this month."
+                  : autoSnowOn
+                    ? "Not set — automatic: snow falls from 25 December to 15 January."
+                    : "Not set — automatic (snow only from 25 December to 15 January, so none in this month)."}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setMonthSnow(!snowOn)}
+              className={[
+                "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200",
+                snowOn ? "bg-sky-500" : "bg-neutral-300",
+              ].join(" ")}
+              role="switch"
+              aria-checked={snowOn}
+              aria-label={`Falling snow in ${monthLabel}`}
+            >
+              <span
+                className={[
+                  "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform transition duration-200",
+                  snowOn ? "translate-x-5" : "translate-x-0",
+                ].join(" ")}
+              />
+            </button>
+          </div>
+          {snowSet && (
+            <button
+              type="button"
+              onClick={() => setMonthSnow(null)}
+              className="text-xs text-neutral-500 underline hover:text-neutral-800"
+            >
+              Back to automatic
+            </button>
+          )}
+          <p className="text-xs text-neutral-400">Click Save to apply.</p>
+        </div>
+      </AdminTableCard>
 
       <AdminTableCard title="Confetti">
         <div className="p-4 space-y-4">

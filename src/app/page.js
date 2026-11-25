@@ -25,7 +25,6 @@ function getParam(sp, key) {
 export default async function Home({ searchParams }) {
   const sp = await searchParams;
 
-  // Legacy podrška: stari linkovi tipa /?y=2026&m=5 → redirect na novu path šemu (/[year]/[month])
   const yRaw = getParam(sp, "y");
   const mRaw = getParam(sp, "m");
   if (yRaw !== undefined || mRaw !== undefined) {
@@ -34,12 +33,10 @@ export default async function Home({ searchParams }) {
     if (isValidYear(y) && isValidMonth(m)) {
       redirect(monthHref(y, m));
     }
-    // nevalidni parametri — ignoriši ih i prikaži tekući mesec na "/"
   }
 
   const cookieStore = await cookies();
   const adminCookie = cookieStore.get("admin_auth");
-  // Samo postojanje cookie-ja nije dovoljno — mora biti validan (potpisan) JWT
   const isAdmin = !!adminCookie?.value && !!(await verifyToken(adminCookie.value));
 
   const now = new Date();
