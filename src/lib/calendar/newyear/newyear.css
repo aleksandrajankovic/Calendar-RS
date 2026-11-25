@@ -78,7 +78,7 @@
   margin-top: 4px;
   font: 600 11px system-ui, sans-serif;
   letter-spacing: .14em;
-  opacity: .6;
+  opacity: .8;
 }
 
 .ny-hero__gift {
@@ -109,7 +109,7 @@
 
 .ny-hero__text { grid-area: text; position: relative; display: flex; flex-direction: column; gap: 4px; text-align: center; }
 .ny-hero__title { font-size: 22px; line-height: 1.1; }
-.ny-hero__sub { font-size: 13px; opacity: .72; }
+.ny-hero__sub { font-size: 13px; opacity: .88; }
 
 .ny-hero__cta {
   grid-area: cta;
@@ -146,7 +146,7 @@
   margin: 22px 4px 10px;
   font: 700 12px system-ui, sans-serif;
   letter-spacing: .14em;
-  opacity: .65;
+  opacity: .82;
 }
 .ny-strip-wrap { display: flex; align-items: center; gap: 10px; }
 .ny-arrow {
@@ -207,10 +207,10 @@
   transform: translateX(-50%);
 }
 .ny-chip b { font-size: 16px; line-height: 1.1; }
-.ny-chip small { font: 600 9px system-ui, sans-serif; letter-spacing: .12em; opacity: .6; }
+.ny-chip small { font: 600 9px system-ui, sans-serif; letter-spacing: .12em; opacity: .8; }
 .ny-chip__lock { position: absolute; top: 18px; left: 50%; width: 22px; transform: translateX(-50%); color: rgba(255, 255, 255, .8); }
-.ny-chip.is-locked { opacity: .5; }
-.ny-chip.is-empty { opacity: .4; }
+.ny-chip.is-locked { opacity: .62; }
+.ny-chip.is-empty { opacity: .5; }
 .ny-chip__dot { position: absolute; top: 26px; left: 50%; width: 10px; height: 10px; border-radius: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, .45); }
 .ny-chip.is-missed img { filter: grayscale(.6) brightness(.7); }
 .ny-chip.is-opened { background: rgba(245, 196, 81, .08); }
@@ -334,6 +334,29 @@
   .ny.is-tight .ny-chip img { width: 36px; height: 36px; top: 5px; }
 }
 
+/* ---------- 18+ · Igraj odgovorno ---------- */
+.ny-rg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+  font: 600 12px system-ui, sans-serif;
+  color: rgba(255, 255, 255, .8);
+}
+.ny-rg__badge {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, .85);
+  font: 800 10px system-ui, sans-serif;
+  color: #fff;
+}
+.ny-rg a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.ny-rg a:hover { color: #fff; }
+
 /* ---------- pop-up ---------- */
 #promo-modal.ny-modal { background: rgba(8, 3, 22, .64); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
 #promo-dialog.ny-dialog {
@@ -418,7 +441,7 @@
 .ny-tool.is-on { opacity: 1; }
 
 .ny-scratch__info { grid-area: info; display: flex; flex-direction: column; }
-.ny-hint { text-align: center; font: 600 12px system-ui, sans-serif; opacity: .65; }
+.ny-hint { text-align: center; font: 600 12px system-ui, sans-serif; opacity: .85; }
 .ny-reveal h2 { font: 700 22px/1.15 var(--font-rowdies), system-ui, sans-serif; }
 .ny-reveal .ny-cat { margin-top: 6px; font: 800 10px system-ui, sans-serif; letter-spacing: .16em; color: #f5c451; }
 .ny-reveal .ny-rest { margin-top: 10px; font-size: 14px; line-height: 1.5; color: rgba(255, 255, 255, .86); }

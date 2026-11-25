@@ -75,7 +75,7 @@ function usePlaceOnVisual(ref, titleEnd) {
         pad = imageY(end) + GAP - top;
       } else if (img.naturalWidth && isDesktop && hero) {
         pad = imageY(CENTER_DESKTOP) - hero.offsetHeight / 2 - top;
-        pad = Math.min(pad, vh - 70 - blockH - top); // + paginacija ispod
+        pad = Math.min(pad, vh - 110 - blockH - top); // + paginacija i oznaka 18+ ispod
       } else {
         pad = (vh - top - blockH) / 2;
       }
@@ -249,6 +249,23 @@ export default function CalendarNewYear({ days, year, month, titleEnd = null }) 
     return true;
   };
   useSwipe(heroWrapRef, goTo);
+
+  // Desktop: strelice ← → na tastaturi menjaju dan (ne dok je pop-up otvoren ili se kuca u polje)
+  const goToRef = useRef(goTo);
+  useEffect(() => {
+    goToRef.current = goTo;
+  });
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      if (e.target.closest?.("input, textarea, select, [contenteditable]")) return;
+      if (!document.getElementById("promo-modal")?.classList.contains("hidden")) return;
+      if (goToRef.current(e.key === "ArrowRight" ? 1 : -1)) e.preventDefault();
+    };
+    addEventListener("keydown", onKey);
+    return () => removeEventListener("keydown", onKey);
+  }, []);
 
   // Izabrani dan u traci uvek u vidnom polju (i na početku, kad je danas negde na sredini meseca)
   useEffect(() => {

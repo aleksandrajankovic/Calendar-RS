@@ -358,6 +358,11 @@ export function initScratch({ confetti: confettiStyle = null } = {}) {
   function revealNow() {
     if (revealed) return;
     revealed = true;
+    if (coverStyle === "gold") {
+      try {
+        navigator.vibrate?.([30, 40, 70]); // kratko "trrr" pri otkrivanju (novogodišnja srećka)
+      } catch {}
+    }
 
     try {
       localStorage.setItem(storageKey, "1");

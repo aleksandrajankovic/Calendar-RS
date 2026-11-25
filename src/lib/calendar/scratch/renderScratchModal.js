@@ -1,6 +1,7 @@
 // src/lib/scratch/renderScratchModal.js
 import { getExclusiveBadgeLabel } from "@/lib/calendar/promoCategoryStyles";
 import { esc } from "../escapeHtml";
+import { responsibleGamingHtml } from "@/lib/calendar/newyear/responsibleGaming";
 
 export const flipHintText = (lang) => (lang === "sr" ? "Dodirni za detalje" : "Tap for details");
 
@@ -276,6 +277,7 @@ export function renderScratchNewYear({
         ${restHtml ? `<div class="ny-rest">${restHtml}</div>` : ""}
         ${canOpen ? `<a href="${link}" data-track="cta" target="_blank" rel="noreferrer" class="ny-cta">${button}</a>` : ""}
       </div>
+      ${responsibleGamingHtml()}
     </div>
   </div>`;
 }
