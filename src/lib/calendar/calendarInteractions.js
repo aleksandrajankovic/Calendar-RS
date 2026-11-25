@@ -228,6 +228,8 @@ export function initCalendarInteractions(rootSelector = "#calendar-root", { open
       if (!isOpen || !phone.matches) return;
       if (e.target.closest("#scratch-canvas, a, button")) return;
       if (content.scrollTop > 0) return;
+      // novogodišnja srećka: skroluje se samo tekst — panel se ne vuče dok tekst nije na vrhu
+      if (e.target.closest(".ny-scratch__info")?.scrollTop > 0) return;
       startY = e.touches[0].clientY;
       startT = performance.now();
       dy = 0;

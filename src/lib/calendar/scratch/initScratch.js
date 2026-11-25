@@ -246,6 +246,25 @@ export function initScratch({ confetti: confettiStyle = null } = {}) {
       };
       if (img?.complete && img.naturalWidth) fit();
       else img?.addEventListener("load", fit, { once: true });
+
+      // skroluje se samo tekst: maglica iznad dugmeta dok ispod ima još teksta
+      const info = ny.querySelector(".ny-scratch__info");
+      if (info) {
+        const check = () => {
+          const more = info.scrollHeight - info.clientHeight - info.scrollTop > 4;
+          ny.classList.toggle("has-more", more);
+          ny.classList.toggle("is-scrolled", info.scrollTop > 2);
+        };
+        info.addEventListener("scroll", check, { passive: true });
+        if (typeof ResizeObserver !== "undefined") {
+          const ro = new ResizeObserver(check);
+          ro.observe(info);
+          if (reveal) ro.observe(reveal);
+        }
+        // tekst se otvara animacijom (max-height) — proveri i tokom/posle nje
+        reveal?.addEventListener("transitionend", check);
+        check();
+      }
     }
   }
 

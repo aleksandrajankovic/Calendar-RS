@@ -409,16 +409,68 @@
 .ny-scratch__foot .ny-cta { display: none; margin-top: 0; }
 .ny-scratch.is-revealed .ny-scratch__foot .ny-cta { display: grid; }
 .ny-scratch__foot .ny-rg { margin-top: 12px; }
+/* bez spoljnog sjaja — #promo-content seče sve van sebe, pa bi se sjaj odsekao u pravougaonik */
+.ny-scratch__foot .ny-cta { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6); }
+.ny-scratch__foot .ny-cta.is-green { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45); }
+/* Glava i srećka stoje, skroluje se samo tekst (.ny-scratch__info); dugme + 18+ uvek vidljivi na dnu.
+   Lanac visina: dijalog (max-height) → #promo-content → .ny-scratch → tekst (min-height: 0 svuda). */
+#promo-content:has(> .ny-scratch) {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  padding-right: 0;
+}
+#promo-content > .ny-scratch { flex: 1 1 auto; min-height: 0; }
+.ny-scratch__info {
+  --fade-top: 0px;
+  --fade-bottom: 0px;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 6px;
+  margin-right: -6px;
+  padding-bottom: 10px;
+  /* maglica: tekst se gubi pri dnu dok ima još (i pri vrhu kad je skrolovan) */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
+  /* tanak zlatni scrollbar u stilu teme */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(245, 196, 81, .6) transparent;
+}
+/* tekst se ne skuplja (ima overflow-hidden zbog animacije) — umesto toga skroluje roditelj */
+.ny-scratch__info > * { flex-shrink: 0; }
+.ny-scratch.has-more .ny-scratch__info { --fade-bottom: 64px; }
+.ny-scratch.is-scrolled .ny-scratch__info { --fade-top: 18px; }
+.ny-scratch__info::-webkit-scrollbar { width: 4px; }
+.ny-scratch__info::-webkit-scrollbar-track { background: rgba(255, 255, 255, .06); border-radius: 4px; }
+.ny-scratch__info::-webkit-scrollbar-thumb { background: linear-gradient(#fff0c0, #d8ad55 40%, #9b7124); border-radius: 4px; }
+/* mala zlatna strelica iznad dugmeta — "ima još, skroluj" */
+.ny-scratch__foot { position: relative; }
+.ny-scratch__foot::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  border-right: 2px solid #f5c451;
+  border-bottom: 2px solid #f5c451;
+  transform: rotate(45deg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s;
+}
+.ny-scratch.has-more .ny-scratch__foot::before { opacity: .9; animation: ny-more-hint 1.4s ease-in-out infinite; }
+@keyframes ny-more-hint {
+  0%, 100% { transform: translateY(0) rotate(45deg); }
+  50% { transform: translateY(4px) rotate(45deg); }
+}
 @media (max-width: 767px) {
-  /* dugme + 18+ ostaju na dnu panela dok se tekst skroluje */
-  .ny-scratch__foot {
-    position: sticky;
-    bottom: 0;
-    z-index: 2;
-    margin-top: -6px;
-    padding-top: 14px;
-    background: linear-gradient(to bottom, rgba(18, 5, 43, 0), #12052b 26%);
-  }
+  .ny-scratch { display: flex; flex-direction: column; }
+  .ny-scratch__head, .ny-card, .ny-scratch__foot { flex: none; }
+  .ny-scratch__info { flex: 0 1 auto; }
   /* niski telefoni (iPhone SE): kompaktnije zaglavlje pop-upa — više mesta za opis */
   @media (max-height: 640px) {
     #promo-content .ny-scratch { gap: 12px; }
@@ -426,9 +478,6 @@
     #promo-content .ny-scratch__title { font-size: 17px; }
     #promo-content .ny-reveal h2 { font-size: 19px; }
   }
-  /* bez spoljnog sjaja — u oblasti koja skroluje odsekao bi se u pravougaonik */
-  .ny-scratch__foot .ny-cta { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6); }
-  .ny-scratch__foot .ny-cta.is-green { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45); }
 
 }
 .ny-scratch__head { grid-area: head; display: flex; align-items: center; gap: 12px; padding-right: 44px; }
@@ -511,7 +560,7 @@
   .ny-scratch {
     grid-template-areas: "card head" "card info" "card foot";
     grid-template-columns: 440px 1fr;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: auto minmax(0, 1fr) auto;
     column-gap: 28px;
     row-gap: 18px;
   }
@@ -521,5 +570,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ny-hero, .ny-hero__gift img { animation: none !important; }
+  .ny-hero, .ny-hero__gift img, .ny-scratch__foot::before { animation: none !important; }
 }
