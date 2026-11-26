@@ -61,6 +61,13 @@ function usePlaceOnVisual(ref, titleEnd) {
       return r.top + scrollY + (r.height - drawnH) * posY + drawnH * fraction;
     };
 
+    const page = document.documentElement;
+    const main = root.closest("main");
+    // koliko stranica viri ispod ekrana (paginacija i oznaka 18+ ulaze u račun) — 0 = bez skrola
+    const overflow = () => Math.max(0, page.scrollHeight - innerHeight);
+    const pad = () => parseFloat(wrap.style.paddingTop) || 0;
+    const setPad = (px) => (wrap.style.paddingTop = `${Math.max(0, Math.round(px))}px`);
+
     const placeOnce = () => {
       wrap.style.paddingTop = "";
       const top = wrap.getBoundingClientRect().top + scrollY; // prirodan početak (ispod naslova iz admina)
@@ -69,28 +76,40 @@ function usePlaceOnVisual(ref, titleEnd) {
       const vh = innerHeight;
       const isDesktop = desktop.matches;
       const end = isDesktop ? endDesktop : endMobile;
-      let pad;
+      let p;
 
       if (img.naturalWidth && end > 0) {
-        pad = imageY(end) + GAP - top;
+        p = imageY(end) + GAP - top;
       } else if (img.naturalWidth && isDesktop && hero) {
-        pad = imageY(CENTER_DESKTOP) - hero.offsetHeight / 2 - top;
-        pad = Math.min(pad, vh - 110 - blockH - top); // + paginacija i oznaka 18+ ispod
+        p = imageY(CENTER_DESKTOP) - hero.offsetHeight / 2 - top;
       } else {
-        pad = (vh - top - blockH) / 2;
+        p = (vh - top - blockH) / 2;
       }
-      wrap.style.paddingTop = `${Math.max(0, Math.round(pad))}px`;
-      // staje li kalendar (traka sa danima) na ekran?
-      return root.getBoundingClientRect().bottom + scrollY <= scrollY + vh - (isDesktop ? 8 : 4);
+      setPad(p);
+      return end > 0 && img.naturalWidth; // kartica je "zakačena" ispod naslova sa vizuala
+    };
+
+    // Cela stranica uvek staje na ekran (kalendar se učitava i u iframe-u — bez skrola):
+    // redom kompaktnije → tesno → kartica ide naviše → najmanji raspored.
+    const LEVELS = ["", "is-compact", "is-tight", "is-tiny"];
+    const setLevel = (i) => {
+      root.classList.remove("is-compact", "is-tight", "is-tiny");
+      for (const c of LEVELS.slice(1, i + 1)) root.classList.add(c);
+      if (main) main.dataset.nyFit = LEVELS[i] ? LEVELS[i].slice(3) : "";
     };
 
     const place = () => {
-      root.classList.remove("is-compact", "is-tight");
-      if (placeOnce()) return;
-      root.classList.add("is-compact");
-      if (placeOnce()) return;
-      root.classList.add("is-tight");
-      placeOnce();
+      for (let i = 0; i < LEVELS.length; i++) {
+        setLevel(i);
+        const anchored = placeOnce();
+        if (!overflow()) return;
+        // bez naslova na vizualu kartica nije vezana za tačku na slici — prvo se samo pomeri naviše
+        // (sa naslovom: prvo se smanjuje, da kartica ne pređe preko naslova)
+        if (!anchored || i >= 2) {
+          setPad(pad() - overflow());
+          if (!overflow()) return;
+        }
+      }
     };
 
     place();
@@ -111,9 +130,91 @@ function usePlaceOnVisual(ref, titleEnd) {
       desktop.removeEventListener("change", place);
       removeEventListener("resize", onResize);
       wrap.style.paddingTop = "";
-      root.classList.remove("is-compact", "is-tight");
+      root.classList.remove("is-compact", "is-tight", "is-tiny");
+      if (main) delete main.dataset.nyFit;
     };
   }, [ref, endDesktop, endMobile]);
+}
+
+// Desktop: traka sa danima se prevlači mišem (kao prstom na telefonu), uz malo inercije posle puštanja.
+// Klik posle prevlačenja se ne računa kao izbor dana. Točkić miša iznad trake je pomera levo-desno.
+function useDragScroll(ref) {
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let down = false, dragging = false, startX = 0, startLeft = 0, lastX = 0, lastT = 0, v = 0, raf = 0;
+
+    const onDown = (e) => {
+      if (e.pointerType !== "mouse" || e.button !== 0) return;
+      cancelAnimationFrame(raf);
+      el.classList.remove("is-dragging");
+      down = true;
+      dragging = false;
+      startX = lastX = e.clientX;
+      startLeft = el.scrollLeft;
+      lastT = performance.now();
+      v = 0;
+    };
+    const onMove = (e) => {
+      if (!down) return;
+      const dx = e.clientX - startX;
+      if (!dragging) {
+        if (Math.abs(dx) < 5) return;
+        dragging = true;
+        el.classList.add("is-dragging");
+        el.setPointerCapture?.(e.pointerId);
+      }
+      const now = performance.now();
+      v = (e.clientX - lastX) / Math.max(1, now - lastT); // px/ms
+      lastX = e.clientX;
+      lastT = now;
+      el.scrollLeft = startLeft - dx;
+    };
+    const onUp = () => {
+      if (!down) return;
+      down = false;
+      if (!dragging) return;
+      // inercija: brzina se postepeno gasi (snap trake ostaje isključen dok traka klizi)
+      let vel = -v * 16;
+      const step = () => {
+        if (Math.abs(vel) < 0.5) return el.classList.remove("is-dragging");
+        el.scrollLeft += vel;
+        vel *= 0.92;
+        raf = requestAnimationFrame(step);
+      };
+      raf = requestAnimationFrame(step);
+    };
+    // klik koji završava prevlačenje ne bira dan
+    const onClick = (e) => {
+      if (!dragging) return;
+      dragging = false;
+      e.preventDefault();
+      e.stopPropagation();
+    };
+    const onWheel = (e) => {
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return; // trackpad horizontalno — radi sam
+      if (el.scrollWidth <= el.clientWidth) return;
+      cancelAnimationFrame(raf);
+      el.scrollLeft += e.deltaY;
+      e.preventDefault();
+    };
+
+    el.addEventListener("pointerdown", onDown);
+    el.addEventListener("pointermove", onMove);
+    el.addEventListener("pointerup", onUp);
+    el.addEventListener("pointercancel", onUp);
+    el.addEventListener("click", onClick, true);
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      cancelAnimationFrame(raf);
+      el.removeEventListener("pointerdown", onDown);
+      el.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointerup", onUp);
+      el.removeEventListener("pointercancel", onUp);
+      el.removeEventListener("click", onClick, true);
+      el.removeEventListener("wheel", onWheel);
+    };
+  }, [ref]);
 }
 
 // Telefon: prevlačenje prstom preko kartice dana menja dan (ulevo = sledeći, udesno = prethodni).
@@ -249,6 +350,7 @@ export default function CalendarNewYear({ days, year, month, titleEnd = null }) 
     return true;
   };
   useSwipe(heroWrapRef, goTo);
+  useDragScroll(stripRef);
 
   // Desktop: strelice ← → na tastaturi menjaju dan (ne dok je pop-up otvoren ili se kuca u polje)
   const goToRef = useRef(goTo);

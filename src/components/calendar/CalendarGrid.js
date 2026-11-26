@@ -66,7 +66,7 @@ export default function CalendarGrid({
 
       {/* NOVOGODIŠNJA TEMA: isti raspored na telefonu i desktopu (kartica dana + traka) */}
       {isNewYear && (
-        <div className="ny-wrap flex justify-center pb-6">
+        <div className="ny-wrap flex justify-center pb-3">
           <CalendarNewYear
             key={`${year}-${month}`}
             days={daysPayload

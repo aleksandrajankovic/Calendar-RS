@@ -68,6 +68,9 @@ export default function CalendarPageView({
   const { props: bgMobileProps } = getImageProps({ ...bgCommon, src: bgMobile });
 
   const TitleTag = calendarTitle ? "h1" : "div";
+  // novogodišnja tema: cela stranica staje na ekran (i u iframe-u) — bez praznog reda za naslov
+  // i sa manje razmaka; kartica se ionako postavlja prema vizualu (CalendarNewYear)
+  const isNewYear = theme === "newyear";
 
   return (
     <>
@@ -128,10 +131,11 @@ export default function CalendarPageView({
             />
           ) : (
           <div
-            className={`relative z-10 w-full max-w-6xl px-4 sm:px-6 md:px-10 lg:px-16 pt-4 pb-4 md:pt-6 md:pb-10 ${innerMargin}`}
+            className={`relative z-10 w-full max-w-6xl px-4 sm:px-6 md:px-10 lg:px-16 ${isNewYear ? "pt-2 pb-1 md:pt-3 md:pb-2" : "pt-4 pb-4 md:pt-6 md:pb-10"} ${innerMargin}`}
           >
-            {/* Bez naslova ostaje prazan red iste visine — kalendar se ne pomera kad se naslov doda/ukloni */}
-            <TitleTag
+            {/* Bez naslova ostaje prazan red iste visine — kalendar se ne pomera kad se naslov doda/ukloni
+                (osim u novogodišnjoj temi, gde je pozicija automatska) */}
+            {!(isNewYear && !calendarTitle) && <TitleTag
               aria-hidden={calendarTitle ? undefined : true}
               className={`${
                 theme === "football"
@@ -142,7 +146,7 @@ export default function CalendarPageView({
               }`}
             >
               {calendarTitle || "\u00A0"}
-            </TitleTag>
+            </TitleTag>}
 
             <CountdownTimer targetIso={countdownTargetIso} label={countdownLabel} />
 
@@ -206,7 +210,7 @@ export default function CalendarPageView({
             )}
 
             <div
-              className={`${theme === "football" ? "mt-2 md:mt-1" : "mt-6"}${
+              className={`${theme === "football" ? "mt-2 md:mt-1" : isNewYear ? "" : "mt-6"}${
                 // novogodišnja tema: desktop pozicija je automatska (ispod naslova sa vizuala, CalendarNewYear)
                 topOffset && theme !== "newyear" ? " md:[padding-top:var(--cal-top-offset)]" : ""
               }${topOffsetMobile && theme !== "newyear" ? " max-md:[padding-top:var(--cal-top-offset-m)]" : ""}`}
@@ -237,7 +241,7 @@ export default function CalendarPageView({
             <CalendarEnhancer adminPreview={isAdmin} lang={lang} openDay={openDay} />
 
             {/* DESKTOP PAGINATION */}
-            <div className={`${theme === "newyear" ? "flex" : "hidden md:flex"} items-center justify-center ${theme === "football" ? "mt-4" : ""}`}>
+            <div className={`${isNewYear ? "ny-pag flex" : "hidden md:flex"} items-center justify-center ${theme === "football" ? "mt-4" : ""}`}>
               <MonthPagination
                 year={year}
                 month={month}

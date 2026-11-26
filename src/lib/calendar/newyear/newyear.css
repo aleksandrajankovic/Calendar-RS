@@ -175,6 +175,13 @@
   padding-inline: 16px;
 }
 .ny-strip::-webkit-scrollbar { display: none; }
+/* desktop: traka se prevlači mišem (CalendarNewYear, useDragScroll) */
+@media (hover: hover) and (pointer: fine) {
+  .ny-strip { cursor: grab; }
+  .ny-strip .ny-chip { cursor: inherit; }
+}
+.ny-strip.is-dragging { cursor: grabbing; scroll-snap-type: none; scroll-behavior: auto; user-select: none; }
+.ny-strip.is-dragging .ny-chip { pointer-events: none; }
 
 .ny-chip {
   position: relative;
@@ -333,6 +340,36 @@
   .ny.is-tight .ny-chip { height: 76px; }
   .ny.is-tight .ny-chip img { width: 36px; height: 36px; top: 5px; }
 }
+
+/* ---------- najmanji raspored (is-tiny): poslednji korak da cela stranica stane na ekran ----------
+   (vrlo niski ekrani, npr. iPhone SE u iframe-u ili laptop sa malo visine) */
+.ny.is-tiny .ny-strip-head { display: none; }
+.ny.is-tiny .ny-hero__sub { display: none; }
+.ny.is-tiny .ny-hero__cta { height: 40px; margin-top: 8px; font-size: 13px; }
+.ny.is-tiny .ny-strip-wrap { margin-top: 8px; }
+.ny.is-tiny .ny-chip { height: 60px; }
+.ny.is-tiny .ny-chip img { width: 28px; height: 28px; top: 4px; }
+.ny.is-tiny .ny-chip b { font-size: 14px; }
+@media (max-width: 767px) {
+  .ny.is-tiny .ny-hero { grid-template-columns: 84px 1fr; padding: 10px; }
+  .ny.is-tiny .ny-hero__gift { height: 80px; }
+  .ny.is-tiny .ny-hero__gift img { width: 80px; height: 80px; }
+  .ny.is-tiny .ny-hero__date { font-size: 20px; }
+  .ny.is-tiny .ny-hero__title { font-size: 15px; }
+}
+@media (min-width: 768px) {
+  .ny.is-tiny .ny-hero { grid-template-columns: 84px 1fr auto; padding: 4px 18px 4px 4px; }
+  .ny.is-tiny .ny-hero__glow { left: 48px; width: 130px; }
+  .ny.is-tiny .ny-hero__gift { height: 76px; }
+  .ny.is-tiny .ny-hero__gift img { width: 72px; height: 72px; }
+  .ny.is-tiny .ny-hero__title { font-size: 19px; }
+  .ny.is-tiny .ny-hero__cta { margin: 0; }
+}
+/* paginacija i oznaka 18+ ispod kalendara: manje kad je tesno (main[data-ny-fit] postavlja CalendarNewYear) */
+main[data-ny-fit="tight"] .ny-pag > div,
+main[data-ny-fit="tiny"] .ny-pag > div { padding-block: 4px; font-size: 14px; }
+main[data-ny-fit="tight"] .ny-rg,
+main[data-ny-fit="tiny"] .ny-rg { margin-top: 6px; }
 
 /* ---------- 18+ · Igraj odgovorno ---------- */
 .ny-rg {
