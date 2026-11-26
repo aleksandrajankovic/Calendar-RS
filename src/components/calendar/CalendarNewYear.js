@@ -40,8 +40,13 @@ function useOpenedDays(year, month) {
 // Kad kalendar ne staje na ekran, sam postaje kompaktniji (is-compact, pa is-tight).
 const CENTER_DESKTOP = 0.45;
 const GAP = 14;
+// popunjavanje praznog prostora ispod paginacije: razmak od dna ekrana, najviše dodatne visine, najveći poklon
+const BOTTOM_GAP = 20;
+const MAX_FILL = 110;
+const MAX_GIFT = 220;
 
-function usePlaceOnVisual(ref, titleEnd) {
+// layoutKey: izabrani dan i da li je otvoren — kartica se tada iznova crta, pa se ponovo smešta i popunjava
+function usePlaceOnVisual(ref, titleEnd, layoutKey) {
   const endDesktop = titleEnd?.desktop || 0;
   const endMobile = titleEnd?.mobile || 0;
 
@@ -98,16 +103,54 @@ function usePlaceOnVisual(ref, titleEnd) {
       if (main) main.dataset.nyFit = LEVELS[i] ? LEVELS[i].slice(3) : "";
     };
 
+    // Kartica sa poklonom: inline veličine koje postavlja fill() (prazan prostor ispod paginacije)
+    const parts = () => {
+      const hero = root.querySelector(".ny-hero");
+      return { hero, gift: hero?.querySelector(".ny-hero__gift"), gimg: hero?.querySelector(".ny-hero__gift img") };
+    };
+    const resetFill = () => {
+      const { hero, gift, gimg } = parts();
+      for (const el of [hero, gift, gimg]) if (el) el.style.minHeight = el.style.height = el.style.width = "";
+    };
+
+    // Kad posle smeštanja ostane praznog prostora ispod paginacije, kartica ga popuni (veća kartica i poklon)
+    const fill = () => {
+      const { hero, gift, gimg } = parts();
+      const pag = main?.querySelector(".ny-pag");
+      if (!hero || !gift || !pag) return;
+      const extra = Math.min(MAX_FILL, Math.floor(innerHeight - BOTTOM_GAP - pag.getBoundingClientRect().bottom));
+      if (extra < 8) return;
+      const heroH = hero.offsetHeight;
+      // zaključan dan nema sliku poklona — tada raste samo kartica
+      const img = gimg && Math.round(Math.min(MAX_GIFT, gift.clientWidth, gimg.offsetWidth + extra));
+      if (gimg) gimg.style.width = gimg.style.height = `${img}px`;
+      if (desktop.matches) {
+        // poklon je u koloni levo (preko cele visine) — raste kartica, sadržaj ostaje vertikalno centriran
+        if (gimg) gift.style.height = `${Math.max(gift.offsetHeight, img + 4)}px`;
+        hero.style.minHeight = `${heroH + extra}px`;
+      } else {
+        // telefon: poklon je u svom redu — taj red preuzima višak visine
+        gift.style.height = `${gift.offsetHeight + extra}px`;
+      }
+      const o = overflow();
+      if (o) {
+        if (desktop.matches) hero.style.minHeight = `${hero.offsetHeight - o}px`;
+        else gift.style.height = `${gift.offsetHeight - o}px`;
+        if (overflow()) resetFill();
+      }
+    };
+
     const place = () => {
+      resetFill();
       for (let i = 0; i < LEVELS.length; i++) {
         setLevel(i);
         const anchored = placeOnce();
-        if (!overflow()) return;
+        if (!overflow()) return fill();
         // bez naslova na vizualu kartica nije vezana za tačku na slici — prvo se samo pomeri naviše
         // (sa naslovom: prvo se smanjuje, da kartica ne pređe preko naslova)
         if (!anchored || i >= 2) {
           setPad(pad() - overflow());
-          if (!overflow()) return;
+          if (!overflow()) return fill();
         }
       }
     };
@@ -130,10 +173,11 @@ function usePlaceOnVisual(ref, titleEnd) {
       desktop.removeEventListener("change", place);
       removeEventListener("resize", onResize);
       wrap.style.paddingTop = "";
+      resetFill();
       root.classList.remove("is-compact", "is-tight", "is-tiny");
       if (main) delete main.dataset.nyFit;
     };
-  }, [ref, endDesktop, endMobile]);
+  }, [ref, endDesktop, endMobile, layoutKey]);
 }
 
 // Desktop: traka sa danima se prevlači mišem (kao prstom na telefonu), uz malo inercije posle puštanja.
@@ -338,7 +382,7 @@ export default function CalendarNewYear({ days, year, month, titleEnd = null }) 
   const rootRef = useRef(null);
   const heroWrapRef = useRef(null);
   const [enterFrom, setEnterFrom] = useState(null); // sa koje strane ulazi nova kartica (prevlačenje)
-  usePlaceOnVisual(rootRef, titleEnd);
+  usePlaceOnVisual(rootRef, titleEnd, `${selected}:${opened.has(selected)}`);
 
   // susedni dan (dir: 1 = sledeći, -1 = prethodni); vraća false na kraju trake
   const goTo = (dir) => {

@@ -86,12 +86,12 @@
   position: relative;
   display: grid;
   place-items: center;
-  height: 190px;
+  height: 238px; /* +48px: mesto koje je ranije zauzimalo "18+ Igraj odgovorno" ispod paginacije */
   margin: 4px 0 10px;
 }
 .ny-hero__gift img {
-  width: 180px;
-  height: 180px;
+  width: 220px;
+  height: 220px;
   object-fit: contain;
   filter: drop-shadow(0 18px 24px rgba(0, 0, 0, .45));
   transform: rotate(-3deg);
@@ -252,14 +252,14 @@
     row-gap: 10px;
     align-items: center;
     padding: 18px 36px 18px 18px;
-    min-height: 220px;
+    min-height: 268px; /* +48px umesto "18+ Igraj odgovorno" ispod paginacije */
   }
   .ny-hero__glow { left: 140px; top: 50%; width: 340px; }
   .ny-hero__date { display: none; }
   .ny-hero__tag { align-self: end; }
   .ny-hero__cta { align-self: center; }
-  .ny-hero__gift { height: 190px; margin: 0; }
-  .ny-hero__gift img { width: 190px; height: 190px; }
+  .ny-hero__gift { height: 230px; margin: 0; }
+  .ny-hero__gift img { width: 220px; height: 220px; }
   .ny-hero__text { align-self: start; text-align: left; }
   .ny-hero__title { font-size: 32px; }
   .ny-hero__sub { font-size: 15px; }

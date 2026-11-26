@@ -10,7 +10,6 @@ import AdminPanelCollapse from "@/components/calendar/AdminPanelCollapse";
 import CountdownTimer from "@/components/calendar/CountdownTimer";
 import CalendarClosed from "@/components/calendar/CalendarClosed";
 import { bebasNeue, exo2Black } from "@/app/fonts";
-import { responsibleGamingHtml } from "@/lib/calendar/newyear/responsibleGaming";
 
 export default function CalendarPageView({
   year,
@@ -251,7 +250,6 @@ export default function CalendarPageView({
                 labelClassName={theme === "football" ? bebasNeue.className : ""}
               />
             </div>
-            {theme === "newyear" && <div className="pb-2" dangerouslySetInnerHTML={{ __html: responsibleGamingHtml() }} />}
           </div>
           )}
         </main>
